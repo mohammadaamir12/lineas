@@ -1,9 +1,17 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+    /* globals.css */
+    :root {
+      --background-color-light: #ffffff;
+      --text-color-light: #000000;
+      /* ... other light mode variables */
+    }
+
+    .dark {
+      --background-color-dark: #1a202c;
+      --text-color-dark: #ffffff;
+      /* ... other dark mode variables */
+    }
 
 @theme inline {
   --color-background: var(--background);
