@@ -107,17 +107,17 @@ export default function Header() {
             </Link>
 
             {/* Dark/Light toggle (desktop) */}
-            
-           
-          </div>
-        
-          <button
+              <button
               onClick={toggleTheme}
               className="p-1 m-1 rounded-md border border-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               aria-label="Toggle dark mode"
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+           
+          </div>
+        
+        
         
            
 
