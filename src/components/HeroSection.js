@@ -9,7 +9,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative h-screen flex flex-col justify-center items-center text-center bg-cover bg-center"
+      className="relative min-h-screen flex flex-col justify-center items-center text-center bg-cover bg-center"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80')",
@@ -19,7 +19,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-4">
+      <div className="relative z-10 flex flex-col items-center px-4 py-12 md:py-20">
         <h1 className="text-4xl md:text-5xl font-bold text-white">
           Find Your Future
         </h1>
@@ -55,17 +55,17 @@ export default function HeroSection() {
 
           {/* Search bar */}
           <div className="mt-5 flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-white/40 px-3">
-  <input
-    type="text"
-    placeholder={`Search properties to ${
-      activeTab === "buy" ? "buy" : "rent"
-    } by location or property ID...`}
-    className="flex-1 py-3 bg-transparent text-white placeholder-gray-300 outline-none text-sm"
-  />
-  <button className="ml-auto p-2 bg-white rounded-lg shadow-md">
-    <Search className="text-black" size={20} />
-  </button>
-</div>
+            <input
+              type="text"
+              placeholder={`Search properties to ${
+                activeTab === "buy" ? "buy" : "rent"
+              } by location or property ID...`}
+              className="flex-1 py-3 bg-transparent text-white placeholder-gray-300 outline-none text-sm"
+            />
+            <button className="ml-auto p-2 bg-white rounded-lg shadow-md flex items-center justify-center">
+              <Search className="text-black" size={18} />
+            </button>
+          </div>
         </div>
       </div>
 
