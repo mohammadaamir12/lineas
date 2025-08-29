@@ -28,45 +28,46 @@ export default function HeroSection() {
         </p>
 
         {/* Tabs & Search */}
-        <div className="mt-8 bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-6 w-full max-w-2xl">
-          {/* Tabs */}
-          <div className="flex justify-center gap-12 border-b border-white/40 pb-3">
-            <button
-              className={`text-lg font-semibold pb-1 transition ${
-                activeTab === "buy"
-                  ? "text-white border-b-2 border-white"
-                  : "text-gray-200 hover:text-white"
-              }`}
-              onClick={() => setActiveTab("buy")}
-            >
-              Buy
-            </button>
-            <button
-              className={`text-lg font-semibold pb-1 transition ${
-                activeTab === "rent"
-                  ? "text-white border-b-2 border-white"
-                  : "text-gray-200 hover:text-white"
-              }`}
-              onClick={() => setActiveTab("rent")}
-            >
-              Rent
-            </button>
-          </div>
+<div className="mt-8 bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-6 w-full max-w-2xl mx-auto px-4 sm:px-6">
+  {/* Tabs */}
+  <div className="flex justify-center gap-12 border-b border-white/40 pb-3">
+    <button
+      className={`text-lg font-semibold pb-1 transition ${
+        activeTab === "buy"
+          ? "text-white border-b-2 border-white"
+          : "text-gray-200 hover:text-white"
+      }`}
+      onClick={() => setActiveTab("buy")}
+    >
+      Buy
+    </button>
+    <button
+      className={`text-lg font-semibold pb-1 transition ${
+        activeTab === "rent"
+          ? "text-white border-b-2 border-white"
+          : "text-gray-200 hover:text-white"
+      }`}
+      onClick={() => setActiveTab("rent")}
+    >
+      Rent
+    </button>
+  </div>
 
-          {/* Search bar */}
-          <div className="mt-5 flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-white/40 px-3">
-            <input
-              type="text"
-              placeholder={`Search properties to ${
-                activeTab === "buy" ? "buy" : "rent"
-              } by location or property ID...`}
-              className="flex-1 py-3 bg-transparent text-white placeholder-gray-300 outline-none text-sm"
-            />
-            <button className="ml-auto p-2 bg-white rounded-lg shadow-md flex items-center justify-center">
-              <Search className="text-black" size={18} />
-            </button>
-          </div>
-        </div>
+  {/* Search bar */}
+  <div className="mt-5 flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-white/40 px-3">
+    <input
+      type="text"
+      placeholder={`Search properties to ${
+        activeTab === "buy" ? "buy" : "rent"
+      } by location or property ID...`}
+      className="flex-1 py-3 bg-transparent text-white placeholder-gray-300 outline-none text-sm"
+    />
+    <button className="ml-auto p-2 bg-white rounded-lg shadow-md flex items-center justify-center">
+      <Search className="text-black" size={18} />
+    </button>
+  </div>
+</div>
+
       </div>
 
       {/* Bottom Valuation Section */}
