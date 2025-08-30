@@ -1,3 +1,4 @@
+import FeaturedProperties from "@/components/FeaturesProperties";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 
@@ -9,6 +10,7 @@ export default function Home() {
   <div className="dark:bg-black">
   <Header />
   <HeroSection/>
+  <FeaturedProperties/>
   </div>
   );
 }

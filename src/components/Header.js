@@ -7,6 +7,7 @@ import {
   UserCheck, Mail, ChevronRight, Heart, Sun, Moon
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import Logo from '../assets/images/lineas-logo.png'
 
 const NAV = [
   { label: "Home", href: "/", icon: Home },
@@ -22,10 +23,12 @@ const NAV = [
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(true); 
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname() || "/";
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
+    setMounted(true);
     const timer = setTimeout(() => setAnimate(false), 1000); 
     return () => clearTimeout(timer);
   }, []);
@@ -35,18 +38,37 @@ export default function Header() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  // Prevent hydration mismatch for theme-dependent content
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 border-b bg-slate-100 z-50 shadow-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-4 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-10 flex items-center">
+              <img
+                src="/logo.png"
+                alt="LINEAS Estate Agents"
+                className="max-h-10 w-auto object-contain block"
+              />
+            </div>
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
-      <header className="dark:bg-gray-900 sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100 ">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 border-b z-50 shadow-md backdrop-blur-sm" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--foreground, #e2e8f0)', borderOpacity: 0.2 }}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-4 h-20 flex items-center justify-between">      
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="h-8 w-8 bg-slate-900 rounded-sm" />
-            <div className="leading-tight">
-              <p className="text-lg font-semibold tracking-wide">LINEAS</p>
-              <p className=" text-[10px] uppercase tracking-[0.25em] text-slate-500">
-                Estate Agents
-              </p>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="h-10 flex items-center">
+              <img
+                src='/lineas-logo.png'
+                alt="LINEAS Estate Agents"
+                className="max-h-10 w-auto object-contain block"
+              />
             </div>
           </Link>
 
@@ -59,12 +81,12 @@ export default function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className="group relative px-1 py-1 font-medium text-slate-900 perspective-1000"
+                  className="group relative px-1 py-1 font-medium perspective-1000" style={{ color: 'var(--foreground)' }}
                 >
                   <div className="relative preserve-3d">
                     <span
                       className={[
-                        "block will-change-transform transform-gpu select-none transition-all duration-500 ease-out font-semibold",
+                        "whitespace-nowrap block will-change-transform transform-gpu select-none transition-all duration-500 ease-out font-semibold",
                         animate ? `animate-slideInUp` : "",
                         "group-hover:translate-y-[-4px] group-hover:scale-102", 
                       ].join(" ")}
@@ -79,10 +101,11 @@ export default function Header() {
                   {/* Underline */}
                   <span
                     className={[
-                      "pointer-events-none absolute left-0 -bottom-1 h-[2px] bg-slate-900",
+                      "pointer-events-none absolute left-0 -bottom-1 h-[2px]",
                       "origin-left transform transition-transform duration-300",
                       active ? "w-full scale-x-100" : "w-full scale-x-0 group-hover:scale-x-100",
                     ].join(" ")}
+                    style={{ backgroundColor: 'var(--foreground)' }}
                   />
                 </Link>
               );
@@ -90,43 +113,55 @@ export default function Header() {
           </nav>
 
           {/* Desktop CTAs + Theme Toggle */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3 ml-2">
             <Link
               href="/valuation"
-              className="rounded-sm border border-slate-900 bg-slate-900 text-white px-4 py-2 text-sm font-semibold transition hover:bg-slate-100 hover:text-slate-800"
+              className="rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
+              style={{ 
+                borderColor: 'var(--foreground)', 
+                backgroundColor: 'var(--foreground)', 
+                color: 'var(--background)' 
+              }}
             >
               Book Valuation
             </Link>
 
             <Link
               href="/favorites"
-              className="group flex items-center gap-2 rounded-sm border border-slate-900 px-4 py-2 text-sm font-semibold transition hover:bg-slate-800 hover:border-white hover:text-white"
+              className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
+              style={{ 
+                borderColor: 'var(--foreground)', 
+                color: 'var(--foreground)' 
+              }}
             >
               My Lineas
-              <Heart size={16} className="text-black transition group-hover:text-white" /> 
+              <Heart size={16} className="transition" style={{ color: 'var(--foreground)' }} />
             </Link>
 
             {/* Dark/Light toggle (desktop) */}
-              <button
+            <button
               onClick={toggleTheme}
-              className="p-1 m-1 rounded-md border border-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1 m-1 rounded-md border transition hover:opacity-80"
+              style={{ 
+                borderColor: 'var(--foreground)', 
+                color: 'var(--foreground)' 
+              }}
               aria-label="Toggle dark mode"
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-           
           </div>
-        
-        
-        
-           
 
           {/* Mobile Toggle + Theme Toggle */}
-          <div className="md:hidden flex items-center gap-1 ">
+          <div className="md:hidden flex items-center gap-1">
             {/* Dark/Light toggle (mobile) */}
             <button
               onClick={toggleTheme}
-              className="p-1 rounded-md border border-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="p-1 rounded-md border transition hover:opacity-80"
+              style={{ 
+                borderColor: 'var(--foreground)', 
+                color: 'var(--foreground)' 
+              }}
               aria-label="Toggle dark mode"
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -136,6 +171,7 @@ export default function Header() {
               aria-label="Toggle menu"
               onClick={() => setOpen((v) => !v)}
               className="p-2 -mr-2 relative z-60"
+              style={{ color: 'var(--foreground)' }}
             >
               {open ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -151,7 +187,7 @@ export default function Header() {
             ? "opacity-100 translate-y-0 pointer-events-auto" 
             : "opacity-0 -translate-y-full pointer-events-none",
         ].join(" ")}
-        style={{ top: '64px' }}
+        style={{ top: '80px' }} // Adjusted to match header height
       >
         <nav className="flex-1 overflow-y-auto">
           <div className="px-6 py-4 space-y-2">
@@ -166,7 +202,7 @@ export default function Header() {
                   className={[
                     "group flex items-center gap-3 p-2 rounded-xl transition-all duration-200",
                     active 
-                      ? "bg-slate-900 text-white" 
+                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900" 
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
                     open ? `animate-[slideInDown_0.6s_ease-out_${index * 0.1}s_both]` : "",
                   ].join(" ")}
@@ -181,7 +217,7 @@ export default function Header() {
                   {item.hasSubmenu && (
                     <ChevronRight 
                       size={20} 
-                      className={active ? "text-white" : "text-slate-400"} 
+                      className={active ? "text-white dark:text-slate-900" : "text-slate-400 dark:text-slate-500"} 
                     />
                   )}
                 </Link>
@@ -195,14 +231,14 @@ export default function Header() {
               <Link
                 href="/valuation"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-800"
+                className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold transition-all duration-200 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 Book Valuation
               </Link>
               <Link
                 href="/favorites"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 My Lineas
                 <Heart size={16} />

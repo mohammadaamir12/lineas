@@ -9,7 +9,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative min-h-screen flex flex-col justify-center items-center text-center bg-cover bg-center"
+      className=" relative min-h-screen flex flex-col justify-center items-center text-center bg-[length:100%_100%] w-full bg-no-repeat bg-center"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80')",
@@ -54,7 +54,7 @@ export default function HeroSection() {
   </div>
 
   {/* Search bar */}
-  <div className="mt-5 flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-white/40 px-3">
+  <div className="mt-5 flex items-center bg-white/10 backdrop-blur-lg rounded-lg border border-white/40 px-2">
     <input
       type="text"
       placeholder={`Search properties to ${
@@ -71,7 +71,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom Valuation Section */}
-      <div className="absolute bottom-0 left-0 w-full bg-[#0A1C35] text-white px-6 py-6 flex flex-col md:flex-row items-center justify-between">
+      <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-6 py-6 flex flex-col md:flex-row items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold">
             Find out how much your home is worth today
