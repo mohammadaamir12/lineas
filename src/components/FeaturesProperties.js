@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star } fro
 
 const FeaturedProperties = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   // Check if mobile
@@ -94,10 +93,8 @@ const FeaturedProperties = () => {
     ? originalProperties 
     : [...originalProperties, ...originalProperties, ...originalProperties];
 
-  // Auto-slide logic
+  // Auto-slide logic (always runs, no stop)
   useEffect(() => {
-    if (!isAutoPlaying) return;
-
     const interval = setInterval(() => {
       if (isMobile) {
         setCurrentSlide((prev) => (prev + 1) % originalProperties.length);
@@ -113,7 +110,7 @@ const FeaturedProperties = () => {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [originalProperties.length, properties.length, isAutoPlaying, isMobile]);
+  }, [originalProperties.length, properties.length, isMobile]);
 
   const nextSlide = () => {
     if (isMobile) {
@@ -127,7 +124,6 @@ const FeaturedProperties = () => {
         return prev + 1;
       });
     }
-    setIsAutoPlaying(false);
   };
 
   const prevSlide = () => {
@@ -142,12 +138,10 @@ const FeaturedProperties = () => {
         return prev - 1;
       });
     }
-    setIsAutoPlaying(false);
   };
 
   const goToSlide = (index) => {
     setCurrentSlide(index);
-    setIsAutoPlaying(false);
   };
 
   const PropertyCard = ({ property }) => (
@@ -262,7 +256,6 @@ const FeaturedProperties = () => {
   }}
 >
       {/* Header */}
-     {/* Header */}
 <div className="flex justify-between items-start mb-10">
   <div>
     <h2 className="text-3xl lg:text-4xl font-bold mb-3"
