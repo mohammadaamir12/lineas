@@ -71,7 +71,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom Valuation Section */}
-      <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-6 py-6 flex flex-col md:flex-row items-center justify-between">
+      <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-20 py-12 flex flex-col md:flex-row items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold">
             Find out how much your home is worth today
