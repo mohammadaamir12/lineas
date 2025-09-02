@@ -1,24 +1,21 @@
 "use client";
 import React from "react";
-import { MapPin, Bed, Bath, Users, Square, Star } from "lucide-react";
+import { MapPin, Bed, Bath, Users, Square, Star,ChevronRight } from "lucide-react";
 
 const AllProperties = () => {
   const properties = [
-    {
+     {
       id: 1,
-      title: "Luxury Short Let Apartment in Mayfair -Test",
+      title: "Luxury 3-Bedroom Apartment with River Views",
       location: "London",
       image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-      price: "£20,040",
-      period: "/monthly",
-      beds: 2,
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+      price: "£1,450,000",
+      period: "",
+      beds: 3,
       baths: 2,
-      reception: 2,
-      sqft: 1200,
-      badges: ["Featured", "Commercial"],
-      energyRating: "EPC",
-      fingerprint: "1 FP",
+      sqft: 1450,
+      badges: ["Featured", "For Sale"],
     },
     {
       id: 2,
@@ -147,8 +144,8 @@ const AllProperties = () => {
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
       style={{
         backgroundColor: "var(--background)",
-        borderColor: "var(--foreground, #e2e8f0)",
-        borderOpacity: 0.2,
+        // borderColor: "var(--foreground, #e2e8f0)",
+        // borderOpacity: 0.2,
       }}
     >
       {/* Header */}
@@ -169,12 +166,13 @@ const AllProperties = () => {
             goal.
           </p>
         </div>
-        <button
-          className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-          style={{ color: "var(--foreground)" }}
-        >
-          View all properties →
-        </button>
+        <button 
+            className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+            style={{ color: "var(--foreground)" }}
+          >
+            View all properties 
+            <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+          </button>
       </div>
 
       {/* Grid Layout */}

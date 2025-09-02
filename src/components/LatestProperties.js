@@ -235,8 +235,8 @@ const LatestProperties = () => {
              dark:border-y-white"
       style={{
         backgroundColor: "var(--background)",
-        borderColor: "var(--foreground, #e2e8f0)",
-        borderOpacity: 0.2,
+        // borderColor: "var(--foreground, #e2e8f0)",
+        // borderOpacity: 0.2,
       }}
     >
       {/* Header */}
@@ -246,7 +246,7 @@ const LatestProperties = () => {
             className="text-3xl lg:text-4xl font-bold mb-3"
             style={{ color: "var(--foreground)" }}
           >
-            Latest <span className="text-green-600">Properties</span>
+            Latest <span className="text-cyan-500">Properties</span>
           </h2>
           <p
             className="text-base lg:text-lg max-w-2xl"
@@ -257,7 +257,7 @@ const LatestProperties = () => {
           </p>
         </div>
         <button
-          className="hover:text-green-600 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+          className="hover:text-cyan-300 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
           style={{ color: "var(--foreground)" }}
         >
           View all latest
@@ -314,7 +314,7 @@ const LatestProperties = () => {
                 (isMobile
                   ? index === currentSlide
                   : index === currentSlide % originalProperties.length)
-                  ? "bg-green-600 w-8"
+                  ? "bg-cyan-500 w-8"
                   : "bg-gray-300 hover:bg-gray-400 w-2"
               }`}
             />

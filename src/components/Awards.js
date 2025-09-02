@@ -13,8 +13,6 @@ export default function Awards() {
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
       style={{
         backgroundColor: "var(--background)",
-        borderColor: "var(--foreground, #e2e8f0)",
-        borderOpacity: 0.2,
       }}
     >
         {/* Heading */}
@@ -69,7 +67,7 @@ export default function Awards() {
         </Swiper>
 
         {/* 👇 Pagination outside */}
-        <div className="awards-pagination mt-6 flex justify-center"></div>
+        <div className=" awards-pagination mt-6 flex justify-center"></div>
       </div>
     </section>
   );

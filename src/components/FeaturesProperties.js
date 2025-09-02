@@ -251,8 +251,8 @@ const FeaturedProperties = () => {
              dark:border-y-white"
   style={{
     backgroundColor: 'var(--background)',
-    borderColor: 'var(--foreground, #e2e8f0)',
-    borderOpacity: 0.2
+    // borderColor: 'var(--foreground, #e2e8f0)',
+    // borderOpacity: 0.2
   }}
 >
       {/* Header */}
