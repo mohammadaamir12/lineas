@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
-import { MapPin, Bed, Bath, Users, Square, Star,ChevronRight } from "lucide-react";
+import { MapPin, Bed, Bath, Users, Square, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const AllProperties = () => {
   const properties = [
-     {
+    {
       id: 1,
       title: "Luxury 3-Bedroom Apartment with River Views",
       location: "London",
@@ -50,106 +51,113 @@ const AllProperties = () => {
     },
   ];
 
-  const PropertyCard = ({ property }) => (
-   <Link href={`/properties/${property.id}`}>
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300">
-      <div className="relative">
-        <img
-          src={property.image}
-          alt={property.title}
-          className="w-full h-48 object-cover"
-        />
+  const router = useRouter();
 
-        {/* Top left badges */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          {property.badges.map((badge, index) => (
-            <span
-              key={index}
-              className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
-                badge === "Featured"
-                  ? "bg-orange-500 text-white"
-                  : badge === "Commercial"
-                  ? "bg-purple-500 text-white"
-                  : badge === "For Sale"
-                  ? "bg-red-500 text-white"
-                  : "bg-blue-500 text-white"
-              }`}
-            >
-              <Star className="w-3 h-3 mr-1" />
-              {badge}
-            </span>
-          ))}
-        </div>
+  const PropertyCard = ({ property }) => {
+    const handleCardClick = () => {
+      // Use query parameters instead of dynamic routes for static export
+      router.push(`/property?id=${property.id}`);
+    };
 
-        {/* Status badge */}
-        {property.status && (
-          <div className="absolute top-3 right-3">
-            <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-              📋 {property.status}
-            </span>
+    return (
+      <div 
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+        onClick={handleCardClick}
+      >
+        <div className="relative">
+          <img
+            src={property.image}
+            alt={property.title}
+            className="w-full h-48 object-cover"
+          />
+
+          {/* Top left badges */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            {property.badges.map((badge, index) => (
+              <span
+                key={index}
+                className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
+                  badge === "Featured"
+                    ? "bg-orange-500 text-white"
+                    : badge === "Commercial"
+                    ? "bg-purple-500 text-white"
+                    : badge === "For Sale"
+                    ? "bg-red-500 text-white"
+                    : "bg-blue-500 text-white"
+                }`}
+              >
+                <Star className="w-3 h-3 mr-1" />
+                {badge}
+              </span>
+            ))}
           </div>
-        )}
+
+          {/* Status badge */}
+          {property.status && (
+            <div className="absolute top-3 right-3">
+              <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                📋 {property.status}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="p-5 bg-amber-50">
+          <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
+            {property.title}
+          </h3>
+
+          <div className="flex items-center text-gray-600 mb-4">
+            <MapPin className="w-4 h-4 mr-2 text-blue-500" />
+            <span className="text-sm font-medium">{property.location}</span>
+          </div>
+
+          {/* Property details */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
+            {property.beds && (
+              <div className="flex items-center">
+                <Bed className="w-4 h-4 mr-1 text-blue-500" />
+                <span>{property.beds} beds</span>
+              </div>
+            )}
+            {property.baths && (
+              <div className="flex items-center">
+                <Bath className="w-4 h-4 mr-1 text-blue-500" />
+                <span>{property.baths} baths</span>
+              </div>
+            )}
+            {property.reception && (
+              <div className="flex items-center">
+                <Users className="w-4 h-4 mr-1 text-blue-500" />
+                <span>{property.reception} rec</span>
+              </div>
+            )}
+            {property.sqft && (
+              <div className="flex items-center">
+                <Square className="w-4 h-4 mr-1 text-blue-500" />
+                <span>{property.sqft} sqft</span>
+              </div>
+            )}
+          </div>
+
+          <div className="text-2xl font-bold text-cyan-700">
+            {property.price}
+            {property.period && (
+              <span className="text-sm font-normal text-gray-600 ml-1">
+                {property.period}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-
-      <div className="p-5 bg-amber-50">
-        <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
-          {property.title}
-        </h3>
-
-        <div className="flex items-center text-gray-600 mb-4">
-          <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-          <span className="text-sm font-medium">{property.location}</span>
-        </div>
-
-        {/* Property details */}
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
-          {property.beds && (
-            <div className="flex items-center">
-              <Bed className="w-4 h-4 mr-1 text-blue-500" />
-              <span>{property.beds} beds</span>
-            </div>
-          )}
-          {property.baths && (
-            <div className="flex items-center">
-              <Bath className="w-4 h-4 mr-1 text-blue-500" />
-              <span>{property.baths} baths</span>
-            </div>
-          )}
-          {property.reception && (
-            <div className="flex items-center">
-              <Users className="w-4 h-4 mr-1 text-blue-500" />
-              <span>{property.reception} rec</span>
-            </div>
-          )}
-          {property.sqft && (
-            <div className="flex items-center">
-              <Square className="w-4 h-4 mr-1 text-blue-500" />
-              <span>{property.sqft} sqft</span>
-            </div>
-          )}
-        </div>
-
-        <div className="text-2xl font-bold text-cyan-700">
-          {property.price}
-          {property.period && (
-            <span className="text-sm font-normal text-gray-600 ml-1">
-              {property.period}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-    </Link>
-  );
+    );
+  };
 
   return (
-    
     <div
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
       style={{
         backgroundColor: "var(--background)",
-        // borderColor: "var(--foreground, #e2e8f0)",
-        // borderOpacity: 0.2,
       }}
     >
       {/* Header */}
@@ -171,12 +179,12 @@ const AllProperties = () => {
           </p>
         </div>
         <button 
-            className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-            style={{ color: "var(--foreground)" }}
-          >
-            View all properties 
-            <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
-          </button>
+          className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+          style={{ color: "var(--foreground)" }}
+        >
+          View all properties 
+          <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+        </button>
       </div>
 
       {/* Grid Layout */}
