@@ -80,7 +80,7 @@ export default function Footer() {
       <img src="/ico.png" alt="ICO" className="max-h-20 object-contain" />
     </div>
     <div className="col-span-6 flex justify-center">
-      <img src="/all-agents.jpg" alt="All Agents" className="max-h-20 object-contain" />
+      <img src="/all-agents.JPG" alt="All Agents" className="max-h-20 object-contain" />
     </div>
 
     {/* Row 2 */}

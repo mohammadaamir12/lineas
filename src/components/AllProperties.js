@@ -51,7 +51,7 @@ const AllProperties = () => {
   ];
 
   const PropertyCard = ({ property }) => (
-   <Link href={`/properties`}>
+   <Link href={`/properties/${property.id}`}>
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300">
       <div className="relative">
         <img
