@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { MapPin, Bed, Bath, Users, Square, Star,ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const AllProperties = () => {
   const properties = [
@@ -50,6 +51,7 @@ const AllProperties = () => {
   ];
 
   const PropertyCard = ({ property }) => (
+   <Link href={`/properties`}>
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300">
       <div className="relative">
         <img
@@ -137,9 +139,11 @@ const AllProperties = () => {
         </div>
       </div>
     </div>
+    </Link>
   );
 
   return (
+    
     <div
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
       style={{
