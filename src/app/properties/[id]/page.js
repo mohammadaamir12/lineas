@@ -1,12 +1,10 @@
-'use client'
-export default function PropertyDetails({ params }) {
-  const { id } = params;
-  console.log('ssdsds',id);
-  
+export default function PropertyPage({ params }) {
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold">Property Details</h1>
-      <p className="text-lg">Property ID: {id}</p>
+    <div style={{ padding: "40px" }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>
+        Property ID: {params.id}
+      </h1>
+      <p>This is the dynamic property details page 🚀</p>
     </div>
   );
 }
