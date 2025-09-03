@@ -1,15 +1,23 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import Image from 'next/image';
 
 function PropertyContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const propertyId = searchParams.get('id');
-  
-  // Mock data - in a real app, you'd fetch this based on the ID
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    yourEmail: '',
+    theirEmail: '',
+    message: ''
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  // Mock data
   const propertyData = {
     1: {
       title: "Luxury 3-Bedroom Apartment with River Views",
@@ -34,53 +42,238 @@ function PropertyContent() {
       beds: 3,
       baths: 2,
       sqft: 1450,
+    },
+  };
+
+  const property = propertyData[propertyId] || {
+    title: "3 Bedroom flat, Agnes Street, E14",
+    location: "",
+    price: "",
+    beds: 3,
+    baths: 0,
+    sqft: 0,
+  };
+
+  const images = [
+    '/awards.png',
+    '/awards.png',
+    '/newbuild.jpg',
+    '/awards.png',
+    '/awards.png',
+  ]
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Form handlers
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validate all required fields
+    if (formData.name && formData.yourEmail && formData.theirEmail && formData.message) {
+      console.log('Form submitted:', formData);
+      setSubmitted(true);
+      
+      // Here you would typically make an API call
+      // Example: await sendEmail(formData);
+      
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({
+          name: '',
+          yourEmail: '',
+          theirEmail: '',
+          message: ''
+        });
+      }, 3000);
     }
   };
 
-  const property = propertyData[propertyId];
-  
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Back button */}
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Properties
-        </button>
+    <div>
+      <div className="relative h-[300px] w-full">
+        {/* Background image */}
+        <img
+          src="/newbuild.jpg"
+          alt="Property"
+          className="absolute inset-0 object-cover w-full h-full z-0"
+        />
 
-        {/* Property details */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="p-8">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Property ID: {propertyId}
-              </h1>
-              <p className="text-xl text-gray-600">
-                This is the property details page 🚀
-              </p>
+        {/* Overlay */}
+        {/* <div className="absolute inset-0 bg-black bg-opacity-40 z-10" /> */}
+
+        {/* Content */}
+        <div className="absolute top-0 left-0 z-20 w-full h-full flex flex-col justify-center px-6 sm:px-12">
+          <div className="bg-[#0C0330] text-white text-2xl sm:text-3xl font-semibold py-4 px-6 max-w-fit">
+            3 Bedroom flat, Agnes Street, E14
+          </div>
+          <div className="bg-[#32B8DF] text-white text-sm py-2 px-6 mt-1 max-w-fit tracking-wide">
+            HOME /
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto rounded-md p-6 md:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Side: Image Gallery */}
+          <div className="lg:col-span-2">
+            <div className="w-full aspect-[4/3] overflow-hidden rounded-md border">
+              <img
+                src={images[activeIndex]}
+                alt={`Image ${activeIndex + 1}`}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {property ? (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-semibold text-gray-800">
-                  {property.title}
-                </h2>
-                <p className="text-gray-600">📍 {property.location}</p>
-                <div className="flex gap-6 text-sm text-gray-500">
-                  <span>🛏️ {property.beds} beds</span>
-                  <span>🚿 {property.baths} baths</span>
-                  <span>📐 {property.sqft} sqft</span>
-                </div>
-                <p className="text-3xl font-bold text-cyan-700">
-                  {property.price}
-                </p>
+            {/* Thumbnails */}
+            <div className="flex items-center mt-4 space-x-2 overflow-x-auto scrollbar-hide">
+              {images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt={`Thumbnail ${index + 1}`}
+                  className={`w-20 h-16 rounded-md object-cover cursor-pointer border-2 ${
+                    index === activeIndex
+                      ? 'border-blue-500'
+                      : 'border-gray-300'
+                  }`}
+                  onClick={() => setActiveIndex(index)}
+                />
+              ))}
+            </div>
+
+            {/* Property Info */}
+            <div className="mt-4 text-sm text-gray-700">
+              <p><strong>Property ID:</strong> LEA0021</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="bg-gray-800 text-white text-xs px-3 py-1 rounded">SALE</span>
+                <span className="bg-blue-500 text-white text-sm px-3 py-1 rounded">£475 For sale</span>
               </div>
-            ) : (
-              <p className="text-gray-500">Property details not found.</p>
-            )}
+            </div>
+
+            {/* Features */}
+            <div className="mt-6">
+              <h2 className="text-lg font-semibold mb-3">Facts and Features</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-800">
+                <div><strong>Bedrooms:</strong> 2</div>
+                <div><strong>Bathrooms:</strong> 1</div>
+                <div><strong>Reception:</strong> 1</div>
+                <div><strong>Furnished:</strong> Yes</div>
+                <div><strong>Available:</strong> Immediately</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side: Enhanced Contact Form */}
+          <div className="h-fit sticky top-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              {/* Form Header */}
+              <div className="bg-gray-100 p-4 rounded-t-lg">
+                <h3 className="text-lg font-medium text-gray-700">
+                  Share With a Friend
+                </h3>
+              </div>
+
+              {/* Form Body */}
+              <div className="p-6">
+                {/* Success Message */}
+                {submitted && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-4 text-sm">
+                    ✓ Message sent successfully!
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Name Field */}
+                  <div>
+                    <label htmlFor="name" className="block text-sm text-gray-600 mb-1">
+                      First Name, Last Name
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
+                      placeholder="John Doe"
+                    />
+                  </div>
+
+                  {/* Your Email Field */}
+                  <div>
+                    <label htmlFor="yourEmail" className="block text-sm text-gray-600 mb-1">
+                      Your Email
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="yourEmail"
+                      name="yourEmail"
+                      required
+                      value={formData.yourEmail}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+
+                  {/* Their Email Field */}
+                  <div>
+                    <label htmlFor="theirEmail" className="block text-sm text-gray-600 mb-1">
+                      Their Email
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="theirEmail"
+                      name="theirEmail"
+                      required
+                      value={formData.theirEmail}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
+                      placeholder="friend.email@example.com"
+                    />
+                  </div>
+
+                  {/* Message Field */}
+                  <div>
+                    <label htmlFor="message" className="block text-sm text-gray-600 mb-1">
+                      Message
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      rows={4}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all resize-none text-sm"
+                      placeholder="Write your message here..."
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="w-full bg-[#32B8DF] hover:bg-[#2AA5C9] text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:ring-offset-2"
+                  >
+                    Send
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
