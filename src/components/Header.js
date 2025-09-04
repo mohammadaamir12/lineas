@@ -58,18 +58,18 @@ export default function Header() {
   className="sticky top-0 border-b z-50 shadow-md backdrop-blur-sm w-full"
   style={{ backgroundColor: 'var(--background)', borderColor: 'var(--foreground, #e2e8f0)' }}
 >
-  <div className="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+  <div className="w-full px-4 sm:px-6 lg:px-20 h-20 flex items-center justify-between">
     {/* Logo */}
     <Link href="/" className="flex items-center gap-2">
       <img
         src='/lineas-logo.png'
         alt="LINEAS Estate Agents"
-        className="h-10 w-auto object-contain"
+        className="h-12 w-auto object-contain"
       />
     </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             {NAV.map((item, index) => {
               const active = pathname === item.href;
               return (

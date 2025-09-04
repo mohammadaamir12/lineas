@@ -1,8 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { Suspense, useState,useEffect,scrollContainerRef } from 'react';
 import Image from 'next/image';
+import Header from '@/components/Header';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Bed, Bath, MapPin } from 'lucide-react';
+import Footer from '@/components/Footer';
 
 function PropertyContent() {
   const searchParams = useSearchParams();
@@ -62,6 +66,57 @@ function PropertyContent() {
     '/awards.png',
   ]
 
+  const images1 = [
+    {
+      id: 1,
+      src: '/newbuild.jpg',
+      alt: 'Property exterior view',
+      type: 'exterior'
+    },
+    {
+      id: 2,
+      src: '/newbuild.jpg',
+      alt: 'Living room',
+      type: 'interior'
+    },
+    {
+      id: 3,
+      src: '/newbuild.jpg',
+      alt: 'Modern kitchen',
+      type: 'kitchen'
+    },
+    {
+      id: 4,
+      src: '/newbuild.jpg',
+      alt: 'Bedroom',
+      type: 'bedroom'
+    },
+    {
+      id: 5,
+      src: '/newbuild.jpg',
+      alt: 'Bathroom',
+      type: 'bathroom'
+    },
+    {
+      id: 6,
+      src: '/newbuild.jpg',
+      alt: 'Office space',
+      type: 'office'
+    },
+    {
+      id: 7,
+      src: '/newbuild.jpg',
+      alt: 'Additional room',
+      type: 'room'
+    },
+    {
+      id: 8,
+      src: '/newbuild.jpg',
+      alt: 'Another view',
+      type: 'interior'
+    }
+  ];
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Form handlers
@@ -97,8 +152,67 @@ function PropertyContent() {
     }
   };
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const scrollToImage = (index) => {
+    if (scrollContainerRef.current) {
+      const imageWidth = 128 + 12; // w-32 (128px) + gap (12px)
+      const scrollLeft = index * imageWidth;
+      scrollContainerRef.current.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const nextImage = () => {
+    const nextIndex = (currentImageIndex + 1) % images1.length;
+    setCurrentImageIndex(nextIndex);
+    scrollToImage(nextIndex);
+  };
+
+  const prevImage = () => {
+    const prevIndex = currentImageIndex === 0 ? images1.length - 1 : currentImageIndex - 1;
+    setCurrentImageIndex(prevIndex);
+    scrollToImage(prevIndex);
+  };
+
+  // Auto-scroll functionality
+  useEffect(() => {
+    const autoScrollInterval = setInterval(() => {
+      nextImage();
+    }, 3000); // Change image every 3 seconds
+
+    return () => clearInterval(autoScrollInterval);
+  }, [currentImageIndex]);
+
+
+  const features = [
+    {
+      icon: Home,
+      label: 'SQFT',
+      value: '710'
+    },
+    {
+      icon: Bed,
+      label: 'BEDROOMS',
+      value: '3'
+    },
+    {
+      icon: Bath,
+      label: 'BATHROOMS',
+      value: '2'
+    },
+    {
+      icon: MapPin,
+      label: 'RECEPTION',
+      value: '1'
+    }
+  ];
+
   return (
     <div>
+    <Header/>
       <div className="relative h-[300px] w-full">
         {/* Background image */}
         <img
@@ -125,41 +239,122 @@ function PropertyContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side: Image Gallery */}
           <div className="lg:col-span-2">
-            <div className="w-full aspect-[4/3] overflow-hidden rounded-md border">
-              <img
-                src={images[activeIndex]}
-                alt={`Image ${activeIndex + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
+           {/* Main carousel container */}
+      <div className="relative bg-white rounded-xl p-4 shadow-md">
+        {/* Current image display */}
+        <div className="mt-2 flex justify-center">
+          <div className="w-180 h-100 rounded-xl overflow-hidden shadow-lg">
+            <img
+              src={images1[currentImageIndex].src}
+              alt={images1[currentImageIndex].alt}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+        {/* Thumbnail strip */}
+        <div className="relative">
+          {/* Navigation arrows - positioned outside the scroll container */}
+          <button
+            onClick={prevImage}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <button
+            onClick={nextImage}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
+          >
+            <ChevronRight size={20} />
+          </button>
 
-            {/* Thumbnails */}
-            <div className="flex items-center mt-4 space-x-2 overflow-x-auto scrollbar-hide">
-              {images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt={`Thumbnail ${index + 1}`}
-                  className={`w-20 h-16 rounded-md object-cover cursor-pointer border-2 ${
-                    index === activeIndex
-                      ? 'border-blue-500'
-                      : 'border-gray-300'
-                  }`}
-                  onClick={() => setActiveIndex(index)}
-                />
-              ))}
-            </div>
+          {/* Scrollable image container with padding for arrows */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-3 p-4 px-16 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+            style={{ scrollbarWidth: 'thin' }}
+          >
+            {images1.map((image, index) => (
+              <button
+                key={image.id}
+                onClick={() => selectImage(index)}
+                className={`flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
+                  index === currentImageIndex
+                    ? 'ring-4 ring-blue-500 shadow-lg'
+                    : 'hover:ring-2 hover:ring-gray-300'
+                }`}
+              >
+                <div className="w-32 h-24 bg-gradient-to-br from-gray-100 to-gray-50">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+        </div>
 
-            {/* Property Info */}
-            <div className="mt-4 text-sm text-gray-700">
-              <p><strong>Property ID:</strong> LEA0021</p>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="bg-gray-800 text-white text-xs px-3 py-1 rounded">SALE</span>
-                <span className="bg-blue-500 text-white text-sm px-3 py-1 rounded">£475 For sale</span>
-              </div>
-            </div>
+        
+     
+
+        <div className="mt-8 mb-4 flex items-center bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg overflow-hidden shadow-md">
+      {/* Property ID Section */}
+      <div className="flex-1 px-3 py-2">
+        <span className="text-xl font-bold text-gray-700">
+          Property ID : 11245
+        </span>
+      </div>
+      
+      {/* Sale Section */}
+      <div className="flex items-center h-12">
+        {/* SALE Tag with Left Arrow */}
+        <div className="relative bg-gray-800 text-white px-8 h-full flex items-center">
+          <span className="text-lg font-bold">SALE</span>
+          {/* Left-pointing Arrow using CSS border trick */}
+          <div className="absolute -left-4 top-0 w-0 h-0 border-r-[16px] border-r-gray-800 border-t-[24px] border-t-transparent border-b-[24px] border-b-transparent"></div>
+        </div>
+        
+        {/* Price Section */}
+        <div className="relative bg-sky-400 text-white px-8 h-full flex items-center">
+          <span className="text-lg font-bold">400 for Sale</span>
+          {/* Left-pointing Arrow for price section */}
+          <div className="absolute -left-4 top-0 w-0 h-0 border-r-[16px] border-r-sky-400 border-t-[24px] border-t-transparent border-b-[24px] border-b-transparent"></div>
+        </div>
+      </div>
+    </div>
 
             {/* Features */}
+            <div className="mt-6 bg-white shadow-md p-4 rounded">
+  <h2 className="text-2xl  font-bold text-gray-900 mb-4">Facts and Features</h2>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
+    {features.map((feature, index) => {
+      const IconComponent = feature.icon;
+      return (
+        <div key={index} className="flex items-center space-x-4">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center">
+              <IconComponent className="w-8 h-8 text-gray-700" />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+              {feature.label}
+            </div>
+            <div className="text-2xl font-bold text-gray-900 mt-1">
+              {feature.value}
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
             <div className="mt-6">
               <h2 className="text-lg font-semibold mb-3">Facts and Features</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-800">
@@ -170,10 +365,11 @@ function PropertyContent() {
                 <div><strong>Available:</strong> Immediately</div>
               </div>
             </div>
+           
           </div>
 
           {/* Right Side: Enhanced Contact Form */}
-          <div className="h-fit sticky top-6">
+          <div className="h-fit sticky top-20">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               {/* Form Header */}
               <div className="bg-gray-100 p-4 rounded-t-lg">
@@ -275,8 +471,10 @@ function PropertyContent() {
               </div>
             </div>
           </div>
+          
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

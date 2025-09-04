@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star } from 'lucide-react';
-
+import { useRouter } from "next/navigation";
 const FeaturedProperties = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -143,9 +143,19 @@ const FeaturedProperties = () => {
   const goToSlide = (index) => {
     setCurrentSlide(index);
   };
+    const router = useRouter();
+  
 
-  const PropertyCard = ({ property }) => (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2">
+
+  const PropertyCard = ({ property }) => {
+     const handleCardClick = () => {
+      // Use query parameters instead of dynamic routes for static export
+      router.push(`/property?id=${property.id}`);
+    };
+   return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2"
+     onClick={handleCardClick}
+    >
       <div className="relative">
         <img 
           src={property.image} 
@@ -243,6 +253,7 @@ const FeaturedProperties = () => {
       </div>
     </div>
   );
+}
 
   return (
    <div
