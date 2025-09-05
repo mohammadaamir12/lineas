@@ -35,14 +35,14 @@ export default function LandlordFeesSection() {
             {/* Choosing the area section */}
             <div className="bg-white rounded-lg shadow-sm p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Choosing the area you'd like to live in
-              </h2>
-              <p className="text-gray-700 leading-relaxed text-lg">
-                Do your research and figure out the specific areas you'd like to rent in. Make a list of the things that are 
-                really important to you, like transport links, schools, access to shops and use these to focus your search. 
-                Be sure to share your list of 'must-haves' and 'nice-to-haves' with the local estate agents so they can start 
-                working for you.
-              </p>
+  Choosing the area you&apos;d like to live in
+</h2>
+<p className="text-gray-700 leading-relaxed text-lg">
+  Do your research and figure out the specific areas you&apos;d like to rent in. Make a list of the things that are 
+  really important to you, like transport links, schools, access to shops and use these to focus your search. 
+  Be sure to share your list of &apos;must-haves&apos; and &apos;nice-to-haves&apos; with the local estate agents so they can start 
+  working for you.
+</p>
             </div>
           </div>
         </div>
