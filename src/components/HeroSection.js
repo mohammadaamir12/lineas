@@ -9,7 +9,7 @@ export default function HeroSection() {
 
   return (
    <section
-  className="relative min-h-screen flex flex-col justify-center items-center text-center w-full bg-cover bg-center bg-no-repeat"
+  className="relative h-[85vh] flex flex-col justify-center items-center text-center w-full bg-cover bg-center bg-no-repeat"
   style={{
     backgroundImage:
       "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80')",
@@ -19,7 +19,7 @@ export default function HeroSection() {
   <div className="absolute inset-0 bg-black/40" />
 
   {/* Content */}
-  <div className="relative z-10 flex flex-col items-center px-2 sm:px-4 md:px-6 py-12 md:py-20 w-full max-w-3xl">
+  <div className="relative z-10 flex flex-col items-center px-2 sm:px-4 md:px-6 py-8 md:py-12 w-full max-w-3xl -mt-16">
     <h1 className="text-4xl md:text-5xl font-bold text-white">
       Find Your Future
     </h1>
@@ -28,7 +28,7 @@ export default function HeroSection() {
     </p>
 
     {/* Tabs & Search */}
-    <div className="mt-8 bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-4 sm:p-6 w-full">
+    <div className="mt-6 bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-4 sm:p-6 w-full">
       {/* Tabs */}
       <div className="flex justify-center gap-8 sm:gap-12 border-b border-white/40 pb-3">
         <button
@@ -70,7 +70,7 @@ export default function HeroSection() {
   </div>
 
   {/* Bottom Valuation Section */}
-  <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-12 flex flex-col md:flex-row items-center justify-between gap-4">
+  <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4">
     <div>
       <h3 className="text-lg md:text-xl font-semibold">
         Find out how much your home is worth today
