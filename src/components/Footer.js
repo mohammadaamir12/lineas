@@ -67,48 +67,51 @@ export default function Footer() {
   </div>
 </div>
 
- <div className="py-6 px-20">
-  <div className="grid grid-cols-12 gap-4 items-center">
-    {/* Row 1 */}
-    <div className="col-span-2 flex justify-center">
-      <img src="/prs.png" alt="PRS" className="max-h-20 object-contain" />
+<div className="py-6 px-4 lg:px-20">
+  <div className="grid grid-cols-3 md:grid-cols-12 gap-3">
+    {/* Row 1 (desktop: 4 logos, mobile: 3 logos in first row) */}
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/prs.png" alt="PRS" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/approved-code.png" alt="Approved Code" className="max-h-20 object-contain" />
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/approved-code.png" alt="Approved Code" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/ico.png" alt="ICO" className="max-h-20 object-contain" />
-    </div>
-    <div className="col-span-6 flex justify-center">
-      <img src="/all-agents.png" alt="All Agents" className="max-h-20 object-contain" />
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/ico.png" alt="ICO" className="max-h-14 w-auto object-contain" />
     </div>
 
-    {/* Row 2 */}
-   <div className="col-span-2 flex justify-center">
-  <img
-    src="/zoopla.png"
-    alt="Zoopla"
-    className="w-full max-w-[160px] h-auto object-contain bg-white py-2 px-6 rounded
-               lg:max-w-[250px] lg:h-[70px]"
-  />
-</div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/the-market.png" alt="OnTheMarket" className="max-h-20 object-contain" />
+    {/* AllAgents → full width on mobile, wide on desktop */}
+    <div className="col-span-3 md:col-span-6 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/all-agents.png" alt="All Agents" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/rightmove.png" alt="Rightmove" className="max-h-20 object-contain" />
+
+    {/* Row 2 (6 logos, mobile: 3 per row) */}
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/zoopla.png" alt="Zoopla" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/sme-news.png" alt="SME News" className="max-h-20 object-contain" />
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/the-market.png" alt="OnTheMarket" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/my-deposit.png" alt="My Deposits" className="max-h-20 object-contain" />
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/rightmove.png" alt="Rightmove" className="max-h-14 w-auto object-contain" />
     </div>
-    <div className="col-span-2 flex justify-center">
-      <img src="/go-global.png" alt="Awards" className="max-h-20 object-contain" />
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/sme-news.png" alt="SME News" className="max-h-14 w-auto object-contain" />
+    </div>
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/my-deposit.png" alt="My Deposits" className="max-h-14 w-auto object-contain" />
+    </div>
+    <div className="col-span-1 md:col-span-2 flex justify-center items-center bg-white rounded-md shadow-sm h-24 p-2">
+      <img src="/go-global.png" alt="Go Global Awards" className="max-h-14 w-auto object-contain" />
     </div>
   </div>
 </div>
+
+
+
+
+
+
 
 
 
