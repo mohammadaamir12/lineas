@@ -113,7 +113,9 @@ export default function Header() {
                   aria-current={active ? "page" : undefined}
                   onClick={handleClick}
                   className="group relative px-1 py-1 font-medium"
-                  style={{ color: "var(--foreground)" }} // Text color stays the same
+                  style={{
+                    color: "var(--foreground)", // keep text color same
+                  }}
                 >
                   <span
                     className={[
@@ -124,6 +126,7 @@ export default function Header() {
                   >
                     {item.label}
                   </span>
+                  {/* Underline only changes to #33B7DF */}
                   <span
                     className={[
                       "absolute left-0 -bottom-1 h-[2px] origin-left transition-transform duration-300",
@@ -131,7 +134,9 @@ export default function Header() {
                         ? "w-full scale-x-100"
                         : "w-full scale-x-0 group-hover:scale-x-100",
                     ].join(" ")}
-                    style={{ backgroundColor: "var(--foreground)" }} // Line color stays same
+                    style={{
+                      backgroundColor: active ? "#33B7DF" : "var(--foreground)",
+                    }}
                   />
                 </Link>
               );
@@ -155,7 +160,10 @@ export default function Header() {
             <Link
               href="/favorites"
               className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
-              style={{ borderColor: "var(--foreground)", color: "var(--foreground)" }}
+              style={{
+                borderColor: "var(--foreground)",
+                color: "var(--foreground)",
+              }}
             >
               My Lineas
               <Heart size={16} />
@@ -164,7 +172,10 @@ export default function Header() {
             <button
               onClick={toggleTheme}
               className="p-1 rounded-md border transition hover:opacity-80"
-              style={{ borderColor: "var(--foreground)", color: "var(--foreground)" }}
+              style={{
+                borderColor: "var(--foreground)",
+                color: "var(--foreground)",
+              }}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
@@ -175,7 +186,10 @@ export default function Header() {
             <button
               onClick={toggleTheme}
               className="p-1 rounded-md border transition hover:opacity-80"
-              style={{ borderColor: "var(--foreground)", color: "var(--foreground)" }}
+              style={{
+                borderColor: "var(--foreground)",
+                color: "var(--foreground)",
+              }}
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
@@ -226,7 +240,7 @@ export default function Header() {
                 className={[
                   "flex items-center gap-3 p-2 rounded-xl transition-all",
                   active
-                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                    ? "text-[#33B7DF] font-semibold"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
                 ].join(" ")}
                 style={{ animationDelay: open ? `${index * 0.1}s` : "0s" }}

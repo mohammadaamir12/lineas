@@ -60,67 +60,67 @@ export default function Testimonials() {
           </button>
         </div>
 
-{/* Right Side - Slider */}
-<div className="relative">
-  {/* Visible area */}
-  <div className="overflow-hidden rounded-lg">
-    {/* Slider wrapper */}
-    <div
-      className="flex transition-transform duration-700 ease-in-out"
-      style={{ transform: `translateX(-${current * 100}%)` }}
-    >
-      {testimonials.map((t, idx) => (
-        <div
-          key={idx}
-          className="min-w-full bg-white text-gray-800 p-8 shadow-md"
-        >
-          <Quote className="text-cyan-500 text-2xl mb-4" />
-          <p className="mb-6 leading-relaxed">{t.text}</p>
-          <div className="flex items-center gap-4">
-            <Image
-              src={t.image}
-              alt={t.name}
-              width={48}
-              height={48}
-              className="rounded-full object-cover"
-            />
-            <div>
-              <h4 className="font-semibold">{t.name}</h4>
-              <p className="text-sm text-gray-500">{t.role}</p>
+        {/* Right Side - Slider */}
+        <div className="relative flex flex-col items-center">
+          {/* Visible area */}
+          <div className="overflow-hidden rounded-lg max-w-md w-full">
+            {/* Slider wrapper */}
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${current * 100}%)` }}
+            >
+              {testimonials.map((t, idx) => (
+                <div
+                  key={idx}
+                  className="min-w-full bg-white text-gray-800 p-8 shadow-md rounded-lg"
+                >
+                  <Quote className="text-cyan-500 text-2xl mb-4" />
+                  <p className="mb-6 leading-relaxed">{t.text}</p>
+                  <div className="flex items-center gap-4">
+                    <Image
+                      src={t.image}
+                      alt={t.name}
+                      width={48}
+                      height={48}
+                      className="rounded-full object-cover"
+                    />
+                    <div>
+                      <h4 className="font-semibold">{t.name}</h4>
+                      <p className="text-sm text-gray-500">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+
+          {/* Arrows - hidden on small screens */}
+          <button
+            onClick={prevSlide}
+            className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+          >
+            <ChevronLeft className="text-gray-600" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+          >
+            <ChevronRight className="text-gray-600" />
+          </button>
+
+          {/* Dots */}
+          <div className="flex justify-center mt-4 gap-2">
+            {testimonials.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrent(idx)}
+                className={`h-2 w-2 rounded-full transition ${
+                  idx === current ? "bg-cyan-500" : "bg-gray-400"
+                }`}
+              ></button>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-
-  {/* Arrows (now visible) */}
-  <button
-    onClick={prevSlide}
-    className="absolute left-[-1.5rem] top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
-  >
-    <ChevronLeft className="text-gray-600" />
-  </button>
-  <button
-    onClick={nextSlide}
-    className="absolute right-[-1.5rem] top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
-  >
-    <ChevronRight className="text-gray-600" />
-  </button>
-
-  {/* Dots */}
-  <div className="flex justify-center mt-4 gap-2">
-    {testimonials.map((_, idx) => (
-      <button
-        key={idx}
-        onClick={() => setCurrent(idx)}
-        className={`h-2 w-2 rounded-full transition ${
-          idx === current ? "bg-cyan-500" : "bg-gray-400"
-        }`}
-      ></button>
-    ))}
-  </div>
-</div>
       </div>
     </section>
   );
