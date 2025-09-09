@@ -277,9 +277,9 @@ export default function Header() {
       </header>
 
       {/* Mobile Menu */}
-      <div
+     <div
   className={[
-    "lg:hidden fixed inset-x-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500 overflow-y-auto",
+    "lg:hidden fixed inset-x-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500 overflow-auto",
     open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-full pointer-events-none",
   ].join(" ")}
   style={{ top: "80px", maxHeight: "calc(100vh - 80px)" }}
@@ -308,7 +308,7 @@ export default function Header() {
                     router.push(item.href);
                   }}
                   className={[
-                    "w-[95%] flex items-center justify-between p-3 rounded-xl transition-all",
+                    "w-full flex items-center justify-between p-3 rounded-xl transition-all",
                     active
                       ? "bg-[#33B7DF] text-white font-semibold shadow-md"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
