@@ -308,7 +308,7 @@ export default function Header() {
                     router.push(item.href);
                   }}
                   className={[
-                    "w-full flex items-center justify-between p-3 rounded-xl transition-all",
+                    "w-[95%] flex items-center justify-between p-3 rounded-xl transition-all",
                     active
                       ? "bg-[#33B7DF] text-white font-semibold shadow-md"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
