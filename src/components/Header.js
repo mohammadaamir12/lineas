@@ -319,41 +319,11 @@ export default function Header() {
               <Icon size={20} />
               <span className="text-lg font-medium">{item.label}</span>
             </div>
-            {hasSubmenu && (
-              <ChevronRight 
-                size={20} 
-                className={`ml-auto transition-transform duration-200 ${isSubmenuOpen ? "rotate-90" : ""}`} // Added: ml-auto to push to right
-              />
-            )}
+           
           </button>
 
-          {/* Submenu */}
-          {hasSubmenu && (
-            <div className={`space-y-1 overflow-hidden transition-all duration-300 ${isSubmenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-              {submenuItems.map(subItem => {
-                const SubIcon = subItem.icon;
-                const isSubActive = pathname === subItem.href;
-                return (
-                  <button
-                    key={subItem.href}
-                    onClick={() => {
-                      setOpen(false);
-                      router.push(subItem.href);
-                    }}
-                    className={[
-                      "w-full flex items-center gap-3 p-3 ml-4 rounded-xl transition-colors",
-                      isSubActive
-                        ? "bg-[#33B7DF] text-white font-semibold shadow-md"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800",
-                    ].join(" ")}
-                  >
-                    <SubIcon size={18} />
-                    <span className="font-medium">{subItem.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          
+          
         </div>
       );
     })}
