@@ -149,7 +149,7 @@ const FeaturedProperties = () => {
 
   const PropertyCard = ({ property }) => {
      const handleCardClick = () => {
-      // Use query parameters instead of dynamic routes for static export
+    
       router.push(`/property?id=${property.id}`);
     };
    return (

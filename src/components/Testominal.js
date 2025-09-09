@@ -97,13 +97,13 @@ export default function Testimonials() {
           {/* Arrows - hidden on small screens */}
           <button
             onClick={prevSlide}
-            className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+            className="hidden sm:flex absolute left-12 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           >
             <ChevronLeft className="text-gray-600" />
           </button>
           <button
             onClick={nextSlide}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+            className="hidden sm:flex absolute right-12 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           >
             <ChevronRight className="text-gray-600" />
           </button>

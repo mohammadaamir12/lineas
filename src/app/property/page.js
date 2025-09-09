@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useState,useEffect,scrollContainerRef } from 'react';
+import { Suspense, useState,useEffect,useRef } from 'react';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import { ChevronLeft, ChevronRight,Square, Car,Home, Bed, Bath, MapPin } from 'lucide-react';
@@ -12,6 +12,8 @@ import Footer from '@/components/Footer';
 function PropertyContent() {
   const searchParams = useSearchParams();
   const propertyId = searchParams.get('id');
+  const scrollContainerRef = useRef(null); 
+  const [activeImage, setActiveImage] = useState(0);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -155,16 +157,7 @@ function PropertyContent() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const scrollToImage = (index) => {
-    if (scrollContainerRef.current) {
-      const imageWidth = 128 + 12; // w-32 (128px) + gap (12px)
-      const scrollLeft = index * imageWidth;
-      scrollContainerRef.current.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      });
-    }
-  };
+ 
 
   const nextImage = () => {
     const nextIndex = (currentImageIndex + 1) % images1.length;
@@ -240,25 +233,29 @@ function PropertyContent() {
     }
   ];
 
-  const [formData1, setFormData1] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    message: 'Hello, I\'m interested in this Property Please, Contact me'
-  });
+ 
+    const scrollRef = useRef(null);
 
-  const handleChange1 = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+   const scrollToImage = (index) => {
+    if (scrollContainerRef.current) {
+      const imageWidth = 128 + 12; // w-32 (128px) + gap (12px)
+      const scrollLeft = index * imageWidth;
+      scrollContainerRef.current.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+    }
   };
 
-  const handleSubmit1 = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form submitted:', formData);
+ 
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = 300; // adjust based on card width
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
 
@@ -291,93 +288,95 @@ function PropertyContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side: Image Gallery */}
           <div className="lg:col-span-2">
-           {/* Main carousel container */}
-      <div className="relative bg-white rounded-xl p-4 shadow-md">
-        {/* Current image display */}
-        <div className="mt-2 flex justify-center">
-          <div className="w-180 h-100 rounded-xl overflow-hidden shadow-lg">
+       {/* Main carousel container */}
+<div className="relative bg-white rounded-xl p-2 sm:p-4 shadow-md">
+  {/* Current image display */}
+  <div className="mt-2 flex justify-center">
+    <div className="w-full sm:w-180 h-60 sm:h-100 rounded-xl overflow-hidden shadow-lg">
+      <img
+        src={images1[currentImageIndex].src}
+        alt={images1[currentImageIndex].alt}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  </div>
+
+  {/* Thumbnail strip */}
+  <div className="relative mt-3 sm:mt-4">
+    {/* Navigation arrows - only show on medium+ screens */}
+    <button
+      onClick={prevImage}
+      className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
+    >
+      <ChevronLeft size={20} />
+    </button>
+    
+    <button
+      onClick={nextImage}
+      className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
+    >
+      <ChevronRight size={20} />
+    </button>
+
+    {/* Scrollable image container */}
+    <div 
+      ref={scrollContainerRef}
+      className="flex gap-2 sm:gap-3 p-2 sm:px-16 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+    >
+      {images1.map((image, index) => (
+        <button
+          key={image.id}
+          onClick={() => selectImage(index)}
+          className={`flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
+            index === currentImageIndex
+              ? 'ring-2 sm:ring-4 ring-blue-500 shadow-lg'
+              : 'hover:ring-1 sm:hover:ring-2 hover:ring-gray-300'
+          }`}
+        >
+          <div className="w-20 h-16 sm:w-32 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-50">
             <img
-              src={images1[currentImageIndex].src}
-              alt={images1[currentImageIndex].alt}
+              src={image.src}
+              alt={image.alt}
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
-        </div>
-        {/* Thumbnail strip */}
-        <div className="relative">
-          {/* Navigation arrows - positioned outside the scroll container */}
-          <button
-            onClick={prevImage}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          
-          <button
-            onClick={nextImage}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-black/70 hover:bg-black/90 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 shadow-lg"
-          >
-            <ChevronRight size={20} />
-          </button>
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
 
-          {/* Scrollable image container with padding for arrows */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-3 p-4 px-16 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
-            style={{ scrollbarWidth: 'thin' }}
-          >
-            {images1.map((image, index) => (
-              <button
-                key={image.id}
-                onClick={() => selectImage(index)}
-                className={`flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
-                  index === currentImageIndex
-                    ? 'ring-4 ring-blue-500 shadow-lg'
-                    : 'hover:ring-2 hover:ring-gray-300'
-                }`}
-              >
-                <div className="w-32 h-24 bg-gradient-to-br from-gray-100 to-gray-50">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-        </div>
 
         
      
 
-        <div className="mt-8 mb-4 flex items-center bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg overflow-hidden shadow-md">
-      {/* Property ID Section */}
-      <div className="flex-1 px-3 py-2">
-        <span className="text-xl font-bold text-gray-700">
-          Property ID : 11245
-        </span>
-      </div>
-      
-      {/* Sale Section */}
-      <div className="flex items-center h-12">
-        {/* SALE Tag with Left Arrow */}
-        <div className="relative bg-gray-800 text-white px-8 h-full flex items-center">
-          <span className="text-lg font-bold">SALE</span>
-          {/* Left-pointing Arrow using CSS border trick */}
-          <div className="absolute -left-4 top-0 w-0 h-0 border-r-[16px] border-r-gray-800 border-t-[24px] border-t-transparent border-b-[24px] border-b-transparent"></div>
-        </div>
-        
-        {/* Price Section */}
-        <div className="relative bg-sky-400 text-white px-8 h-full flex items-center">
-          <span className="text-lg font-bold">400 for Sale</span>
-          {/* Left-pointing Arrow for price section */}
-          <div className="absolute -left-4 top-0 w-0 h-0 border-r-[16px] border-r-sky-400 border-t-[24px] border-t-transparent border-b-[24px] border-b-transparent"></div>
-        </div>
-      </div>
+       <div className="mt-8 mb-4 flex flex-col sm:flex-row items-stretch bg-gradient-to-r from-gray-300 to-gray-400 rounded-lg overflow-hidden shadow-md">
+  {/* Property ID Section */}
+  <div className="flex-1 px-3 py-2 flex items-center justify-center sm:justify-start">
+    <span className="text-lg sm:text-xl font-bold text-gray-700">
+      Property ID : 11245
+    </span>
+  </div>
+  
+  {/* Sale & Price Section */}
+  <div className="flex items-stretch w-full sm:w-auto">
+    {/* SALE Tag with Left Arrow */}
+    <div className="relative bg-gray-800 text-white px-6 sm:px-8 flex items-center">
+      <span className="text-base sm:text-lg font-bold">SALE</span>
+      {/* Left-pointing Arrow using border-trick responsive */}
+      <div className="absolute -left-4 top-0 h-full w-0 border-y-[24px] sm:border-y-[calc(50%)] border-y-transparent border-r-[16px] border-r-gray-800"></div>
     </div>
+    
+    {/* Price Section */}
+    <div className="relative bg-sky-400 text-white px-6 sm:px-8 flex items-center">
+      <span className="text-base sm:text-lg font-bold">₹400 for Sale</span>
+      {/* Left-pointing Arrow */}
+      <div className="absolute -left-4 top-0 h-full w-0 border-y-[24px] sm:border-y-[calc(50%)] border-y-transparent border-r-[16px] border-r-sky-400"></div>
+    </div>
+  </div>
+</div>
+
 
             {/* Features */}
             <div className="mt-6 bg-white shadow-md p-4 rounded">
@@ -552,7 +551,7 @@ function PropertyContent() {
       </div>
     </div>
 
-    <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded">
+   <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded">
       {/* Section Title */}
       <h2 className="text-2xl font-bold text-gray-900 mb-8">
         Similar Homes You May Like
@@ -560,76 +559,88 @@ function PropertyContent() {
 
       {/* Navigation and Cards Container */}
       <div className="relative">
-        {/* Navigation Arrows */}
-        <button className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+        {/* Navigation Arrows - Hidden on mobile, visible on desktop */}
+        <button className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
+          <ChevronLeft onClick={() => scroll("left")} className="w-6 h-6 text-gray-600" />
         </button>
-        <button className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
+        <button onClick={() => scroll("right")} className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
           <ChevronRight className="w-6 h-6 text-gray-600" />
         </button>
 
-        {/* Property Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-12">
-          {properties.map((property) => (
-            <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              {/* Property Image */}
-              <div className="relative">
-                <img
-                  src={property.image}
-                  alt={property.title}
-                  className="w-full h-64 object-cover"
-                />
-                {property.featured && (
-                  <span className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded text-sm font-medium">
-                    FEATURED
-                  </span>
-                )}
-              </div>
+        {/* Mobile Navigation Arrows - Positioned outside the scroll area */}
+        <div className="md:hidden flex justify-between items-center mb-4">
+          <button  className="bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
+            <ChevronLeft onClick={() => scroll("left")} className="w-6 h-6 text-gray-600" />
+          </button>
+          <button  onClick={() => scroll("right")} className="bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
+            <ChevronRight className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
 
-              {/* Property Details */}
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {property.title}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {property.description}{" "}
-                  <span className="text-blue-600 cursor-pointer hover:underline">
-                    Know More
-                  </span>
-                </p>
-
-                {/* Property Features */}
-                <div className="flex items-center justify-between mb-6 text-gray-600">
-                  <div className="flex items-center space-x-1">
-                    <Bed className="w-4 h-4" />
-                    <span className="text-sm">{property.bedrooms} Br</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Bath className="w-4 h-4" />
-                    <span className="text-sm">{property.bathrooms} Ba</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Square className="w-4 h-4" />
-                    <span className="text-sm">{property.sqft}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Car className="w-4 h-4" />
-                    <span className="text-sm">{property.parking}</span>
-                  </div>
+        {/* Property Cards */}
+        <div className="overflow-x-auto md:overflow-x-visible">
+          <div className="flex space-x-4 md:grid md:grid-cols-2 md:gap-6 md:mx-12 md:space-x-0">
+            {properties.map((property) => (
+              <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex-shrink-0 w-80 md:w-auto">
+                {/* Property Image */}
+                <div className="relative">
+                  <img
+                    src={property.image}
+                    alt={property.title}
+                    className="w-full h-64 object-cover"
+                  />
+                  {property.featured && (
+                    <span className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded text-sm font-medium">
+                      FEATURED
+                    </span>
+                  )}
                 </div>
 
-                {/* Price and Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="bg-gray-900 text-white px-6 py-3 rounded-md flex items-center justify-center flex-1 mr-2">
-                    <span className="font-semibold">{property.price} {property.type}</span>
+                {/* Property Details */}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {property.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {property.description}{" "}
+                    <span className="text-blue-600 cursor-pointer hover:underline">
+                      Know More
+                    </span>
+                  </p>
+
+                  {/* Property Features */}
+                  <div className="flex items-center justify-between mb-6 text-gray-600">
+                    <div className="flex items-center space-x-1">
+                      <Bed className="w-4 h-4" />
+                      <span className="text-sm">{property.bedrooms} Br</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Bath className="w-4 h-4" />
+                      <span className="text-sm">{property.bathrooms} Ba</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Square className="w-4 h-4" />
+                      <span className="text-sm">{property.sqft}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Car className="w-4 h-4" />
+                      <span className="text-sm">{property.parking}</span>
+                    </div>
                   </div>
-                  <button className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
-                    Save For Later
-                  </button>
+
+                  {/* Price and Actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="bg-gray-900 text-white px-6 py-3 rounded-md flex items-center justify-center flex-1 mr-2">
+                      <span className="font-semibold">{property.price} {property.type}</span>
+                    </div>
+                    <button className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
+                      Save For Later
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
