@@ -278,12 +278,12 @@ export default function Header() {
 
       {/* Mobile Menu */}
       <div
-        className={[
-          "lg:hidden fixed inset-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500",
-          open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-full pointer-events-none",
-        ].join(" ")}
-        style={{ top: "80px" }}
-      >
+  className={[
+    "lg:hidden fixed inset-x-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500 overflow-y-auto",
+    open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-full pointer-events-none",
+  ].join(" ")}
+  style={{ top: "80px", maxHeight: "calc(100vh - 80px)" }}
+>
         <nav className="px-6 py-4 space-y-2">
           {NAV.map((item) => {
             const Icon = item.icon;
