@@ -297,7 +297,7 @@ export default function Header() {
             return (
               <div key={item.href} className="space-y-1">
                 {/* Parent Button */}
-                <button
+                {/* <button
                   onClick={(e) => {
                     if (hasSubmenu) {
                       e.preventDefault();
@@ -313,7 +313,7 @@ export default function Header() {
                       ? "bg-[#33B7DF] text-white font-semibold shadow-md"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
                   ].join(" ")}
-                >
+                > */}
                   <div className="flex items-center gap-3">
                     <Icon size={20} />
                     <span className="text-lg font-medium">{item.label}</span>
@@ -321,7 +321,7 @@ export default function Header() {
                   {hasSubmenu && (
                     <ChevronRight size={20} className={`transition-transform duration-200 ${isSubmenuOpen ? "rotate-90" : ""}`} />
                   )}
-                </button>
+                {/* </button> */}
 
                 {/* Submenu */}
                 {hasSubmenu && (
