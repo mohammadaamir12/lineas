@@ -18,11 +18,11 @@ export default function Home() {
   <div className="dark:bg-black">
   <Header />
   <HeroSection/>
-   {/* <FeaturedProperties/> */}
-  {/* <LatestProperties/> */}
-  {/* <AllProperties/> */}
-  {/* <ValuationCTA/> */}
-  {/* <Awards/> */}
+   <FeaturedProperties/>
+  <LatestProperties/>
+  <AllProperties/>
+  <ValuationCTA/>
+  <Awards/>
   {/* <Testimonials/> */}
   <LatestInsights/>
   <FAQ/> 
