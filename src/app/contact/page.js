@@ -96,9 +96,9 @@ export default function ContactPage() {
               style={{ background: "var(--background)", color: "var(--foreground)" }}
             >
               <h2 className="text-2xl font-bold mb-2">Send us a Message</h2>
-              <p className="mb-6 opacity-80">
-                Fill out the form below and we'll get back to you within 24 hours
-              </p>
+             <p className="mb-6 opacity-80">
+  Fill out the form below and we&apos;ll get back to you within 24 hours
+</p>
 
               <form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
