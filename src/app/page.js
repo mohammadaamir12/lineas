@@ -17,7 +17,7 @@ export default function Home() {
   return (
   <div className="dark:bg-black">
   <Header />
-  <HeroSection/>
+  {/* <HeroSection/> */}
   <FeaturedProperties/>
   <LatestProperties/>
   <AllProperties/>
