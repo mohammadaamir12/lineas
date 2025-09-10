@@ -277,116 +277,116 @@ export default function Header() {
       </header>
 
       {/* Mobile Menu */}
-      <div
-        className={[
-          "lg:hidden fixed inset-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500",
-          open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-full pointer-events-none",
-        ].join(" ")}
-        style={{ top: "80px" }}
-      >
-        {/* Fixed container with proper padding and overflow handling */}
-        <div className="h-full overflow-y-auto">
-          <nav className="px-4 py-4 space-y-2">
-            {NAV.map((item) => {
-              const Icon = item.icon;
-              const submenuItems = getSubmenuItems(item.label);
-              const hasSubmenu = submenuItems.length > 0;
-              const isSubmenuOpen = mobileSubMenuOpen[item.label];
+<div
+  className={[
+    "lg:hidden fixed inset-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500",
+    open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-full pointer-events-none",
+  ].join(" ")}
+  style={{ top: "80px" }}
+>
+  {/* Fixed container with proper padding and overflow handling */}
+  <div className="h-full overflow-y-auto">
+    <nav className="px-4 py-4 space-y-2">
+      {NAV.map((item) => {
+        const Icon = item.icon;
+        const submenuItems = getSubmenuItems(item.label);
+        const hasSubmenu = submenuItems.length > 0;
+        const isSubmenuOpen = mobileSubMenuOpen[item.label];
+        const active = isActive(item);
 
-              // Active parent if itself or any submenu item is active
-              const active = isActive(item);
-
-              return (
-                <div key={item.href} className="space-y-1">
-                  {/* Parent Button - Fixed width and padding */}
-                  <button
-                    onClick={(e) => {
-                      if (hasSubmenu) {
-                        e.preventDefault();
-                        toggleMobileSubmenu(item.label);
-                        return;
-                      }
-                      setOpen(false);
-                      router.push(item.href);
-                    }}
-                    className={[
-                      "w-full flex items-center justify-between p-3 rounded-xl transition-all box-border",
-                      active
-                        ? "bg-[#33B7DF] text-white font-semibold shadow-md"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
-                    ].join(" ")}
-                    style={{ maxWidth: "100%", minWidth: 0 }}
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <Icon size={20} className="flex-shrink-0" />
-                      <span className="text-lg font-medium truncate">{item.label}</span>
-                    </div>
-                    {hasSubmenu && (
-                      <ChevronRight 
-                        size={20} 
-                        className={`transition-transform duration-200 flex-shrink-0 ${isSubmenuOpen ? "rotate-90" : ""}`} 
-                      />
-                    )}
-                  </button>
-
-                  {/* Submenu */}
-                  {hasSubmenu && (
-                    <div className={`space-y-1 overflow-hidden transition-all duration-300 ${isSubmenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
-                      {submenuItems.map(subItem => {
-                        const SubIcon = subItem.icon;
-                        const isSubActive = pathname === subItem.href;
-                        return (
-                          <button
-                            key={subItem.href}
-                            onClick={() => {
-                              setOpen(false);
-                              router.push(subItem.href);
-                            }}
-                            className={[
-                              "w-full flex items-center gap-3 p-3 ml-4 rounded-xl transition-colors box-border",
-                              isSubActive
-                                ? "bg-[#33B7DF] text-white font-semibold shadow-md"
-                                : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800",
-                            ].join(" ")}
-                            style={{ maxWidth: "calc(100% - 1rem)", minWidth: 0 }}
-                          >
-                            <SubIcon size={18} className="flex-shrink-0" />
-                            <span className="font-medium truncate">{subItem.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
-
-          {/* Mobile CTA */}
-          <div className="px-4 pb-6 pt-2">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  router.push("/valuation");
-                }}
-                className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold transition-all duration-200 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
+        return (
+          <div key={item.href} className="space-y-1">
+            {/* Parent Button - Fixed width and padding */}
+            <button
+              onClick={(e) => {
+                if (hasSubmenu) {
+                  e.preventDefault();
+                  toggleMobileSubmenu(item.label);
+                  return;
+                }
+                setOpen(false);
+                router.push(item.href);
+              }}
+              className={[
+                "w-full flex items-center justify-between p-3 rounded-xl transition-all box-border",
+                active
+                  ? "text-white font-semibold shadow-md"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
+              ].join(" ")}
+              style={{ maxWidth: "100%", minWidth: 0 }}
+            >
+              <div
+                className={`flex items-center gap-3 ${active ? "bg-[#33B7DF] px-3 py-2 rounded-lg" : ""}`} // Apply background only to content
               >
-                Book Valuation
-              </button>
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  router.push("/favorites");
-                }}
-                className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
-              >
-                My Lineas <Heart size={16} />
-              </button>
-            </div>
+                <Icon size={20} className="flex-shrink-0" />
+                <span className="text-lg font-medium truncate">{item.label}</span>
+              </div>
+              {hasSubmenu && (
+                <ChevronRight
+                  size={20}
+                  className={`transition-transform duration-200 flex-shrink-0 ${isSubmenuOpen ? "rotate-90" : ""}`}
+                />
+              )}
+            </button>
+
+            {/* Submenu */}
+            {hasSubmenu && (
+              <div className={`space-y-1 overflow-hidden transition-all duration-300 ${isSubmenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                {submenuItems.map((subItem) => {
+                  const SubIcon = subItem.icon;
+                  const isSubActive = pathname === subItem.href;
+                  return (
+                    <button
+                      key={subItem.href}
+                      onClick={() => {
+                        setOpen(false);
+                        router.push(subItem.href);
+                      }}
+                      className={[
+                        "w-full flex items-center gap-3 p-3 ml-4 rounded-xl transition-colors box-border",
+                        isSubActive
+                          ? "bg-[#33B7DF] text-white font-semibold shadow-md"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800",
+                      ].join(" ")}
+                      style={{ maxWidth: "calc(100% - 1rem)", minWidth: 0 }}
+                    >
+                      <SubIcon size={18} className="flex-shrink-0" />
+                      <span className="font-medium truncate">{subItem.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
+        );
+      })}
+    </nav>
+
+    {/* Mobile CTA */}
+    <div className="px-4 pb-6 pt-2">
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => {
+            setOpen(false);
+            router.push("/valuation");
+          }}
+          className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold transition-all duration-200 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
+        >
+          Book Valuation
+        </button>
+        <button
+          onClick={() => {
+            setOpen(false);
+            router.push("/favorites");
+          }}
+          className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+        >
+          My Lineas <Heart size={16} />
+        </button>
       </div>
+    </div>
+  </div>
+</div>
 
       <style jsx>{`
         @keyframes slideInDown {
