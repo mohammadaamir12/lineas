@@ -16,17 +16,17 @@ export default function Home() {
   
   return (
   <div className="dark:bg-black">
-  {/* <Header /> */}
-  {/* <HeroSection/> */}
-  <FeaturedProperties/>
+  <Header />
+  <HeroSection/>
+  {/* <FeaturedProperties/>
   <LatestProperties/>
   <AllProperties/>
   <ValuationCTA/>
   <Awards/>
   <Testimonials/>
   <LatestInsights/>
-  <FAQ/>
-  {/* <Footer/> */}
+  <FAQ/> */}
+  <Footer/>
   </div>
   );
 }
