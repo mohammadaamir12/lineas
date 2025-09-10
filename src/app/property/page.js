@@ -13,7 +13,8 @@ function PropertyContent() {
   const searchParams = useSearchParams();
   const propertyId = searchParams.get('id');
   const scrollContainerRef = useRef(null); 
-  const [activeImage, setActiveImage] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -180,6 +181,19 @@ function PropertyContent() {
     return () => clearInterval(autoScrollInterval);
   }, [currentImageIndex]);
 
+  const scrollToImage = (index) => {
+  if (scrollContainerRef.current) {
+    const container = scrollContainerRef.current;
+    const selectedThumbnail = container.children[index] 
+    if (selectedThumbnail) {
+      container.scrollTo({
+        left: selectedThumbnail.offsetLeft - container.clientWidth / 2 + selectedThumbnail.clientWidth / 2,
+        behavior: "smooth",
+      });
+    }
+  }
+};
+
 
   const features = [
     {
@@ -230,34 +244,67 @@ function PropertyContent() {
       parking: 1,
       price: "£475,000",
       type: "For sale"
+    },
+    {
+      id: 3,
+      featured: true,
+      image: "/newbuild.jpg", 
+      title: "3 Bedroom flat, Agnes Street, E14",
+      description: "A well presented apartment which consists of thr",
+      bedrooms: 3,
+      bathrooms: 2,
+      sqft: "Sqft Sq.ft",
+      parking: 1,
+      price: "£475,000",
+      type: "For sale"
+    },
+    {
+      id: 4,
+      featured: true,
+      image: "/newbuild.jpg", 
+      title: "3 Bedroom flat, Agnes Street, E14",
+      description: "A well presented apartment which consists of thr",
+      bedrooms: 3,
+      bathrooms: 2,
+      sqft: "Sqft Sq.ft",
+      parking: 1,
+      price: "£475,000",
+      type: "For sale"
     }
   ];
 
- 
-    const scrollRef = useRef(null);
 
-   const scrollToImage = (index) => {
-    if (scrollContainerRef.current) {
-      const imageWidth = 128 + 12; // w-32 (128px) + gap (12px)
-      const scrollLeft = index * imageWidth;
-      scrollContainerRef.current.scrollTo({
-        left: scrollLeft,
-        behavior: "smooth",
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Auto-scroll
+  useEffect(() => {
+    if (!properties?.length) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => {
+        const visibleCards = isMobile ? 1 : 2;
+        const nextIndex = (prevIndex + visibleCards) % properties.length;
+
+        if (scrollContainerRef.current) {
+          const cardWidth = isMobile ? 320 : 320; // both same width, but scroll step differs
+          scrollContainerRef.current.scrollTo({
+            left: nextIndex * cardWidth,
+            behavior: "smooth",
+          });
+        }
+
+        return nextIndex;
       });
-    }
-  };
+    }, 3000);
 
- 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 300; // adjust based on card width
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
+    return () => clearInterval(interval);
+  }, [isMobile, properties.length]);
 
   return (
     <div>
@@ -551,37 +598,28 @@ function PropertyContent() {
       </div>
     </div>
 
-   <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded">
+ <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded">
       {/* Section Title */}
       <h2 className="text-2xl font-bold text-gray-900 mb-8">
         Similar Homes You May Like
       </h2>
 
-      {/* Navigation and Cards Container */}
+      {/* Cards Wrapper */}
       <div className="relative">
-        {/* Navigation Arrows - Hidden on mobile, visible on desktop */}
-        <button className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
-          <ChevronLeft onClick={() => scroll("left")} className="w-6 h-6 text-gray-600" />
-        </button>
-        <button onClick={() => scroll("right")} className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
-          <ChevronRight className="w-6 h-6 text-gray-600" />
-        </button>
-
-        {/* Mobile Navigation Arrows - Positioned outside the scroll area */}
-        <div className="md:hidden flex justify-between items-center mb-4">
-          <button  className="bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
-            <ChevronLeft onClick={() => scroll("left")} className="w-6 h-6 text-gray-600" />
-          </button>
-          <button  onClick={() => scroll("right")} className="bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-colors">
-            <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
-
-        {/* Property Cards */}
-        <div className="overflow-x-auto md:overflow-x-visible">
-          <div className="flex space-x-4 md:grid md:grid-cols-2 md:gap-6 md:mx-12 md:space-x-0">
+        <div
+          ref={scrollContainerRef}
+          className="overflow-x-auto scrollbar-hide"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          <div
+            className={`flex space-x-4`}
+            style={{ scrollSnapType: "x mandatory" }}
+          >
             {properties.map((property) => (
-              <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex-shrink-0 w-80 md:w-auto">
+              <div
+                key={property.id}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex-shrink-0 w-80 scroll-snap-align-start"
+              >
                 {/* Property Image */}
                 <div className="relative">
                   <img
@@ -631,7 +669,9 @@ function PropertyContent() {
                   {/* Price and Actions */}
                   <div className="flex items-center justify-between">
                     <div className="bg-gray-900 text-white px-6 py-3 rounded-md flex items-center justify-center flex-1 mr-2">
-                      <span className="font-semibold">{property.price} {property.type}</span>
+                      <span className="font-semibold">
+                        {property.price} {property.type}
+                      </span>
                     </div>
                     <button className="bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors">
                       Save For Later
@@ -642,8 +682,27 @@ function PropertyContent() {
             ))}
           </div>
         </div>
+
+        {/* Indicators */}
+        <div className="flex justify-center mt-4 space-x-2">
+          {properties.map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                index === currentIndex ? "bg-gray-900" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
+  
            
           </div>
 
