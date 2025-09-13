@@ -144,6 +144,10 @@ const FeaturedProperties = () => {
     setCurrentSlide(index);
   };
     const router = useRouter();
+
+    const FilterPage=()=>{
+      router.push('propertydetails')
+    }
   
 
 
@@ -280,6 +284,7 @@ const FeaturedProperties = () => {
     </p>
   </div>
   <button 
+  onClick={FilterPage}
     className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
     style={{ color: "var(--foreground)" }}
   >
