@@ -236,7 +236,7 @@ export default function Header() {
           {/* Desktop CTA + Theme */}
           <div className="hidden lg:flex items-center gap-3 ml-2">
             <Link
-              href="/valuation"
+              href="/bookvaluation"
               className="rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
               style={{ borderColor: "var(--foreground)", backgroundColor: "var(--foreground)", color: "var(--background)" }}
             >

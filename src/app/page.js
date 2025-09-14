@@ -9,6 +9,7 @@ import LatestInsights from "@/components/LatestInsights";
 import LatestProperties from "@/components/LatestProperties";
 import Testimonials from "@/components/Testominal";
 import ValuationCTA from "@/components/ValuationCTA";
+import { Toaster } from "react-hot-toast";
 
 import Image from "next/image";
 
@@ -16,6 +17,7 @@ export default function Home() {
   
   return (
   <div className="dark:bg-black">
+   <Toaster position="top-center" />
   <Header />
   <HeroSection/>
    <FeaturedProperties/>
