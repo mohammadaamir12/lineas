@@ -255,7 +255,7 @@ const LatestProperties = () => {
     >
       {/* Header */}
      <div className="flex flex-col lg:flex-row justify-between items-start mb-10">
-  <div>
+  {/* <div>
     <h2
       className="text-2xl lg:text-3xl font-semibold relative inline-block"
       style={{ color: "var(--foreground)" }}
@@ -270,7 +270,23 @@ const LatestProperties = () => {
       Discover the newest listings added to our platform – fresh homes,
       apartments, and investments waiting for you.
     </p>
-  </div>
+  </div> */}
+    <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
+      <h1 style={{ margin: 0, fontSize: '38px', fontWeight:'550', display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ color: '#000',marginRight:10 }}>Latest</span>
+        <span style={{ color: '#0FC6D6', alignItems:'center'}}>
+            Properties
+          <hr style={{ border: '2px solid #D3F1F8', width: '100%', marginTop: '1px',borderRadius:10 }} />
+        </span>
+      </h1>
+      <p
+      className="text-base lg:text-lg max-w-2xl mt-6"
+      style={{ color: "var(--foreground)" }}
+    >
+      Discover the newest listings added to our platform – fresh homes,
+      apartments, and investments waiting for you.
+    </p>
+    </div>
 
   {/* Button below text on mobile, right side on desktop */}
   <button

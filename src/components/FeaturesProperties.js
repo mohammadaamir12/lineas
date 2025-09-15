@@ -272,7 +272,23 @@ const FeaturedProperties = () => {
 >
       {/* Header */}
 <div className="flex flex-col lg:flex-row justify-between items-start mb-10">
-  <div>
+  <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
+      <h1 style={{ margin: 0, fontSize: '38px', fontWeight:'550', display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ color: '#000',marginRight:10 }}>Featured </span>
+        <span style={{ color: '#0FC6D6', alignItems:'center'}}>
+            Properties
+                   <hr style={{ border: '2px solid #D3F1F8', width: '100%', marginTop: '1px',borderRadius:10 }} />
+        </span>
+      </h1>
+      <p
+      className="text-base lg:text-lg max-w-2xl mt-6"
+      style={{ color: "var(--foreground)" }}
+    >
+      Handpicked premium properties that stand out for their exceptional value,
+      location, and unique characteristics.
+    </p>
+    </div>
+  {/* <div>
     <h2
       className="text-2xl lg:text-3xl font-semibold relative inline-block"
       style={{ color: "var(--foreground)" }}
@@ -287,7 +303,7 @@ const FeaturedProperties = () => {
       Handpicked premium properties that stand out for their exceptional value,
       location, and unique characteristics.
     </p>
-  </div>
+  </div> */}
 
   {/* Button below text on mobile, right side on desktop */}
   <button

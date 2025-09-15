@@ -47,7 +47,7 @@ export default function FAQ() {
       }}
     >
       {/* Heading */}
-          <div>
+          {/* <div>
   <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
       style={{ color: "var(--foreground)" }}>
     Frequently Asked Questions
@@ -57,7 +57,22 @@ export default function FAQ() {
      style={{ color: "var(--foreground)" }}>
     Find answers to common questions about buying, selling, or renting properties and learn more about our services and processes.
   </p>
-</div>
+</div> */}
+  <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
+      <h1 style={{ margin: 0, fontSize: '38px', fontWeight:'550', display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ color: '#000',marginRight:10 }}>Frequently Asked</span>
+        <span style={{ color: '#0FC6D6', alignItems:'center'}}>
+            Questions
+          <hr style={{ border: '2px solid #D3F1F8', width: '100%', marginTop: '1px',borderRadius:10 }} />
+        </span>
+      </h1>
+      <p
+      className="text-base lg:text-lg max-w-2xl mt-6"
+      style={{ color: "var(--foreground)" }}
+    >
+      Find answers to common questions about buying, selling, or renting properties and learn more about our services and processes.
+    </p>
+    </div>
         
 
       <div className="grid lg:grid-cols-2 gap-8 items-start mt-5">

@@ -1,10 +1,14 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapPin, Bed, Bath, Users, Square, Star, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const AllProperties = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+  const router = useRouter();
+
   const properties = [
     {
       id: 1,
@@ -51,20 +55,42 @@ const AllProperties = () => {
     },
   ];
 
-  const router = useRouter();
+  const FilterPage = () => {
+    router.push("propertydetails");
+  };
 
-   const FilterPage=()=>{
-      router.push('propertydetails')
+  // Intersection Observer to detect when section is in view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Stop observing after animation triggers
+        }
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the section is visible
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   const PropertyCard = ({ property }) => {
     const handleCardClick = () => {
-      // Use query parameters instead of dynamic routes for static export
       router.push(`/property?id=${property.id}`);
     };
 
     return (
-      <div 
+      <div
         className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
         onClick={handleCardClick}
       >
@@ -74,8 +100,6 @@ const AllProperties = () => {
             alt={property.title}
             className="w-full h-48 object-cover"
           />
-
-          {/* Top left badges */}
           <div className="absolute top-3 left-3 flex gap-2">
             {property.badges.map((badge, index) => (
               <span
@@ -95,8 +119,6 @@ const AllProperties = () => {
               </span>
             ))}
           </div>
-
-          {/* Status badge */}
           {property.status && (
             <div className="absolute top-3 right-3">
               <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
@@ -105,18 +127,14 @@ const AllProperties = () => {
             </div>
           )}
         </div>
-
         <div className="p-5 bg-amber-50">
           <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
             {property.title}
           </h3>
-
           <div className="flex items-center text-gray-600 mb-4">
             <MapPin className="w-4 h-4 mr-2 text-blue-500" />
             <span className="text-sm font-medium">{property.location}</span>
           </div>
-
-          {/* Property details */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
             {property.beds && (
               <div className="flex items-center">
@@ -143,7 +161,6 @@ const AllProperties = () => {
               </div>
             )}
           </div>
-
           <div className="text-2xl font-bold text-cyan-700">
             {property.price}
             {property.period && (
@@ -159,47 +176,74 @@ const AllProperties = () => {
 
   return (
     <div
+      ref={sectionRef}
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
       style={{
         backgroundColor: "var(--background)",
       }}
     >
-      {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start mb-10">
-  <div>
-    <h2
-      className="text-2xl lg:text-3xl font-semibold relative inline-block"
-      style={{ color: "var(--foreground)" }}
-    >
-      All Properties
-      <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
-    </h2>
-    <p
-      className="text-base lg:text-lg max-w-2xl mt-6"
-      style={{ color: "var(--foreground)" }}
-    >
-      Explore our complete collection of properties, featuring a wide
-      range of options to suit every lifestyle, budget, and investment
-      goal.
-    </p>
-  </div>
+        <div style={{ fontFamily: "Arial, sans-serif", color: "#2c3e50" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "38px",
+              fontWeight: "550",
+              display: "flex",
+              alignItems: "baseline",
+            }}
+          >
+            <span style={{ color: "#000", marginRight: 10 }}>All</span>
+            <span style={{ color: "#0FC6D6", alignItems: "center" }}>
+              Properties
+              <hr
+                style={{
+                  border: "2px solid #D3F1F8",
+                  width: "100%",
+                  marginTop: "1px",
+                  borderRadius: 10,
+                }}
+              />
+            </span>
+          </h1>
+          <p
+            className="text-base lg:text-lg max-w-2xl mt-6"
+            style={{ color: "var(--foreground)" }}
+          >
+            Explore our complete collection of properties, featuring a wide range
+            of options to suit every lifestyle, budget, and investment goal.
+          </p>
+        </div>
+        <button
+          onClick={FilterPage}
+          className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+          style={{ color: "var(--foreground)" }}
+        >
+          View all properties
+          <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+        </button>
+      </div>
 
-  {/* Button below text on mobile, right side on desktop */}
-  <button
-    onClick={FilterPage}
-    className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-    style={{ color: "var(--foreground)" }}
-  >
-    View all properties
-    <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
-  </button>
-</div>
-
-
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {properties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
+      <div
+        className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "scale(1)" : "scale(0.5)",
+          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
+      >
+        {properties.map((property, index) => (
+          <div
+            key={property.id}
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "scale(1)" : "scale(0.5)",
+              transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transitionDelay: `${index * 300}ms`,
+            }}
+          >
+            <PropertyCard property={property} />
+          </div>
         ))}
       </div>
     </div>
