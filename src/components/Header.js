@@ -23,10 +23,10 @@ import { useTheme } from "next-themes";
 
 const NAV = [
   { label: "Home", href: "/", icon: Home },
-  { label: "Rent", href: "/rent", icon: Building },
-  { label: "Buy", href: "/buy", icon: DollarSign },
-  { label: "Short Let", href: "/short-let", icon: Calendar },
-  { label: "Commercial", href: "/commercial", icon: Building },
+  { label: "Rent", href: "/propertydetails", icon: Building },
+  { label: "Buy", href: "/propertydetails", icon: DollarSign },
+  { label: "Short Let", href: "/propertydetails", icon: Calendar },
+  { label: "Commercial", href: "/propertydetails", icon: Building },
   { label: "Landlords", href: "/landlords", icon: Users, hasSubmenu: true },
   { label: "Tenants", href: "/tenants", icon: UserCheck, hasSubmenu: true },
   { label: "Contact", href: "/contact", icon: Mail },
@@ -48,6 +48,7 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [showLandlordsDropdown, setShowLandlordsDropdown] = useState(false);
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState({});
+  const [selectedItem, setSelectedItem] = useState(null); // Track selected item
   const pathname = usePathname() || "/";
   const { theme, setTheme } = useTheme();
   const router = useRouter();
@@ -63,6 +64,13 @@ export default function Header() {
   };
 
   const isActive = (item) => {
+    // Check if the item is one of Rent, Buy, Short Let, or Commercial
+    const propertyItems = ["Rent", "Buy", "Short Let", "Commercial"];
+    if (propertyItems.includes(item.label)) {
+      return selectedItem === item.label; // Only active if it's the selected item
+    }
+
+    // Existing logic for other items
     if (item.label === "Landlords") {
       return LANDLORD_SUBMENU.some(sub => pathname === sub.href) || pathname.startsWith("/landlords");
     }
@@ -90,6 +98,17 @@ export default function Header() {
       default:
         return [];
     }
+  };
+
+  const handleNavClick = (item) => {
+    const propertyItems = ["Rent", "Buy", "Short Let", "Commercial"];
+    if (propertyItems.includes(item.label)) {
+      setSelectedItem(item.label); // Set the selected item
+    } else {
+      setSelectedItem(null); // Clear selection for non-property items
+    }
+    setOpen(false); // Close mobile menu
+    router.push(item.href);
   };
 
   if (!mounted) {
@@ -120,18 +139,20 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-5 ml-20">
             {NAV.map((item, index) => {
               const active = isActive(item);
 
               const handleClick = (e) => {
+                e.preventDefault();
                 if (item.label === "Landlords") {
-                  e.preventDefault();
                   router.push("/landlordsfees");
-                }
-                if (item.label === "Tenants") {
-                  e.preventDefault();
+                  setSelectedItem(null);
+                } else if (item.label === "Tenants") {
                   router.push("/tenants");
+                  setSelectedItem(null);
+                } else {
+                  handleNavClick(item);
                 }
               };
 
@@ -205,7 +226,7 @@ export default function Header() {
 
               return (
                 <Link
-                  key={item.href}
+                  key={index}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   onClick={handleClick}
@@ -234,7 +255,7 @@ export default function Header() {
           </nav>
 
           {/* Desktop CTA + Theme */}
-          <div className="hidden lg:flex items-center gap-3 ml-2">
+          <div className="hidden lg:flex items-center gap-3">
             <Link
               href="/bookvaluation"
               className="rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
@@ -284,7 +305,6 @@ export default function Header() {
         ].join(" ")}
         style={{ top: "80px" }}
       >
-        {/* Fixed container with proper padding and overflow handling */}
         <div className="h-full overflow-y-auto">
           <nav className="px-4 py-4 space-y-2">
             {NAV.map((item) => {
@@ -292,22 +312,17 @@ export default function Header() {
               const submenuItems = getSubmenuItems(item.label);
               const hasSubmenu = submenuItems.length > 0;
               const isSubmenuOpen = mobileSubMenuOpen[item.label];
-
-              // Active parent if itself or any submenu item is active
               const active = isActive(item);
 
               return (
-                <div key={item.href} className="space-y-1">
-                  {/* Parent Button - Fixed width and padding */}
+                <div key={item.label} className="space-y-1">
                   <button
-                    onClick={(e) => {
+                    onClick={() => {
                       if (hasSubmenu) {
-                        e.preventDefault();
                         toggleMobileSubmenu(item.label);
                         return;
                       }
-                      setOpen(false);
-                      router.push(item.href);
+                      handleNavClick(item);
                     }}
                     className={[
                       "w-full flex items-center justify-between p-3 rounded-xl transition-all box-border",
@@ -322,14 +337,13 @@ export default function Header() {
                       <span className="text-lg font-medium truncate">{item.label}</span>
                     </div>
                     {hasSubmenu && (
-                      <ChevronRight 
-                        size={20} 
-                        className={`transition-transform duration-200 flex-shrink-0 ${isSubmenuOpen ? "rotate-90" : ""}`} 
+                      <ChevronRight
+                        size={20}
+                        className={`transition-transform duration-200 flex-shrink-0 ${isSubmenuOpen ? "rotate-90" : ""}`}
                       />
                     )}
                   </button>
 
-                  {/* Submenu */}
                   {hasSubmenu && (
                     <div className={`space-y-1 overflow-hidden transition-all duration-300 ${isSubmenuOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
                       {submenuItems.map(subItem => {
@@ -341,6 +355,7 @@ export default function Header() {
                             onClick={() => {
                               setOpen(false);
                               router.push(subItem.href);
+                              setSelectedItem(null); // Clear selection for submenu items
                             }}
                             className={[
                               "w-full flex items-center gap-3 p-3 ml-4 rounded-xl transition-colors box-border",
@@ -362,13 +377,13 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Mobile CTA */}
           <div className="px-4 pb-6 pt-2">
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => {
                   setOpen(false);
                   router.push("/valuation");
+                  setSelectedItem(null);
                 }}
                 className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold transition-all duration-200 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
               >
@@ -378,6 +393,7 @@ export default function Header() {
                 onClick={() => {
                   setOpen(false);
                   router.push("/favorites");
+                  setSelectedItem(null);
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
               >

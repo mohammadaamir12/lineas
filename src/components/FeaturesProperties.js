@@ -273,16 +273,17 @@ const FeaturedProperties = () => {
       {/* Header */}
 <div className="flex justify-between items-start mb-10">
   <div>
-    <h2 className="text-3xl lg:text-4xl font-bold mb-3"
-        style={{ color: "var(--foreground)" }}>
-      Featured <span className="text-cyan-500">Properties</span>
-    </h2>
-    <p className="text-base lg:text-lg max-w-2xl"
-       style={{ color: "var(--foreground)" }}>
-      Handpicked premium properties that stand out for their exceptional value,
-      location, and unique characteristics.
-    </p>
-  </div>
+  <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
+      style={{ color: "var(--foreground)" }}>
+    Featured Properties
+    <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
+  </h2>
+  <p className="text-base lg:text-lg max-w-2xl mt-6"
+     style={{ color: "var(--foreground)" }}>
+    Handpicked premium properties that stand out for their exceptional value,
+    location, and unique characteristics.
+  </p>
+</div>
   <button 
   onClick={FilterPage}
     className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
