@@ -271,28 +271,35 @@ const FeaturedProperties = () => {
   }}
 >
       {/* Header */}
-<div className="flex justify-between items-start mb-10">
+<div className="flex flex-col lg:flex-row justify-between items-start mb-10">
   <div>
-  <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
-      style={{ color: "var(--foreground)" }}>
-    Featured Properties
-    <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
-  </h2>
-  <p className="text-base lg:text-lg max-w-2xl mt-6"
-     style={{ color: "var(--foreground)" }}>
-    Handpicked premium properties that stand out for their exceptional value,
-    location, and unique characteristics.
-  </p>
-</div>
-  <button 
-  onClick={FilterPage}
-    className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+    <h2
+      className="text-2xl lg:text-3xl font-semibold relative inline-block"
+      style={{ color: "var(--foreground)" }}
+    >
+      Featured Properties
+      <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
+    </h2>
+    <p
+      className="text-base lg:text-lg max-w-2xl mt-6"
+      style={{ color: "var(--foreground)" }}
+    >
+      Handpicked premium properties that stand out for their exceptional value,
+      location, and unique characteristics.
+    </p>
+  </div>
+
+  {/* Button below text on mobile, right side on desktop */}
+  <button
+    onClick={FilterPage}
+    className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
     style={{ color: "var(--foreground)" }}
   >
-    View all featured 
+    View all featured
     <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
   </button>
 </div>
+
 
 
       <div className="relative">

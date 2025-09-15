@@ -34,7 +34,7 @@ const NAV = [
 
 const LANDLORD_SUBMENU = [
   { label: "Fees", href: "/landlordsfees", icon: Trash2 },
-  { label: "Management", href: "/landlords/management", icon: Users2 },
+  { label: "Management", href: "/managementfees", icon: Users2 },
 ];
 
 const TENANTS_SUBMENU = [
@@ -257,20 +257,23 @@ export default function Header() {
           {/* Desktop CTA + Theme */}
           <div className="hidden lg:flex items-center gap-3">
             <Link
-              href="/bookvaluation"
-              className="rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
-              style={{ borderColor: "var(--foreground)", backgroundColor: "var(--foreground)", color: "var(--background)" }}
-            >
-              Book Valuation
-            </Link>
+  href="/bookvaluation"
+  className="rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap 
+             border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)] 
+             hover:bg-white hover:text-slate-900"
+>
+  Book Valuation
+</Link>
 
             <Link
-              href="/favorites"
-              className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition hover:opacity-80 whitespace-nowrap"
-              style={{ borderColor: "var(--foreground)", color: "var(--foreground)" }}
-            >
-              My Lineas <Heart size={16} />
-            </Link>
+  href="/favorites"
+  className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap
+             border-[var(--foreground)] text-[var(--foreground)]
+             hover:bg-slate-900 hover:text-white"
+>
+  My Lineas <Heart size={16} />
+</Link>
+
 
             <button
               onClick={toggleTheme}

@@ -75,19 +75,25 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom Valuation Section */}
-      <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white px-4 sm:px-8 md:px-12 lg:px-20 py-6 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <h3 className="text-lg md:text-xl font-semibold">
-            Find out how much your home is worth today
-          </h3>
-          <p className="text-gray-300 text-sm">
-            Get a free accurate home valuation from our local experts
-          </p>
-        </div>
-        <button className="px-6 py-2 border border-white rounded-md hover:bg-white hover:text-black transition">
-          Book A Valuation
-        </button>
-      </div>
+      <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white 
+  px-4 sm:px-8 md:px-12 lg:px-20 
+  py-6 md:py-12 lg:py-20 
+  flex flex-col md:flex-row items-center justify-between gap-4"
+>
+  <div className="text-left">
+  <h3 className="text-lg md:text-2xl font-semibold">
+    Find out how much your home is worth today
+  </h3>
+  <p className="text-gray-300 text-lg">
+    Get a free accurate home valuation from our local experts
+  </p>
+</div>
+  <button className="px-6 py-2 border border-white rounded-md hover:bg-white hover:text-black transition">
+    Book A Valuation
+  </button>
+</div>
+
+
     </section>
   );
 }

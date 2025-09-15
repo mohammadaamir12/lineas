@@ -47,37 +47,35 @@ export default function FAQ() {
       }}
     >
       {/* Heading */}
-        <div className="text-left mb-10">
-          <h2
-            className="text-3xl lg:text-4xl font-bold mb-3"
-            style={{ color: "var(--foreground)" }}
-          >
-            Frequently Asked <span className="text-cyan-500">Questions</span>
-          </h2>
-          <p
-            className="text-base lg:text-lg max-w-2xl"
-            style={{ color: "var(--foreground)" }}
-          >
-           Find answers to common questions about buying, selling, or renting properties and learn more about our services and processes.
-          </p>
-        </div>
+          <div>
+  <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
+      style={{ color: "var(--foreground)" }}>
+    Frequently Asked Questions
+    <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
+  </h2>
+  <p className="text-base lg:text-lg max-w-2xl mt-6"
+     style={{ color: "var(--foreground)" }}>
+    Find answers to common questions about buying, selling, or renting properties and learn more about our services and processes.
+  </p>
+</div>
+        
 
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+      <div className="grid lg:grid-cols-2 gap-8 items-start mt-5">
         {/* Left Support Box */}
         <div className="bg-gray-50 rounded-lg shadow-sm p-8 text-center relative overflow-hidden">
           <div className="absolute -top-6 -left-6 w-20 h-20 bg-cyan-100 rounded-full opacity-40"></div>
           <div className="absolute -bottom-8 -right-8 w-28 h-28 bg-cyan-100 rounded-full opacity-40"></div>
 
-          <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-26 h-26 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="text-cyan-600 w-8 h-8" />
           </div>
-          <h3 className="text-xl font-bold mb-2">Need Help?</h3>
+          <h3 className="text-xl font-extrabold mb-2 text-slate-900">Need Help?</h3>
           <p className="text-gray-600 mb-6">
             Can’t find the answer you’re looking for? Our customer support team
             is here to help you 24/7.
           </p>
-          <button className="flex items-center gap-2 bg-white border border-cyan-500 text-cyan-600 px-6 py-3 rounded-md font-medium hover:bg-cyan-50 transition mx-auto">
-            <Mail className="w-4 h-4" /> Contact Support
+          <button className="flex items-center gap-2 bg-white border-2 border-cyan-500 text-cyan-600 px-6 py-3 rounded-md font-medium hover:bg-cyan-50 transition mx-auto">
+            <Mail className="w-4 h-4 font-bold" /> Contact Support
           </button>
         </div>
 
@@ -90,13 +88,13 @@ export default function FAQ() {
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full flex justify-between items-center px-6 py-4 text-left font-medium hover:bg-gray-50"
+                className="w-full flex justify-between text-slate-900 font-bold items-center px-6 py-4 text-left hover:bg-gray-50"
               >
                 <span>{faq.question}</span>
                 {openIndex === index ? (
-                  <Minus className="w-5 h-5 text-cyan-500" />
+                  <Minus className="w-5 h-5 text-cyan-500" strokeWidth={3} />
                 ) : (
-                  <Plus className="w-5 h-5 text-cyan-500" />
+                  <Plus className="w-5 h-5 text-cyan-500" strokeWidth={3} />
                 )}
               </button>
               {openIndex === index && (

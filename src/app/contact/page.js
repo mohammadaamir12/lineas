@@ -2,31 +2,29 @@
 
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, User } from "lucide-react";
 
 function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
   return (
     <div
-      className={`flex items-start p-6 rounded-2xl shadow-lg`}
-      style={{
-        background: dark ? "#1E3A8A" : "var(--background)", 
-        color: dark ? "#fff" : "var(--foreground)",
-      }}
+      className={`flex items-start p-6 rounded-2xl max-w-xs ${
+        dark ? "bg-slate-800 text-white" : "bg-white text-gray-800"
+      } shadow-lg hover:shadow-xl transition-shadow duration-300`}
     >
       <div
-        className="p-3 rounded-xl flex items-center justify-center"
-        style={{
-          background: dark ? "rgba(255,255,255,0.1)" : "#1E3A8A",
-        }}
+        className={`p-3 rounded-xl flex items-center justify-center ${
+          dark ? "bg-white/10" : "bg-slate-800"
+        }`}
       >
         <Icon className="w-6 h-6 text-white" />
       </div>
       <div className="ml-4">
-        <h3 className="font-semibold">{title}</h3>
-        <p className="text-sm opacity-80">{subtitle}</p>
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <p className="text-md text-gray-500 mt-1">{subtitle}</p>
         <p
-          className="mt-2 font-medium"
-          style={{ color: dark ? "#bfdbfe" : "#1E3A8A" }}
+          className={`mt-3 font-medium text-lg ${
+            dark ? "text-blue-200" : "text-slate-800"
+          }`}
         >
           {info}
         </p>
@@ -35,40 +33,78 @@ function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
   );
 }
 
+function InputField({
+  label,
+  type = "text",
+  placeholder,
+  required = false,
+  isTextarea = false,
+}) {
+  const baseClasses =
+    "w-full p-4 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
+
+  return (
+    <div>
+      <label className="block text-md font-bold text-slate-800  mb-2">
+        {label} {required && <span className="text-slate-800">*</span>}
+      </label>
+      {isTextarea ? (
+        <textarea
+          placeholder={placeholder}
+          className={`${baseClasses} h-32 resize-none border-2 `}
+          required={required}
+        />
+      ) : (
+        <div className="relative">
+          <input
+            type={type}
+            placeholder={placeholder}
+            className={`border-2 ${baseClasses} ${
+              type === "email" || type === "tel" || type === "text"
+                ? "pl-12"
+                : ""
+            }`}
+            required={required}
+          />
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 ">
+            {type === "email" && <Mail className="w-5 h-5" />}
+            {type === "tel" && <Phone className="w-5 h-5" />}
+            {type === "text" && <User className="w-5 h-5" />}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ContactPage() {
   return (
-    <div>
-      <Header />
-
-      <section className="w-full">
-        {/* Hero Section */}
-        <div
-          className="relative h-80 flex items-center justify-center bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url("/image.png")',
-          }}
-        >
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
-          <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white">
-              Get in Touch
-            </h1>
-            <p className="text-white mt-3">
-              Ready to find your perfect property? Our expert team is here to
-              guide you every step of the way.
-            </p>
-          </div>
+    <>
+    <Header/>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div
+        className="relative h-90 flex items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: 'url("/image.png")' }}
+      >
+        <div className="absolute inset-0 bg-blue-900/30 backdrop-blur-xs" />
+        <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Get in Touch
+          </h1>
+          <p className="text-white text-xl font-medium">
+            Ready to find your perfect property? Our expert team is here to guide
+            you every step of the way.
+          </p>
         </div>
+      </div>
 
-        {/* Contact Section */}
-        <div
-          className="py-16 px-4 sm:px-6 lg:px-8 shadow-lg"
-          style={{ background: "var(--background)", color: "var(--foreground)", }}
-        >
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Side */}
-            <div className="space-y-6">
+      {/* Contact Section */}
+      <div className="py-16 px-4 sm:px-6 lg:px-8 -mt-30 ">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 justify-items-center">
+            {/* Left Side - Contact Cards */}
+            <div className="lg:col-span-2 space-y-6 z-10 relative mx-auto">
               <ContactCard
                 icon={Mail}
                 title="Email Us"
@@ -91,105 +127,78 @@ export default function ContactPage() {
             </div>
 
             {/* Right Side - Form */}
-            <div
-              className="md:col-span-2 p-8 rounded-2xl shadow-md"
-              style={{ background: "var(--background)", color: "var(--foreground)" }}
-            >
-              <h2 className="text-2xl font-bold mb-2">Send us a Message</h2>
-             <p className="mb-6 opacity-80">
-  Fill out the form below and we&apos;ll get back to you within 24 hours
-</p>
+            <div className="lg:col-span-3">
+              <div className="bg-white p-8 rounded-2xl shadow-lg z-10 relative max-w-2xl mx-auto">
+                <div className="mb-8 items-center text-center">
+                  <h2 className="text-3xl font-extrabold text-gray-900 mb-3">
+                    Send us a Message
+                  </h2>
+                  <p className="text-gray-600 text-lg">
+                    Fill out the form below and we'll get back to you within 24 hours
+                  </p>
+                </div>
 
-              <form className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label>First Name *</label>
-                    <input
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputField
+                      label="First Name"
                       type="text"
                       placeholder="Enter your first name"
-                      className="w-full p-3 border rounded-lg"
-                      style={{
-                        background: "var(--background)",
-                        color: "var(--foreground)",
-                        borderColor: "rgba(0,0,0,0.2)",
-                      }}
+                      required
                     />
-                  </div>
-                  <div>
-                    <label>Last Name *</label>
-                    <input
+                    <InputField
+                      label="Last Name"
                       type="text"
                       placeholder="Enter your last name"
-                      className="w-full p-3 border rounded-lg"
-                      style={{
-                        background: "var(--background)",
-                        color: "var(--foreground)",
-                        borderColor: "rgba(0,0,0,0.2)",
-                      }}
+                      required
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label>Email Address *</label>
-                  <input
+                  <InputField
+                    label="Email Address"
                     type="email"
                     placeholder="Enter your email address"
-                    className="w-full p-3 border rounded-lg"
-                    style={{
-                      background: "var(--background)",
-                      color: "var(--foreground)",
-                      borderColor: "rgba(0,0,0,0.2)",
-                    }}
+                    required
                   />
-                </div>
 
-                <div>
-                  <label>Phone Number *</label>
-                  <input
+                  <InputField
+                    label="Phone Number"
                     type="tel"
                     placeholder="Enter your phone number"
-                    className="w-full p-3 border rounded-lg"
-                    style={{
-                      background: "var(--background)",
-                      color: "var(--foreground)",
-                      borderColor: "rgba(0,0,0,0.2)",
-                    }}
+                    required
                   />
-                </div>
 
-                <div>
-                  <label>Your Message *</label>
-                  <textarea
-                    placeholder="Tell us about your property needs..."
-                    className="w-full p-3 border rounded-lg h-28"
-                    style={{
-                      background: "var(--background)",
-                      color: "var(--foreground)",
-                      borderColor: "rgba(0,0,0,0.2)",
-                    }}
-                  ></textarea>
-                </div>
+                  <div>
+                    <label className="block text-md font-bold text-slate-800 mb-2">
+                      Your Message <span className="text-slate-800">*</span>
+                    </label>
+                    <div className="relative">
+                      <textarea
+                        placeholder="Tell us about your property needs or any questions you have..."
+                        className="w-full p-4 pl-12 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32 resize-none"
+                        required
+                      />
+                      <div className="absolute left-4 top-4 text-gray-400">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
 
-                <button
-                  type="submit"
-                  className="w-full p-3 rounded-lg flex items-center justify-center gap-2 font-medium"
-                  style={{
-                    background: "#1E3A8A",
-                    color: "#fff",
-                  }}
-                >
-                  <Mail className="w-5 h-5" />
-                  <span>Send Message</span>
-                </button>
-              </form>
+                  <button
+                    onClick={() => alert("Message sent! (This is a demo)")}
+                    className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-colors duration-200 text-lg shadow-lg hover:shadow-xl"
+                  >
+                    <Mail className="w-5 h-5" />
+                    <span>Send Message</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
-
-      <Footer />
+      </div>
     </div>
+    <Footer/>
+    </>
   );
 }
-

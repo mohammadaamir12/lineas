@@ -41,7 +41,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="bg-[#0E172B] text-white py-16 px-4 sm:px-6 lg:px-16 overflow-x-hidden">
+    <section className="bg-[#0E172B] text-white py-16 px-4 sm:px-6 lg:px-16">
       <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
         {/* Left Side */}
         <div>
@@ -61,9 +61,9 @@ export default function Testimonials() {
         </div>
 
         {/* Right Side - Slider */}
-        <div className="relative flex flex-col items-center w-full">
+        <div className="relative flex flex-col items-center justify-center w-full">
           {/* Visible area */}
-          <div className="overflow-hidden rounded-lg w-full max-w-full sm:max-w-md">
+          <div className="w-full max-w-full sm:max-w-md mx-auto overflow-hidden rounded-lg">
             {/* Slider wrapper */}
             <div
               className="flex transition-transform duration-700 ease-in-out"
@@ -72,10 +72,10 @@ export default function Testimonials() {
               {testimonials.map((t, idx) => (
                 <div
                   key={idx}
-                  className="min-w-full bg-white text-gray-800 p-6 sm:p-8 shadow-md rounded-lg"
+                  className="min-w-full w-full flex-shrink-0 bg-white text-gray-800 p-4 sm:p-6 shadow-md rounded-lg box-border"
                 >
                   <Quote className="text-cyan-500 text-2xl mb-4" />
-                  <p className="mb-6 leading-relaxed">{t.text}</p>
+                  <p className="mb-6 leading-relaxed text-sm sm:text-base">{t.text}</p>
                   <div className="flex items-center gap-4">
                     <Image
                       src={t.image}
@@ -97,13 +97,13 @@ export default function Testimonials() {
           {/* Arrows - hidden on small screens */}
           <button
             onClick={prevSlide}
-            className="hidden sm:flex absolute left-2 sm:left-12 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+            className="hidden sm:flex absolute left-2 sm:left-13 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           >
             <ChevronLeft className="text-gray-600" />
           </button>
           <button
             onClick={nextSlide}
-            className="hidden sm:flex absolute right-2 sm:right-12 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
+            className="hidden sm:flex absolute right-2 sm:right-13 top-1/2 -translate-y-1/2 bg-white p-2 rounded-full shadow-md"
           >
             <ChevronRight className="text-gray-600" />
           </button>

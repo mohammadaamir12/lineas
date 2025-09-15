@@ -4,7 +4,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
-export default function LandlordFeesSection() {
+export default function ManagementFeesSection() {
   return (
     <div>
         <Header/>
@@ -23,7 +23,7 @@ export default function LandlordFeesSection() {
         {/* Title */}
         <div className="relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
-            Landlord Fees
+            Landlord Management
           </h1>
         </div>
       </div>

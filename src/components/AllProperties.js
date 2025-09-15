@@ -165,29 +165,36 @@ const AllProperties = () => {
       }}
     >
       {/* Header */}
-      <div className="flex justify-between items-start mb-10">
-        <div>
-  <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
-      style={{ color: "var(--foreground)" }}>
-    All Properties
-    <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
-  </h2>
-  <p className="text-base lg:text-lg max-w-2xl mt-6"
-     style={{ color: "var(--foreground)" }}>
-    Explore our complete collection of properties, featuring a wide
-            range of options to suit every lifestyle, budget, and investment
-            goal.
-  </p>
+      <div className="flex flex-col lg:flex-row justify-between items-start mb-10">
+  <div>
+    <h2
+      className="text-2xl lg:text-3xl font-semibold relative inline-block"
+      style={{ color: "var(--foreground)" }}
+    >
+      All Properties
+      <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
+    </h2>
+    <p
+      className="text-base lg:text-lg max-w-2xl mt-6"
+      style={{ color: "var(--foreground)" }}
+    >
+      Explore our complete collection of properties, featuring a wide
+      range of options to suit every lifestyle, budget, and investment
+      goal.
+    </p>
+  </div>
+
+  {/* Button below text on mobile, right side on desktop */}
+  <button
+    onClick={FilterPage}
+    className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+    style={{ color: "var(--foreground)" }}
+  >
+    View all properties
+    <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+  </button>
 </div>
-        <button 
-        onClick={FilterPage}
-          className="hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-          style={{ color: "var(--foreground)" }}
-        >
-          View all properties 
-          <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
-        </button>
-      </div>
+
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

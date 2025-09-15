@@ -15,23 +15,19 @@ export default function Awards() {
         backgroundColor: "var(--background)",
       }}
     >
-        {/* Heading */}
-        <div className="text-left mb-10">
-          <h2
-            className="text-3xl lg:text-4xl font-bold mb-3"
-            style={{ color: "var(--foreground)" }}
-          >
-            Awards & <span className="text-cyan-500">Achievements</span>
-          </h2>
-          <p
-            className="text-base lg:text-lg max-w-2xl"
-            style={{ color: "var(--foreground)" }}
-          >
-            Our achievements and awards showcase the recognition we have received
+         <div>
+  <h2 className="text-2xl lg:text-3xl font-semibold relative inline-block"
+      style={{ color: "var(--foreground)" }}>
+    Awards & Achievements
+    <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
+  </h2>
+  <p className="text-base lg:text-lg max-w-2xl mt-6"
+     style={{ color: "var(--foreground)" }}>
+    Our achievements and awards showcase the recognition we have received
             for consistently delivering value, excellence, and outstanding
             contributions in our field.
-          </p>
-        </div>
+  </p>
+</div>
 
         {/* Swiper Carousel */}
         <Swiper
