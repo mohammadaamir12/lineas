@@ -1,8 +1,8 @@
 // components/LatestInsights.jsx
 "use client";
 
-import React from "react";
-import {  ChevronRight, } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { ChevronRight } from 'lucide-react';
 
 const insights = [
   {
@@ -35,63 +35,96 @@ const insights = [
 ];
 
 const LatestInsights = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  // Intersection Observer to detect when section is in view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Stop observing after animation triggers
+        }
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the section is visible
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div
+      ref={sectionRef}
       className="w-full px-4 lg:px-12 py-12"
       style={{ backgroundColor: "var(--background)" }}
     >
-          {/* Header */}
-<div className="flex flex-col lg:flex-row justify-between items-start mb-10">
-  {/* <div>
-    <h2
-      className="text-2xl lg:text-3xl font-semibold relative inline-block"
-      style={{ color: "var(--foreground)" }}
-    >
-      Latest Insights
-      <span className="absolute left-0 -bottom-3 w-20 h-[3px] bg-cyan-400"></span>
-    </h2>
-    <p
-      className="text-base lg:text-lg max-w-2xl mt-6"
-      style={{ color: "var(--foreground)" }}
-    >
-      Explore fresh perspectives, expert opinions, and valuable knowledge from
-      our team and industry leaders.
-    </p>
-  </div> */}
-  <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
-      <h1 style={{ margin: 0, fontSize: '38px', fontWeight:'550', display: 'flex', alignItems: 'baseline' }}>
-        <span style={{ color: '#000',marginRight:10 }}>Latest</span>
-        <span style={{ color: '#0FC6D6', alignItems:'center'}}>
-            Insights
-          <hr style={{ border: '2px solid #D3F1F8', width: '100%', marginTop: '1px',borderRadius:10 }} />
-        </span>
-      </h1>
-      <p
-      className="text-base lg:text-lg max-w-2xl mt-6"
-      style={{ color: "var(--foreground)" }}
-    >
-      Explore fresh perspectives, expert opinions, and valuable knowledge from
-      our team and industry leaders.
-    </p>
-    </div>
+      {/* Header with animation */}
+      <div 
+        className="flex flex-col lg:flex-row justify-between items-start mb-10"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "translateY(0)" : "translateY(50px)",
+          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        }}
+      >
+        <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
+          <h1 style={{ margin: 0, fontSize: '38px', fontWeight:'550', display: 'flex', alignItems: 'baseline' }}>
+            <span style={{ color: '#000',marginRight:10 }}>Latest</span>
+            <span style={{ color: '#0FC6D6', alignItems:'center'}}>
+                Insights
+              <hr style={{ border: '2px solid #D3F1F8', width: '100%', marginTop: '1px',borderRadius:10 }} />
+            </span>
+          </h1>
+          <p
+            className="text-base lg:text-lg max-w-2xl mt-6"
+            style={{ color: "var(--foreground)" }}
+          >
+            Explore fresh perspectives, expert opinions, and valuable knowledge from
+            our team and industry leaders.
+          </p>
+        </div>
 
-  {/* Button below text on mobile, right side on desktop */}
-  <button
-    className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-    style={{ color: "var(--foreground)" }}
-  >
-    View More Insights
-    <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
-  </button>
-</div>
+        {/* Button below text on mobile, right side on desktop */}
+        <button
+          className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+          style={{ color: "var(--foreground)" }}
+        >
+          View More Insights
+          <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+        </button>
+      </div>
 
-
-      {/* Cards Grid */}
-      <div className="grid gap-8 md:grid-cols-3">
-        {insights.map((post) => (
+      {/* Cards Grid with individual card animations */}
+      <div 
+        className="grid gap-8 md:grid-cols-3"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "scale(1)" : "scale(0.5)",
+          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transitionDelay: "200ms",
+        }}
+      >
+        {insights.map((post, index) => (
           <div
             key={post.id}
-            className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
+            className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
+              transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transitionDelay: `${400 + (index * 200)}ms`,
+            }}
           >
             <img
               src={post.image}
