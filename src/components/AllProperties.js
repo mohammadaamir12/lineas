@@ -184,28 +184,31 @@ const AllProperties = () => {
     >
       <div className="flex flex-col lg:flex-row justify-between items-start mb-10">
         <div style={{ fontFamily: "Arial, sans-serif", color: "#2c3e50" }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "38px",
-              fontWeight: "550",
-              display: "flex",
-              alignItems: "baseline",
-            }}
-          >
-            <span style={{ color: "#000", marginRight: 10 }}>All</span>
-            <span style={{ color: "#0FC6D6", alignItems: "center" }}>
-              Properties
-              <hr
-                style={{
-                  border: "2px solid #D3F1F8",
-                  width: "100%",
-                  marginTop: "1px",
-                  borderRadius: 10,
-                }}
-              />
-            </span>
-          </h1>
+           <h1
+  style={{
+    margin: 0,
+    fontSize: "38px",
+    fontWeight: 500,
+    fontFamily: "Poppins, sans-serif",
+    lineHeight: "38px",
+    color: "rgb(51, 51, 51)",
+    display: "flex",
+    alignItems: "baseline",
+  }}
+>
+  <span style={{ color: "#000", marginRight: 10 }}>All</span>
+  <span style={{ color: "#0FC6D6", alignItems: "center" }}>
+    Properties
+    <hr
+      style={{
+        border: "2px solid #D3F1F8",
+        width: "100%",
+        marginTop: "1px",
+        borderRadius: 10,
+      }}
+    />
+  </span>
+</h1>
           <p
             className="text-base lg:text-lg max-w-2xl mt-6"
             style={{ color: "var(--foreground)" }}

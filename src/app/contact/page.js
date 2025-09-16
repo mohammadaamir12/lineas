@@ -7,7 +7,7 @@ import { Mail, Phone, MapPin, User } from "lucide-react";
 function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
   return (
     <div
-      className={`flex items-start p-6 rounded-2xl max-w-xs ${
+      className={`flex items-start p-6 rounded-2xl max-w-2xs ${
         dark ? "bg-slate-800 text-white" : "bg-white text-gray-800"
       } shadow-lg hover:shadow-xl transition-shadow duration-300`}
     >
@@ -22,7 +22,7 @@ function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
         <h3 className="font-semibold text-lg">{title}</h3>
         <p className="text-md text-gray-500 mt-1">{subtitle}</p>
         <p
-          className={`mt-3 font-medium text-lg ${
+          className={`mt-3 font-bold text-lg ${
             dark ? "text-blue-200" : "text-slate-800"
           }`}
         >
@@ -83,21 +83,21 @@ export default function ContactPage() {
     <Header/>
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div
-        className="relative h-90 flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: 'url("/image.png")' }}
-      >
-        <div className="absolute inset-0 bg-blue-900/30 backdrop-blur-xs" />
-        <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Get in Touch
-          </h1>
-          <p className="text-white text-xl font-medium">
-            Ready to find your perfect property? Our expert team is here to guide
-            you every step of the way.
-          </p>
-        </div>
-      </div>
+     <div
+  className="relative h-90 flex items-center justify-center bg-cover bg-center"
+  style={{ backgroundImage: 'url("/image.png")' }}
+>
+  <div className="absolute inset-0 bg-slate-700/80" />
+  <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
+    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+      Get in Touch
+    </h1>
+    <p className="text-white text-xl font-medium">
+      Ready to find your perfect property? Our expert team is here to guide
+      you every step of the way.
+    </p>
+  </div>
+</div>
 
       {/* Contact Section */}
       <div className="py-16 px-4 sm:px-6 lg:px-8 -mt-30 ">
