@@ -59,11 +59,11 @@ function InputField({
           <input
             type={type}
             placeholder={placeholder}
-            className={`border-2 ${baseClasses} ${
-              type === "email" || type === "tel" || type === "text"
-                ? "pl-12"
-                : ""
-            }`}
+            className={`h-16 border-2 ${baseClasses} ${
+  type === "email" || type === "tel" || type === "text"
+    ? "pl-12"
+    : ""
+} text-md`}
             required={required}
           />
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 ">
@@ -175,7 +175,7 @@ export default function ContactPage() {
                     <div className="relative">
                       <textarea
                         placeholder="Tell us about your property needs or any questions you have..."
-                        className="w-full p-4 pl-12 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32 resize-none"
+                        className="text-md w-full p-4 pl-12 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32 resize-none"
                         required
                       />
                       <div className="absolute left-4 top-4 text-gray-400">
