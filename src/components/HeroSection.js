@@ -77,7 +77,7 @@ export default function HeroSection() {
       {/* Bottom Valuation Section */}
       <div className="absolute bottom-0 left-0 w-full bg-[#1D283C] text-white 
   px-4 sm:px-8 md:px-12 lg:px-20 
-  py-6 md:py-12 lg:py-20 
+  py-6 md:py-12 lg:py-12 
   flex flex-col md:flex-row items-center justify-between gap-4"
 >
   <div className="text-left">
