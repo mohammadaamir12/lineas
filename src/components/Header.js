@@ -18,6 +18,8 @@ import {
   Moon,
   Trash2,
   Users2,
+  MessageCircle,
+  FileText,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -27,8 +29,8 @@ const NAV = [
   { label: "Buy", href: "/propertydetails", icon: DollarSign },
   { label: "Short Let", href: "/propertydetails", icon: Calendar },
   { label: "Commercial", href: "/propertydetails", icon: Building },
-  { label: "Landlords", href: "/landlords", icon: Users, hasSubmenu: true },
-  { label: "Tenants", href: "/tenants", icon: UserCheck, hasSubmenu: true },
+  { label: "Landlords", icon: Users, hasSubmenu: true },
+  { label: "Tenants", icon: UserCheck, hasSubmenu: true },
   { label: "Contact", href: "/contact", icon: Mail },
 ];
 
@@ -38,17 +40,21 @@ const LANDLORD_SUBMENU = [
 ];
 
 const TENANTS_SUBMENU = [
-  { label: "Tenant Services", href: "/tenants/services", icon: UserCheck },
-  { label: "Tenant Guide", href: "/tenants/guide", icon: Users2 },
+  { label: "Advice", href: "/tenantadvice", icon: MessageCircle },
+  { label: "Fees", href: "/tenantfees", icon: Trash2 },
+  { label: "Deposit Scheme", href: "/tenantdeposit", icon: FileText },
 ];
 
-export default function Header() {
+export default function Header({ rent }) {
   const [open, setOpen] = useState(false);
   const [animate, setAnimate] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [showLandlordsDropdown, setShowLandlordsDropdown] = useState(false);
+  const [showTenantsDropdown, setShowTenantsDropdown] = useState(false);
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState({});
-  const [selectedItem, setSelectedItem] = useState(null); // Track selected item
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [landlordsHoverTimeout, setLandlordsHoverTimeout] = useState(null);
+  const [tenantsHoverTimeout, setTenantsHoverTimeout] = useState(null);
   const pathname = usePathname() || "/";
   const { theme, setTheme } = useTheme();
   const router = useRouter();
@@ -56,27 +62,51 @@ export default function Header() {
   useEffect(() => {
     setMounted(true);
     const timer = setTimeout(() => setAnimate(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      clearTimeout(timer);
+      if (landlordsHoverTimeout) clearTimeout(landlordsHoverTimeout);
+      if (tenantsHoverTimeout) clearTimeout(tenantsHoverTimeout);
+    };
+  }, [landlordsHoverTimeout, tenantsHoverTimeout]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('selectedPropertyItem');
+      if (saved && pathname === "/propertydetails") {
+        setSelectedItem(saved);
+      } else if (pathname !== "/propertydetails") {
+        setSelectedItem(null);
+        sessionStorage.removeItem('selectedPropertyItem');
+      }
+    }
+  }, [pathname]);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const isActive = (item) => {
-    // Check if the item is one of Rent, Buy, Short Let, or Commercial
     const propertyItems = ["Rent", "Buy", "Short Let", "Commercial"];
+    
     if (propertyItems.includes(item.label)) {
-      return selectedItem === item.label; // Only active if it's the selected item
+      return pathname === "/propertydetails" && (selectedItem === item.label || (item.label === "Rent" && rent));
     }
 
-    // Existing logic for other items
+    if (item.label === "Home") {
+      return pathname === "/" && selectedItem === null;
+    }
+
     if (item.label === "Landlords") {
-      return LANDLORD_SUBMENU.some(sub => pathname === sub.href) || pathname.startsWith("/landlords");
+      return LANDLORD_SUBMENU.some(sub => pathname === sub.href) || pathname.startsWith("/landlords") || pathname.startsWith("/managementfees");
     }
+    
     if (item.label === "Tenants") {
-      return TENANTS_SUBMENU.some(sub => pathname === sub.href) || pathname.startsWith("/tenants");
+      return TENANTS_SUBMENU.some(sub => pathname === sub.href) || pathname.startsWith("/tenant");
     }
+     if (item.label === "Contact") {
+      return pathname.startsWith("/contact");
+    }
+    
     return pathname === item.href;
   };
 
@@ -87,6 +117,30 @@ export default function Header() {
       ...prev,
       [itemLabel]: !prev[itemLabel]
     }));
+  };
+
+  const handleLandlordsMouseEnter = () => {
+    if (landlordsHoverTimeout) clearTimeout(landlordsHoverTimeout);
+    setShowLandlordsDropdown(true);
+  };
+
+  const handleLandlordsMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowLandlordsDropdown(false);
+    }, 150);
+    setLandlordsHoverTimeout(timeout);
+  };
+
+  const handleTenantsMouseEnter = () => {
+    if (tenantsHoverTimeout) clearTimeout(tenantsHoverTimeout);
+    setShowTenantsDropdown(true);
+  };
+
+  const handleTenantsMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowTenantsDropdown(false);
+    }, 150);
+    setTenantsHoverTimeout(timeout);
   };
 
   const getSubmenuItems = (itemLabel) => {
@@ -102,12 +156,20 @@ export default function Header() {
 
   const handleNavClick = (item) => {
     const propertyItems = ["Rent", "Buy", "Short Let", "Commercial"];
+    
     if (propertyItems.includes(item.label)) {
-      setSelectedItem(item.label); // Set the selected item
+      setSelectedItem(item.label);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('selectedPropertyItem', item.label);
+      }
     } else {
-      setSelectedItem(null); // Clear selection for non-property items
+      setSelectedItem(null);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('selectedPropertyItem');
+      }
     }
-    setOpen(false); // Close mobile menu
+    
+    setOpen(false);
     router.push(item.href);
   };
 
@@ -133,42 +195,36 @@ export default function Header() {
         }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-20 h-20 flex items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <img src="/lineas-logo.png" alt="LINEAS Estate Agents" className="h-12 w-auto object-contain" />
+            <img 
+              src="/lineas-logo.png" 
+              alt="LINEAS Estate Agents" 
+              className="h-8 w-auto object-contain md:h-8 lg:h-10 xl:h-12" 
+            />
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-5 ml-20">
             {NAV.map((item, index) => {
               const active = isActive(item);
+              const hasSubmenu = item.hasSubmenu;
 
-              const handleClick = (e) => {
-                e.preventDefault();
-                if (item.label === "Landlords") {
-                  router.push("/landlordsfees");
-                  setSelectedItem(null);
-                } else if (item.label === "Tenants") {
-                  router.push("/tenants");
-                  setSelectedItem(null);
-                } else {
-                  handleNavClick(item);
-                }
-              };
+              if (hasSubmenu) {
+                const isLandlords = item.label === "Landlords";
+                const isTenants = item.label === "Tenants";
+                const showDropdown = isLandlords ? showLandlordsDropdown : showTenantsDropdown;
+                const handleMouseEnter = isLandlords ? handleLandlordsMouseEnter : handleTenantsMouseEnter;
+                const handleMouseLeave = isLandlords ? handleLandlordsMouseLeave : handleTenantsMouseLeave;
+                const submenuItems = getSubmenuItems(item.label);
 
-              if (item.label === "Landlords") {
                 return (
                   <div
-                    key={item.href}
+                    key={item.label}
                     className="relative"
-                    onMouseEnter={() => setShowLandlordsDropdown(true)}
-                    onMouseLeave={() => setShowLandlordsDropdown(false)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                   >
-                    <Link
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                      onClick={handleClick}
-                      className="group relative px-1 py-1 font-medium"
+                    <span
+                      className="group relative px-1 py-1 font-medium cursor-pointer"
                       style={{ color: "var(--foreground)" }}
                     >
                       <span
@@ -187,18 +243,17 @@ export default function Header() {
                         ].join(" ")}
                         style={{ backgroundColor: active ? "#33B7DF" : "var(--foreground)" }}
                       />
-                    </Link>
+                    </span>
 
-                    {/* Dropdown */}
                     <div
                       className={[
                         "absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-all duration-200 min-w-[200px]",
-                        showLandlordsDropdown ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-2 pointer-events-none",
+                        showDropdown ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-2 pointer-events-none",
                       ].join(" ")}
                       style={{ borderColor: "var(--foreground, #e2e8f0)", zIndex: 60 }}
                     >
                       <div className="py-2">
-                        {LANDLORD_SUBMENU.map((subItem) => {
+                        {submenuItems.map((subItem) => {
                           const SubIcon = subItem.icon;
                           const isSubActive = isSubmenuItemActive(subItem.href);
                           return (
@@ -206,15 +261,34 @@ export default function Header() {
                               key={subItem.href}
                               href={subItem.href}
                               className={[
-                                "flex items-center gap-3 px-4 py-3 transition-colors",
+                                "flex items-center gap-3 px-4 py-3 transition-colors group",
                                 isSubActive
                                   ? "bg-[#33B7DF]/10 text-[#33B7DF] font-semibold"
-                                  : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-800 hover:text-white"
                               ].join(" ")}
-                              style={{ color: isSubActive ? "#33B7DF" : "var(--foreground)" }}
+                              onClick={() => {
+                                setSelectedItem(null);
+                                if (typeof window !== 'undefined') {
+                                  sessionStorage.removeItem('selectedPropertyItem');
+                                }
+                              }}
                             >
-                              <SubIcon size={20} />
-                              <span className="font-medium">{subItem.label}</span>
+                              <SubIcon 
+                                size={20} 
+                                className={
+                                  isSubActive 
+                                    ? "text-[#33B7DF]" 
+                                    : "text-slate-700 dark:text-slate-300 group-hover:text-white"
+                                } 
+                              />
+                              <span className={[
+                                "font-medium",
+                                isSubActive 
+                                  ? "text-[#33B7DF]" 
+                                  : "text-slate-700 dark:text-slate-300 group-hover:text-white"
+                              ].join(" ")}>
+                                {subItem.label}
+                              </span>
                             </Link>
                           );
                         })}
@@ -229,7 +303,7 @@ export default function Header() {
                   key={index}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  onClick={handleClick}
+                  onClick={() => handleNavClick(item)}
                   className="group relative px-1 py-1 font-medium"
                   style={{ color: "var(--foreground)" }}
                 >
@@ -254,26 +328,24 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Desktop CTA + Theme */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3 ml-6">
             <Link
-  href="/bookvaluation"
-  className="rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap 
-             border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)] 
-             hover:bg-white hover:text-slate-900"
->
-  Book Valuation
-</Link>
+              href="/bookvaluation"
+              className="rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap 
+                         border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)] 
+                         hover:bg-white hover:text-slate-900"
+            >
+              Book Valuation
+            </Link>
 
             <Link
-  href="/favorites"
-  className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap
-             border-[var(--foreground)] text-[var(--foreground)]
-             hover:bg-slate-900 hover:text-white"
->
-  My Lineas <Heart size={16} />
-</Link>
-
+              href="/favorites"
+              className="group flex items-center gap-2 rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap
+                         border-[var(--foreground)] text-[var(--background)] bg-[var(--foreground)]
+                         hover:bg-white hover:text-slate-900"
+            >
+              My Lineas <Heart size={16} />
+            </Link>
 
             <button
               onClick={toggleTheme}
@@ -284,7 +356,6 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Mobile Toggle */}
           <div className="lg:hidden flex items-center gap-1">
             <button
               onClick={toggleTheme}
@@ -300,7 +371,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <div
         className={[
           "lg:hidden fixed inset-0 z-[55] bg-white dark:bg-gray-900 transition-all duration-500",
@@ -354,11 +424,14 @@ export default function Header() {
                         const isSubActive = pathname === subItem.href;
                         return (
                           <button
-                            key={subItem.href}
+                            key={subItem.label}
                             onClick={() => {
                               setOpen(false);
                               router.push(subItem.href);
-                              setSelectedItem(null); // Clear selection for submenu items
+                              setSelectedItem(null);
+                              if (typeof window !== 'undefined') {
+                                sessionStorage.removeItem('selectedPropertyItem');
+                              }
                             }}
                             className={[
                               "w-full flex items-center gap-3 p-3 ml-4 rounded-xl transition-colors box-border",
@@ -387,6 +460,9 @@ export default function Header() {
                   setOpen(false);
                   router.push("/valuation");
                   setSelectedItem(null);
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('selectedPropertyItem');
+                  }
                 }}
                 className="flex items-center justify-center px-3 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold transition-all duration-200 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-white"
               >
@@ -397,6 +473,9 @@ export default function Header() {
                   setOpen(false);
                   router.push("/favorites");
                   setSelectedItem(null);
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('selectedPropertyItem');
+                  }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 border-slate-900 dark:border-white text-slate-900 dark:text-white text-sm font-semibold transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800"
               >

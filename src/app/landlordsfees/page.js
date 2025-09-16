@@ -18,7 +18,7 @@ export default function LandlordFeesSection() {
           }}
         >
           {/* Blur Overlay */}
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gray-600/60" />
 
           {/* Title */}
           <div className="relative z-10">

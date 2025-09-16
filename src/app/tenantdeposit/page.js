@@ -4,7 +4,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
-export default function ManagementFeesSection() {
+export default function TenantdepositSection() {
   return (
     <div>
       <Header />
@@ -23,7 +23,7 @@ export default function ManagementFeesSection() {
           {/* Title */}
           <div className="relative z-10">
             <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
-              Landlord Management
+              Deposit Scheme
             </h1>
           </div>
         </div>
@@ -68,18 +68,19 @@ export default function ManagementFeesSection() {
                   Viewing properties
                 </h2>
                 <p className="text-gray-700 leading-relaxed text-lg">
-                  Try to be available and as flexible as possible. Yes,
-                  we&apos;ve said it before, but the lettings business is incredibly
-                  fast moving and when a good property comes to the market there
-                  can be a rush to view and offers are often made immediately.
-                  You could miss out if you can&apos;t make yourself available within
-                  24 hours of the agent contacting you.
+                  Try to be available and as flexible as possible. Yes, we&apos;ve
+                  said it before, but the lettings business is incredibly fast
+                  moving and when a good property comes to the market there can
+                  be a rush to view and offers are often made immediately. You
+                  could miss out if you can&apos;t make yourself available within 24
+                  hours of the agent contacting you.
                   <br />
                   <br />
                   Don&apos;t necessarily be put off by details in the property. If
-                  you don&apos;t like the wall colour, or the sofa isn&apos;t big enough,
-                  have a chat with the agent. We encourage our landlords to be
-                  flexible and accommodate tenant&apos;s requests whenever possible.
+                  you don&apos;t like the wall colour, or the sofa isn&apos;t big
+                  enough, have a chat with the agent. We encourage our landlords
+                  to be flexible and accommodate tenant&apos;s requests whenever
+                  possible.
                   <br />
                   <br />
                   If you want the landlord to undertake any improvement works,
