@@ -35,11 +35,11 @@ export default function HeroSection() {
         </p>
 
         {/* Tabs & Search */}
-        <div className=" bg-white/10 backdrop-blur-md rounded-xl shadow-lg  w-full mt-5">
+      <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-lg w-full mt-5">
   {/* Tabs */}
   <div className="flex w-full justify-between">
     <button
-      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tr-xl rounded-tl-xl ${
+      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tl-xl  border-r-3 border-r-white/30 ${
         activeTab === "rent"
           ? "text-white border-b-2 border-white bg-white/10"
           : "text-gray-200 hover:text-white"
@@ -49,7 +49,7 @@ export default function HeroSection() {
       Rent
     </button>
     <button
-      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tr-xl rounded-tl-xl ${
+      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tr-xl ${
         activeTab === "buy"
           ? "text-white border-b-2 border-white bg-white/10"
           : "text-gray-200 hover:text-white"
