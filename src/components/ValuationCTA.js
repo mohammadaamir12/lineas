@@ -28,7 +28,7 @@ const ValuationCTA = () => {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="/valuation"
+            href="/bookvaluation"
             className="bg-cyan-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-cyan-600 transition shadow-md"
           >
             Book a Valuation

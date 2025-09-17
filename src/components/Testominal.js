@@ -4,6 +4,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const testimonials = [
   {
@@ -55,9 +56,13 @@ export default function Testimonials() {
             From trust to satisfaction, hear directly from our valued clients as
             they share their stories and feedback about working with us.
           </p>
+          <Link
+          href={'/contact'}
+          >
           <button className="bg-cyan-500 text-white px-6 py-3 rounded-full font-medium hover:bg-cyan-600 transition">
             Connect now <span className="ml-1">•</span>
           </button>
+          </Link>
         </div>
 
         {/* Right Side - Slider */}
