@@ -1,68 +1,26 @@
+
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Bed,
-  Bath,
-  Users,
-  Square,
-  Star,
-} from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const LatestProperties = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const sectionRef = useRef(null);
+  const carouselRef = useRef(null);
+  const autoSlideRef = useRef(null);
   const router = useRouter();
 
-  // Check if mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  // Intersection Observer to detect when section is in view
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect(); // Stop observing after animation triggers
-        }
-      },
-      {
-        threshold: 0.1, // Trigger when 10% of the section is visible
-      }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
-
-  // 👇 Replace with your "Latest Properties" data
-  const originalProperties = [
+  // Properties data
+   const originalProperties = [
     {
       id: 1,
       title: "Cozy 2-Bed Apartment in Shoreditch",
       location: "London",
-      image:
-        "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=400&fit=crop",
       price: "£3,200",
       period: "/monthly",
       beds: 2,
@@ -74,8 +32,7 @@ const LatestProperties = () => {
       id: 2,
       title: "Modern Loft Studio in Soho",
       location: "London",
-      image:
-        "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&h=400&fit=crop",
       price: "£2,100",
       period: "/monthly",
       beds: 1,
@@ -87,8 +44,7 @@ const LatestProperties = () => {
       id: 3,
       title: "Stylish Family Home with Garden",
       location: "Manchester",
-      image:
-        "https://images.unsplash.com/photo-1599423300746-b62533397364?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1599423300746-b62533397364?w=600&h=400&fit=crop",
       price: "£485,000",
       period: "",
       beds: 3,
@@ -100,8 +56,7 @@ const LatestProperties = () => {
       id: 4,
       title: "Luxury Townhouse in Chelsea",
       location: "London",
-      image:
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
       price: "£1,850,000",
       period: "",
       beds: 4,
@@ -113,8 +68,7 @@ const LatestProperties = () => {
       id: 5,
       title: "Riverside Flat with Balcony",
       location: "Liverpool",
-      image:
-        "https://images.unsplash.com/photo-1600585152915-d67e4c3a8d0e?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1599423300746-b62533397364?w=600&h=400&fit=crop",
       price: "£1,750",
       period: "/monthly",
       beds: 2,
@@ -124,77 +78,121 @@ const LatestProperties = () => {
     },
   ];
 
-  // Create infinite loop by duplicating properties for desktop
+  const totalOriginal = originalProperties.length;
+  // Use 10 sets of properties for a larger buffer to handle rapid clicks
   const properties = isMobile
     ? originalProperties
-    : [...originalProperties, ...originalProperties, ...originalProperties];
+    : Array(10).fill(originalProperties).flat();
+  const slidesToShow = isMobile ? 1 : 3;
 
-  // Auto-slide logic
+  // Check mobile view
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (isMobile) {
-        setCurrentSlide((prev) => (prev + 1) % originalProperties.length);
-      } else {
-        setCurrentSlide((prev) => {
-          const maxSlide = properties.length - 3;
-          if (prev >= maxSlide) {
-            return 0; // Reset
-          }
-          return prev + 1;
-        });
-      }
-    }, 4000);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [originalProperties.length, properties.length, isMobile]);
-
-  const nextSlide = () => {
-    if (isMobile) {
-      setCurrentSlide((prev) => (prev + 1) % originalProperties.length);
-    } else {
-      setCurrentSlide((prev) => {
-        const maxSlide = properties.length - 3;
-        if (prev >= maxSlide) {
-          return 0;
+  // Intersection Observer for visibility
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
         }
-        return prev + 1;
-      });
-    }
-  };
+      },
+      { threshold: 0.1 }
+    );
 
-  const prevSlide = () => {
-    if (isMobile) {
-      setCurrentSlide(
-        (prev) => (prev - 1 + originalProperties.length) % originalProperties.length
-      );
-    } else {
-      setCurrentSlide((prev) => {
-        const maxSlide = properties.length - 3;
-        if (prev <= 0) {
-          return maxSlide;
-        }
-        return prev - 1;
-      });
-    }
-  };
-
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
-  const FilterPage = () => {
-    router.push('propertydetails');
-  };
-
-  const PropertyCard = ({ property }) => {
-    const handleCardClick = () => {
-      // Use query parameters instead of dynamic routes for static export
-      router.push(`/property?id=${property.id}`);
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => {
+      if (sectionRef.current) observer.unobserve(sectionRef.current);
     };
-    
+  }, []);
+
+  // Initialize carousel position
+  useEffect(() => {
+    setCurrentIndex(isMobile ? 0 : totalOriginal * 2); // Start in the middle of the sets
+  }, [isMobile, totalOriginal]);
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (!isVisible) return;
+
+    autoSlideRef.current = setInterval(() => {
+      if (!isTransitioning) {
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => (prev + 1) % properties.length);
+      }
+    }, 3000);
+
+    return () => clearInterval(autoSlideRef.current);
+  }, [isVisible, isTransitioning, properties.length]);
+
+  // Handle transition end to reset isTransitioning
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const handleTransitionEnd = () => {
+      setIsTransitioning(false);
+    };
+
+    carousel.addEventListener("transitionend", handleTransitionEnd);
+    return () => {
+      carousel.removeEventListener("transitionend", handleTransitionEnd);
+    };
+  }, []);
+
+  // Navigation functions with debouncing
+  const nextSlide = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev + 1) % properties.length);
+  }, [isTransitioning, properties.length]);
+
+  const prevSlide = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
+  }, [isTransitioning, properties.length]);
+
+  const goToSlide = useCallback(
+    (index) => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setCurrentIndex(isMobile ? index : totalOriginal * 2 + index);
+    },
+    [isTransitioning, isMobile, totalOriginal]
+  );
+
+  // Pause auto-slide on hover
+  const handleMouseEnter = () => clearInterval(autoSlideRef.current);
+  const handleMouseLeave = () => {
+    if (isVisible) {
+      autoSlideRef.current = setInterval(() => {
+        if (!isTransitioning) {
+          setIsTransitioning(true);
+          setCurrentIndex((prev) => (prev + 1) % properties.length);
+        }
+      }, 3000);
+    }
+  };
+
+  // Navigation to property details
+  const FilterPage = () => router.push("propertydetails");
+
+  // Get current slide indicator
+  const getCurrentSlideIndicator = () => currentIndex % totalOriginal;
+
+  // PropertyCard component
+  const PropertyCard = React.memo(({ property, index }) => {
+    const handleCardClick = () => router.push(`/property?id=${property.id}`);
+
     return (
-      <div 
-        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer"
+      <div
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer will-change-transform"
         onClick={handleCardClick}
       >
         <div className="relative">
@@ -202,21 +200,20 @@ const LatestProperties = () => {
             src={property.image}
             alt={property.title}
             className="w-full h-48 object-cover"
+            loading="lazy"
           />
-
-          {/* Top left badges */}
           <div className="absolute top-3 left-3 flex gap-2">
-            {property.badges.map((badge, index) => (
+            {property.badges?.map((badge, badgeIndex) => (
               <span
-                key={index}
+                key={`${index}-${badgeIndex}`}
                 className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
-                  badge === "Latest"
-                    ? "bg-green-600 text-white"
-                    : badge === "For Rent"
-                    ? "bg-blue-500 text-white"
+                  badge === "Featured"
+                    ? "bg-orange-500 text-white"
+                    : badge === "Commercial"
+                    ? "bg-purple-500 text-white"
                     : badge === "For Sale"
                     ? "bg-red-500 text-white"
-                    : "bg-gray-500 text-white"
+                    : "bg-blue-500 text-white"
                 }`}
               >
                 <Star className="w-3 h-3 mr-1" />
@@ -224,19 +221,32 @@ const LatestProperties = () => {
               </span>
             ))}
           </div>
+          {property.status && (
+            <div className="absolute top-3 right-3">
+              <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center">
+                📋 {property.status}
+              </span>
+            </div>
+          )}
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            {property.fingerprint && (
+              <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                👆 {property.fingerprint}
+              </span>
+            )}
+            {property.energyRating && (
+              <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                🏠 {property.energyRating}
+              </span>
+            )}
+          </div>
         </div>
-
         <div className="p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
-            {property.title}
-          </h3>
-
+          <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">{property.title}</h3>
           <div className="flex items-center text-gray-600 mb-4">
             <MapPin className="w-4 h-4 mr-2 text-blue-500" />
             <span className="text-sm font-medium">{property.location}</span>
           </div>
-
-          {/* Property details */}
           <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 flex-wrap">
             {property.beds && (
               <div className="flex items-center">
@@ -250,6 +260,12 @@ const LatestProperties = () => {
                 <span>{property.baths} baths</span>
               </div>
             )}
+            {property.reception && (
+              <div className="flex items-center">
+                <Users className="w-4 h-4 mr-1 text-blue-500" />
+                <span>{property.reception} rec</span>
+              </div>
+            )}
             {property.sqft && (
               <div className="flex items-center">
                 <Square className="w-4 h-4 mr-1 text-blue-500" />
@@ -257,154 +273,121 @@ const LatestProperties = () => {
               </div>
             )}
           </div>
-
           <div className="text-2xl font-bold text-gray-900">
             {property.price}
-            {property.period && (
-              <span className="text-sm font-normal text-gray-600 ml-1">
-                {property.period}
-              </span>
-            )}
+            {property.period && <span className="text-sm font-normal text-gray-600 ml-1">{property.period}</span>}
           </div>
         </div>
       </div>
     );
-  };
+  });
 
   return (
     <div
       ref={sectionRef}
       className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
-      style={{
-        backgroundColor: "var(--background)",
-      }}
+      style={{ backgroundColor: "var(--background)" }}
     >
-      {/* Header with animation */}
-      <div 
+      <div
         className="flex flex-col lg:flex-row justify-between items-start mb-10"
         style={{
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? "translateY(0)" : "translateY(50px)",
-          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transition: "opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
         }}
       >
-        <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
-          
-           <h1
-  style={{
-    margin: 0,
-    fontSize: "38px",
-    fontWeight: 500,
-    fontFamily: "Poppins, sans-serif",
-    lineHeight: "38px",
-    color: "rgb(51, 51, 51)",
-    display: "flex",
-    alignItems: "baseline",
-  }}
->
-  <span style={{ color: "#000", marginRight: 10 }}>Latest</span>
-  <span style={{ color: "#0FC6D6", alignItems: "center" }}>
-    Properties
-    <hr
-      style={{
-        border: "2px solid #D3F1F8",
-        width: "100%",
-        marginTop: "1px",
-        borderRadius: 10,
-      }}
-    />
-  </span>
-</h1>
-          <p
-            className="text-base lg:text-lg max-w-2xl mt-6"
-            style={{ color: "var(--foreground)" }}
+        <div style={{ fontFamily: "Arial, sans-serif", color: "#2c3e50" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "38px",
+              fontWeight: 500,
+              fontFamily: "Poppins, sans-serif",
+              lineHeight: "38px",
+              color: "rgb(51, 51, 51)",
+              display: "flex",
+              alignItems: "baseline",
+            }}
           >
-            Discover the newest listings added to our platform – fresh homes,
-            apartments, and investments waiting for you.
+            <span style={{ color: "#000", marginRight: 10 }}>Latest</span>
+            <span style={{ color: "#0FC6D6", alignItems: "center" }}>
+              Properties
+              <hr
+                style={{
+                  border: "2px solid #D3F1F8",
+                  width: "100%",
+                  marginTop: "1px",
+                  borderRadius: 10,
+                }}
+              />
+            </span>
+          </h1>
+          <p className="text-base lg:text-lg max-w-2xl mt-6" style={{ color: "var(--foreground)" }}>
+            Discover our newest property listings, freshly added to the market with the most up-to-date features and pricing.
           </p>
         </div>
-
-        {/* Button below text on mobile, right side on desktop */}
         <button
           onClick={FilterPage}
-          className="mt-6 lg:mt-0 hover:text-cyan-300 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+          className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
           style={{ color: "var(--foreground)" }}
         >
-          View all latest
+          View all featured
           <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
         </button>
       </div>
-
-      {/* Main carousel container with animation */}
-      <div 
+      <div
         className="relative"
         style={{
           opacity: isVisible ? 1 : 0,
-          transform: isVisible ? "scale(1)" : "scale(0.5)",
-          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          transform: isVisible ? "scale(1)" : "scale(0.95)",
+          transition: "opacity 0.8s ease-out, transform 0.8s ease-out",
           transitionDelay: "200ms",
         }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        {/* Navigation Buttons */}
         <button
           onClick={prevSlide}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110"
+          disabled={isTransitioning}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ willChange: "transform" }}
         >
           <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
         </button>
-
         <button
           onClick={nextSlide}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110"
+          disabled={isTransitioning}
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ willChange: "transform" }}
         >
           <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
         </button>
-
-        {/* Properties Container with individual card animations */}
         <div className="overflow-hidden rounded-xl">
           <div
-            className="flex transition-transform duration-700 ease-in-out"
+            ref={carouselRef}
+            className="flex"
             style={{
-              transform: isMobile
-                ? `translateX(-${currentSlide * 100}%)`
-                : `translateX(-${currentSlide * (100 / 3)}%)`,
+              transform: `translate3d(-${(currentIndex * 100) / slidesToShow}%, 0, 0)`,
+              transition: isTransitioning ? "transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+              willChange: "transform",
             }}
           >
-            {properties.map((property, index) => {
-              // Calculate visible card index for animation delay
-              const visibleIndex = isMobile 
-                ? (index === currentSlide ? 0 : -1) // Only current slide is visible on mobile
-                : index >= currentSlide && index < currentSlide + 3 
-                  ? index - currentSlide // Cards 0, 1, 2 for desktop
-                  : -1;
-
-              return (
-                <div
-                  key={`${property.id}-${index}`}
-                  className={`flex-shrink-0 px-2 ${
-                    isMobile ? "w-full" : "w-1/3"
-                  }`}
-                  style={{
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
-                    transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    transitionDelay: visibleIndex >= 0 ? `${400 + (visibleIndex * 200)}ms` : "400ms",
-                  }}
-                >
-                  <PropertyCard property={property} />
-                </div>
-              );
-            })}
+            {properties.map((property, index) => (
+              <div
+                key={`${property.id}-${Math.floor(index / totalOriginal)}-${index % totalOriginal}`}
+                className={`flex-shrink-0 px-2 ${isMobile ? "w-full" : "w-1/3"}`}
+              >
+                <PropertyCard property={property} index={index} />
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Slide Indicators with animation */}
-        <div 
+        <div
           className="flex justify-center mt-8 gap-2"
           style={{
             opacity: isVisible ? 1 : 0,
-            transform: isVisible ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            transform: isVisible ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
             transitionDelay: "400ms",
           }}
         >
@@ -412,12 +395,9 @@ const LatestProperties = () => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                (isMobile
-                  ? index === currentSlide
-                  : index === currentSlide % originalProperties.length)
-                  ? "bg-cyan-500 w-8"
-                  : "bg-gray-300 hover:bg-gray-400 w-2"
+              disabled={isTransitioning}
+              className={`h-2 rounded-full transition-all duration-300 disabled:cursor-not-allowed ${
+                index === getCurrentSlideIndicator() ? "bg-cyan-500 w-8" : "bg-gray-300 hover:bg-gray-400 w-2"
               }`}
             />
           ))}

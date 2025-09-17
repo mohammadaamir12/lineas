@@ -30,18 +30,17 @@ export default function HeroSection() {
         <h1 className="text-4xl md:text-5xl font-bold text-white ">
           Find Your Future
         </h1>
-        <p className="mt-2 text-lg text-gray-200">
+        <p className="mt-2 text-lg text-gray-200 mb-2">
           Discover properties that define tomorrow&apos;s living, today.
         </p>
 
         {/* Tabs & Search */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl shadow-lg w-full mt-5">
-  {/* Tabs */}
-  <div className="flex w-full justify-between">
+        {/* Tabs */}
+  <div className="flex w-full justify-between gap-2">
     <button
-      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tl-xl  border-r-3 border-r-white/30 ${
+      className={`text-lg bg-white/10 backdrop-blur-md font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg   ${
         activeTab === "rent"
-          ? "text-white border-b-2 border-white bg-white/10"
+          ? "text-white border-b-2 border-white bg-white/40"
           : "text-gray-200 hover:text-white"
       }`}
       onClick={() => setActiveTab("rent")}
@@ -49,9 +48,9 @@ export default function HeroSection() {
       Rent
     </button>
     <button
-      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-tr-xl ${
+      className={`text-lg bg-white/10 backdrop-blur-md font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
         activeTab === "buy"
-          ? "text-white border-b-2 border-white bg-white/10"
+          ? "text-white border-b-2 border-white bg-white/40"
           : "text-gray-200 hover:text-white"
       }`}
       onClick={() => setActiveTab("buy")}
@@ -59,15 +58,16 @@ export default function HeroSection() {
       Buy
     </button>
   </div>
+     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-full">
+
+  
 
   {/* Search bar */}
   <div className="mt-5 flex items-center bg-white backdrop-blur-lg rounded-lg border border-white/40 px-2 m-4">
     <input
       type="text"
-      placeholder={`Search properties to ${
-        activeTab === "buy" ? "buy" : "rent"
-      } by location or property ID...`}
-      className="flex-1 py-3 bg-transparent text-white placeholder-slate-800 outline-none text-sm"
+      placeholder={`Search a properties by area or postcode...`}
+      className="flex-1 py-3 bg-transparent text-white placeholder-slate-900 outline-none text-sm font-medium"
     />
     <button className="ml-auto p-2 bg-slate-900 rounded-lg shadow-md flex items-center justify-center gap-2">
       <h3 className="text-white text-sm">Search</h3>

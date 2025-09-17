@@ -28,7 +28,7 @@ const insights = [
     title: "How to Maximise Rental Income",
     date: "Aug 15, 2025",
     image:
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d6c2d6?w=600&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop",
     excerpt:
       "Landlords, discover practical strategies to improve your rental yields and attract long-term tenants.",
   },
