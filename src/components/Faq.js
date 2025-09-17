@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { Plus, Minus, Mail } from "lucide-react";
+import Link from "next/link";
 
 const faqs = [
   {
@@ -107,9 +108,13 @@ export default function FAQ() {
             Can’t find the answer you’re looking for? Our customer support team
             is here to help you 24/7.
           </p>
+          <Link
+          href={'/contact'}
+          >
           <button className="flex items-center gap-2 bg-white border-2 border-cyan-500 text-cyan-600 px-6 py-3 rounded-md font-medium hover:bg-cyan-50 transition mx-auto">
             <Mail className="w-4 h-4 font-bold" /> Contact Support
           </button>
+          </Link>
         </div>
 
         {/* Right FAQ Accordion */}

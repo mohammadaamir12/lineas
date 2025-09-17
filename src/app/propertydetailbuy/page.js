@@ -9,7 +9,7 @@ const PropertyListingPage = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
-    category: 'Rent',
+    category: 'Sale',
     priceInterval: 'Any Interval',
     city: 'All Cities',
     propertyType: 'All Properties',
@@ -19,7 +19,7 @@ const PropertyListingPage = () => {
   const properties = [
     {
       id: 1,
-      title: "Luxury Rent Apartment in Mayfair -Test",
+      title: "Luxury Sale Apartment in Mayfair -Test",
       location: "London",
       price: 200,
       priceType: "/weekly",
@@ -29,7 +29,7 @@ const PropertyListingPage = () => {
       sqft: 1200,
       image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=500&h=300&fit=crop",
       featured: true,
-      badges: ['Rent']
+      badges: ['Sale']
     },
     {
       id: 2,
@@ -43,7 +43,7 @@ const PropertyListingPage = () => {
       sqft: 14000,
       image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=300&fit=crop",
       latest: true,
-      badges: ['Rent', 'Under Offer', '1 FP', 'EPC']
+      badges: ['Sale', 'Under Offer', '1 FP', 'EPC']
     },
     {
       id: 3,
@@ -57,7 +57,7 @@ const PropertyListingPage = () => {
       sqft: 900,
       image: "https://images.unsplash.com/photo-1571055107559-3e67626fa8be?w=500&h=300&fit=crop",
       latest: true,
-      badges: ['Rent', 'Under Offer', 'Out of Stock']
+      badges: ['Sale', 'Under Offer', 'Out of Stock']
     }
   ];
 
@@ -75,7 +75,7 @@ const PropertyListingPage = () => {
 
   const resetFilters = () => {
     setFilters({
-      category: 'Rent',
+      category: 'Sale',
       priceInterval: 'Any Interval',
       city: 'All Cities',
       propertyType: 'All Properties',
@@ -90,7 +90,7 @@ const PropertyListingPage = () => {
   const getBadgeColor = (badge) => {
     switch (badge) {
       case 'Featured': return 'bg-orange-500 text-white';
-      case 'Rent': return 'bg-orange-500 text-white';
+      case 'Sale': return 'bg-orange-500 text-white';
       case 'Latest': return 'bg-blue-500 text-white';
       case 'Under Offer': return 'bg-red-500 text-white';
       case '1 FP': return 'bg-blue-100 text-blue-800';
