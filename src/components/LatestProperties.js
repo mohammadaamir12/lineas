@@ -187,7 +187,7 @@ const LatestProperties = () => {
   const getCurrentSlideIndicator = () => currentIndex % totalOriginal;
 
   // PropertyCard component
-  const PropertyCard = React.memo(({ property, index }) => {
+  const PropertyCard = React.memo(function PropertyCard({ property, index }) {
     const handleCardClick = () => router.push(`/property?id=${property.id}`);
 
     return (
