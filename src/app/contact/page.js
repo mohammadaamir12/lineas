@@ -1,16 +1,18 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { toast, Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { Mail, Phone, MapPin, User } from "lucide-react";
+import { Mail, Phone, MapPin, User, Loader2 } from "lucide-react";
 
 function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
   return (
     <div
-  className={`flex items-start p-6 rounded-2xl max-w-sm sm:max-w-2xs ${
-    dark ? "bg-slate-800 text-white" : "bg-white text-gray-800"
-  } shadow-lg hover:shadow-xl transition-shadow duration-300`}
->
+      className={`flex items-start p-6 rounded-2xl max-w-sm sm:max-w-2xs ${
+        dark ? "bg-slate-800 text-white" : "bg-white text-gray-800"
+      } shadow-lg hover:shadow-xl transition-shadow duration-300`}
+    >
       <div
         className={`p-3 rounded-xl flex items-center justify-center ${
           dark ? "bg-white/10" : "bg-slate-800"
@@ -26,7 +28,7 @@ function ContactCard({ icon: Icon, title, subtitle, info, dark }) {
             dark ? "text-blue-200" : "text-slate-800"
           }`}
         >
-          {info}
+          {info || "Loading..."}
         </p>
       </div>
     </div>
@@ -39,6 +41,9 @@ function InputField({
   placeholder,
   required = false,
   isTextarea = false,
+  value,
+  onChange,
+  name,
 }) {
   const baseClasses =
     "w-full p-5 border border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
@@ -50,6 +55,9 @@ function InputField({
       </label>
       {isTextarea ? (
         <textarea
+          name={name}
+          value={value}
+          onChange={onChange}
           placeholder={placeholder}
           className={`${baseClasses} h-32 resize-none border-2`}
           required={required}
@@ -58,6 +66,9 @@ function InputField({
         <div className="relative">
           <input
             type={type}
+            name={name}
+            value={value}
+            onChange={onChange}
             placeholder={placeholder}
             className={`h-16 border-2 ${baseClasses} ${
               type === "email" || type === "tel" || type === "text"
@@ -78,8 +89,129 @@ function InputField({
 }
 
 export default function ContactPage() {
+const [contactData, setContactData] = useState({
+    office_no: "",
+    mobile: "",
+    email: "",
+    address: "",
+  });
+
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "https://test-demo.in/lineasapi/api/v1/getcontactdata",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              token:
+                "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ==",
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch contact data");
+
+        const result = await response.json();
+        if (result.DATA) setContactData(result.DATA);
+        else throw new Error("No contact data returned");
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load contact data.");
+        setContactData({
+          office_no: "+44207 265 9396",
+          mobile: "9876543456",
+          email: "info@lineas.co.uk",
+          address: "8-10 Greatorex Street, London, E1 5NF",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactData();
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    const { firstName, lastName, email, phone, message } = formData;
+
+    if (!firstName || !lastName || !email || !phone || !message) {
+      toast.error("Please fill in all fields.", { duration: 3000, position: 'top-right', style: { background: '#EF4444', color: '#fff', }, });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email.",{ duration: 3000, position: 'top-right', style: { background: '#EF4444', color: '#fff', }, });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        "https://test-demo.in/lineasapi/api/v1/addcontactenquiry",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            token:
+              "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ==",
+          },
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            phone,
+            message,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to send message");
+
+      toast.success("Message sent successfully!", { duration: 3000, position: 'top-right', style: { background: '#EF4444', color: '#fff', }, });
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        message: "",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Try again later.", { duration: 3000, position: 'top-right', style: { background: '#EF4444', color: '#fff', }, });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
+      <Toaster />
       <Header />
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
@@ -109,19 +241,19 @@ export default function ContactPage() {
                   icon={Mail}
                   title="Email Us"
                   subtitle="Quick response guaranteed"
-                  info="info@lineas.co.uk"
+                  info={contactData.email}
                 />
                 <ContactCard
                   icon={Phone}
                   title="Call Us"
                   subtitle="Available for you"
-                  info="+44207 265 9396"
+                  info={contactData.office_no}
                 />
                 <ContactCard
                   icon={MapPin}
                   title="Visit Our Office"
                   subtitle="Modern workspace"
-                  info="8-10 Greatorex Street, London, E1 5NF"
+                  info={contactData.address}
                   dark
                 />
               </div>
@@ -143,12 +275,18 @@ export default function ContactPage() {
                       <InputField
                         label="First Name"
                         type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
                         placeholder="Enter your first name"
                         required
                       />
                       <InputField
                         label="Last Name"
                         type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
                         placeholder="Enter your last name"
                         required
                       />
@@ -157,6 +295,9 @@ export default function ContactPage() {
                     <InputField
                       label="Email Address"
                       type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
                       placeholder="Enter your email address"
                       required
                     />
@@ -164,6 +305,9 @@ export default function ContactPage() {
                     <InputField
                       label="Phone Number"
                       type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
                       placeholder="Enter your phone number"
                       required
                     />
@@ -174,8 +318,11 @@ export default function ContactPage() {
                       </label>
                       <div className="relative">
                         <textarea
+                          name="message"
+                          value={formData.message}
+                          onChange={handleInputChange}
                           placeholder="Tell us about your property needs or any questions you have..."
-                          className="text-md w-full p-5 pl-12 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32 resize-none"
+                          className=" text-md w-full p-3 pl-12 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 h-32 resize-none"
                           required
                         />
                         <div className="absolute left-4 top-4 text-gray-400">
@@ -185,11 +332,26 @@ export default function ContactPage() {
                     </div>
 
                     <button
-                      onClick={() => alert("Message sent! (This is a demo)")}
-                      className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-colors duration-200 text-lg shadow-lg hover:shadow-xl"
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className={`w-full font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-200 text-lg shadow-lg hover:shadow-xl ${
+                        isSubmitting
+                          ? 'bg-slate-400 cursor-not-allowed text-white'
+                          : 'bg-slate-800 hover:bg-slate-700 text-white'
+                      }`}
                     >
-                      <Mail className="w-5 h-5" />
-                      <span>Send Message</span>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-5 h-5" />
+                          <span>Send Message</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -197,6 +359,13 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+
+        {/* Error Message (if needed) */}
+        {error && (
+          <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg">
+            <p>Error loading contact data: {error}</p>
+          </div>
+        )}
       </div>
       <Footer />
     </>

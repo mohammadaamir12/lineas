@@ -251,7 +251,7 @@ export default function Header({ rent }) {
         <div className="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <img 
-              src="/lineas-logo.png" 
+              src="/Logo2.jpeg" 
               alt="LINEAS Estate Agents" 
               className="h-10 w-auto object-contain" 
             />
@@ -277,7 +277,7 @@ export default function Header({ rent }) {
         <div className="w-full px-4 sm:px-6 lg:px-20 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <img 
-              src="/lineas-logo.png" 
+              src="/Logo2.jpeg" 
               alt="LINEAS Estate Agents" 
               className="h-8 w-auto object-contain md:h-8 lg:h-10 xl:h-12" 
             />

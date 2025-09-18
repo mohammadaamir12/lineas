@@ -1,10 +1,32 @@
 "use client";
 
 import Image from "next/image";
+import toast, { Toaster } from "react-hot-toast";
+import React, { useState } from "react";
+
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = () => {
+    if (!email.trim()) {
+      toast.error("Please enter your email!");
+      return;
+    }
+
+    setLoading(true);
+
+    // simulate API request
+    setTimeout(() => {
+      setEmail(""); // clear input
+      setLoading(false); // re-enable button
+      toast.success("Subscribed successfully!");
+    }, 2000);
+  };
   return (
    <footer className="bg-[#F5F5F5]">
+     <Toaster position="top-right" reverseOrder={false} />
      <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
   {/* Logo & About */}
   <div>
@@ -50,47 +72,93 @@ export default function Footer() {
   
   {/* Email Subscription */}
   <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-    <input
-      type="email"
-      placeholder="Your email"
-      className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 min-h-[40px]"
-    />
-    <button className="bg-gray-900 text-white px-4 py-2 rounded-lg sm:rounded-l-none sm:rounded-r-lg hover:bg-gray-800 transition-colors font-medium min-h-[40px] whitespace-nowrap">
-      Subscribe
-    </button>
-  </div>
+        <input
+          type="email"
+          placeholder="Your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 min-h-[40px]"
+        />
+
+        <button
+          onClick={handleSubscribe}
+          disabled={loading}
+          className={`px-4 py-2 min-h-[40px] whitespace-nowrap font-medium transition-colors rounded-lg sm:rounded-l-none sm:rounded-r-lg
+            ${
+              loading
+                ? "bg-gray-700 text-gray-300 cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-gray-800"
+            }`}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              Subscribing...
+            </div>
+          ) : (
+            "Subscribe"
+          )}
+        </button>
+      </div>
   
   {/* Social Media */}
   <h4 className="font-semibold mt-6 mb-3 text-gray-800 dark:text-gray-100">Follow Us</h4>
-  <div className="flex flex-wrap gap-3 sm:gap-3">
-    {/* Facebook */}
-    <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg hover:from-blue-600 hover:to-blue-800 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-      <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-      </svg>
-    </div>
-    
-    {/* Twitter */}
-    <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg hover:from-sky-500 hover:to-sky-700 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-      <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-      </svg>
-    </div>
-    
-    {/* Instagram */}
-    <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 rounded-lg hover:from-pink-600 hover:via-red-600 hover:to-yellow-600 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-      <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.621 0 11.988-5.367 11.988-11.988C24.005 5.367 18.638.001 12.017.001zM15.971 12c0 2.188-1.783 3.972-3.971 3.972S8.029 14.188 8.029 12c0-2.188 1.783-3.972 3.971-3.972S15.971 9.812 15.971 12zM12 7.578c-2.442 0-4.422 1.98-4.422 4.422S9.558 16.422 12 16.422s4.422-1.98 4.422-4.422S14.442 7.578 12 7.578zM18.406 6.034c0 .568-.461 1.029-1.029 1.029s-1.029-.461-1.029-1.029.461-1.029 1.029-1.029 1.029.461 1.029 1.029z"/>
-      </svg>
-    </div>
-    
-    {/* LinkedIn */}
-    <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
-      <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-      </svg>
-    </div>
+ <div className="flex flex-wrap gap-3 sm:gap-3">
+  {/* Facebook */}
+  <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg hover:from-blue-600 hover:to-blue-800 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+    <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
   </div>
+
+  {/* TikTok */}
+  <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-black to-gray-700 rounded-lg hover:from-gray-900 hover:to-black transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+    <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2.04c-.51 0-1.02.04-1.52.12a10 10 0 1010.36 8.85c-.31.05-.63.08-.96.08a5.3 5.3 0 01-5.3-5.3V2.04A9.99 9.99 0 0012 2.04zm1.66 11.88a3.65 3.65 0 11-3.65-3.65c.34 0 .66.05.97.15v2.06a1.61 1.61 0 101.17 1.55V7.49h1.51c.21 1.07.92 1.97 1.87 2.47v1.58a3.65 3.65 0 01-1.87-.52v2.9z"/>
+    </svg>
+  </div>
+
+  {/* Instagram */}
+  <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 rounded-lg hover:from-pink-600 hover:via-red-600 hover:to-yellow-600 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+    <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988c6.621 0 11.988-5.367 11.988-11.988C24.005 5.367 18.638.001 12.017.001zM15.971 12c0 2.188-1.783 3.972-3.971 3.972S8.029 14.188 8.029 12c0-2.188 1.783-3.972 3.971-3.972S15.971 9.812 15.971 12zM18.406 6.034c0 .568-.461 1.029-1.029 1.029s-1.029-.461-1.029-1.029.461-1.029 1.029-1.029 1.029.461 1.029 1.029z"/>
+    </svg>
+  </div>
+
+  {/* X (Twitter New) */}
+  <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-black to-gray-800 rounded-lg hover:from-gray-900 hover:to-black transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+    <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26L22.5 21.75h-6.433l-4.77-6.228-5.457 6.228H2.532l7.73-8.824L1.5 2.25h6.602l4.317 5.718 5.825-5.718z"/>
+    </svg>
+  </div>
+
+  {/* YouTube */}
+  <div className="w-10 h-10 sm:w-8 sm:h-8 bg-gradient-to-br from-red-500 to-red-700 rounded-lg hover:from-red-600 hover:to-red-800 transition-all duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105">
+    <svg className="w-5 h-5 sm:w-4 sm:h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M23.498 6.186a2.974 2.974 0 00-2.094-2.103C19.691 3.5 12 3.5 12 3.5s-7.691 0-9.404.583a2.974 2.974 0 00-2.094 2.103C0 8.21 0 12 0 12s0 3.79.502 5.814a2.974 2.974 0 002.094 2.103C4.309 20.5 12 20.5 12 20.5s7.691 0 9.404-.583a2.974 2.974 0 002.094-2.103C24 15.79 24 12 24 12s0-3.79-.502-5.814zM9.75 15.568V8.432L15.568 12 9.75 15.568z"/>
+    </svg>
+  </div>
+</div>
+
 </div>
 </div>
 
