@@ -22,7 +22,12 @@ import {
   FileText,
   Bookmark, 
   User, 
-  LogOut
+  LogOut,
+  UserRoundCog ,
+  Binoculars,
+  CupSoda,
+  Coffee,
+  Building2
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -38,14 +43,14 @@ const NAV = [
 ];
 
 const LANDLORD_SUBMENU = [
-  { label: "Fees", href: "/landlordsfees", icon: Trash2 },
-  { label: "Management", href: "/managementfees", icon: Users2 },
+  { label: "Fees", href: "/landlordsfees", icon: CupSoda },
+  { label: "Management", href: "/managementfees", icon: UserRoundCog },
 ];
 
 const TENANTS_SUBMENU = [
-  { label: "Advice", href: "/tenantadvice", icon: MessageCircle },
-  { label: "Fees", href: "/tenantfees", icon: Trash2 },
-  { label: "Deposit Scheme", href: "/tenantdeposit", icon: FileText },
+  { label: "Advice", href: "/tenantadvice", icon: Binoculars },
+  { label: "Fees", href: "/tenantfees", icon: CupSoda },
+  { label: "Deposit Scheme", href: "/tenantdeposit", icon: Building2 },
 ];
 
 export default function Header({ rent }) {
@@ -275,15 +280,15 @@ export default function Header({ rent }) {
         }}
       >
         <div className="w-full px-4 sm:px-6 lg:px-20 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <img 
-              src="/Logo2.jpeg" 
-              alt="LINEAS Estate Agents" 
-              className="h-8 w-auto object-contain md:h-8 lg:h-10 xl:h-12" 
-            />
-          </Link>
+       <Link href="/" className="flex-shrink-0">
+  <img 
+    src="/lineas-logo.png" 
+    alt="LINEAS Estate Agents" 
+    className="h-8 w-auto  object-contain xl:h-14 md:10 lg:12" 
+  />
+</Link>
 
-          <nav className="hidden lg:flex items-center gap-5 ml-20">
+          <nav className="hidden lg:flex items-center gap-4 ml-20 ">
             {NAV.map((item, index) => {
               const active = isActive(item);
               const hasSubmenu = item.hasSubmenu;
@@ -342,38 +347,39 @@ export default function Header({ rent }) {
                           const isSubActive = isSubmenuItemActive(subItem.href);
                           return (
                             <Link
-                              key={subItem.href}
-                              href={subItem.href}
-                              className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
-                                isSubActive
-                                  ? "bg-[#33B7DF]/10 text-[#33B7DF] font-semibold"
-                                  : "hover:bg-black/5 dark:hover:bg-white/5"
-                              }`}
-                              style={{
-                                color: isSubActive ? "#33B7DF" : "var(--foreground)"
-                              }}
-                              onClick={() => {
-                                setSelectedItem(null);
-                                if (typeof window !== 'undefined') {
-                                  sessionStorage.removeItem('selectedPropertyItem');
-                                }
-                              }}
-                            >
-                              <SubIcon 
-                                size={20} 
-                                style={{
-                                  color: isSubActive ? "#33B7DF" : "var(--foreground)"
-                                }}
-                              />
-                              <span 
-                                className="font-medium"
-                                style={{
-                                  color: isSubActive ? "#33B7DF" : "var(--foreground)"
-                                }}
-                              >
-                                {subItem.label}
-                              </span>
-                            </Link>
+                          key={subItem.href}
+                          href={subItem.href}
+                         className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
+                         isSubActive
+                        ? "bg-[#33B7DF]/10 text-[#33B7DF] font-semibold"
+                       : "text-white hover:bg-slate-800 hover:text-white dark:hover:text-black"
+                       }`}
+                       onClick={() => {
+                       setSelectedItem(null);
+                        if (typeof window !== "undefined") {
+                         sessionStorage.removeItem("selectedPropertyItem");
+                        }
+                        }}
+                       >
+                      <SubIcon
+                       size={20}
+                        className={`transition-colors ${
+                        isSubActive
+                        ? "text-[#33B7DF]"
+                        : "text-[var(--foreground)] group-hover:text-white"
+                        }`}
+  />
+  <span
+    className={`font-medium text-sm transition-colors ${
+      isSubActive
+        ? "text-[#33B7DF]"
+        : "text-[var(--foreground)] group-hover:text-white"
+    }`}
+  >
+    {subItem.label}
+  </span>
+</Link>
+
                           );
                         })}
                       </div>
@@ -392,7 +398,7 @@ export default function Header({ rent }) {
                   style={{ color: "var(--foreground)" }}
                 >
                   <span
-                    className={`whitespace-nowrap block transition-all duration-500 ease-out font-semibold nav-label ${
+                    className={`whitespace-nowrap block transition-all duration-500 ease-out font-semibold nav-label  ${
                       animate ? "animate-slideInDown" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
@@ -431,55 +437,47 @@ export default function Header({ rent }) {
                 My Lineas <Heart size={16} />
               </button>
 
-              {showPopup && (
-                <div 
-                  className={`absolute top-full left-0 mt-2 w-48 rounded-lg border shadow-lg z-50 py-2 ${popupClass}`}
-                  onMouseEnter={handlePopupMouseEnter}
-                  onMouseLeave={handlePopupMouseLeave}
-                  style={{ 
-                    animation: 'fadeIn 0.2s ease-out',
-                    backgroundColor: "var(--background)",
-                    borderColor: "var(--foreground)",
-                    color: "var(--foreground)"
-                  }}
-                >
-                 
-                  
-                  <button 
-                    className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    <Home size={16} />
-                    Dashboard
-                  </button>
-                  
-                  <button 
-                    className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    <Bookmark size={16} />
-                    Favorites
-                  </button>
-                  
-                  <button 
-                    className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                    style={{ color: "var(--foreground)" }}
-                  >
-                    <User size={16} />
-                    Profile
-                  </button>
-                  
-                  <div 
-                    className="border-t border-opacity-20 my-1"
-                    style={{ borderTopColor: "var(--foreground)" }}
-                  ></div>
-                  
-                  <button className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 text-red-500 transition-colors hover:bg-black/5 dark:hover:bg-white/5">
-                    <LogOut size={16} />
-                    Sign Out
-                  </button>
-                </div>
-              )}
+           {showPopup && (
+          <div 
+            className={`absolute top-full left-0 mt-2 w-48 rounded-lg border shadow-lg z-50 py-2 ${popupClass}`}
+            onMouseEnter={handlePopupMouseEnter}
+            onMouseLeave={handlePopupMouseLeave}
+            style={{ 
+              animation: 'fadeIn 0.2s ease-out',
+              backgroundColor: "var(--background)",
+              borderColor: "var(--foreground)",
+              color: "var(--foreground)"
+            }}
+          >
+<button 
+      className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
+    >
+      <Home size={16} />
+      Dashboard
+    </button>
+    
+    <button 
+      className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
+    >
+      <Bookmark size={16} />
+      Favorites
+    </button>
+    
+    <button 
+      className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
+    >
+      <User size={16} />
+      Profile
+    </button>
+    
+    <div className="border-t border-gray-200 dark:border-gray-600 my-1"></div>
+    
+    <button className="w-full px-4 py-2 text-sm text-left flex items-center gap-3 text-red-500 hover:bg-slate-800 hover:text-white transition-colors duration-200">
+      <LogOut size={16} />
+      Sign Out
+    </button>
+          </div>
+        )}
             </div>
 
             <button

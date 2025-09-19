@@ -36,7 +36,7 @@ export default function HeroSection() {
 
         {/* Tabs & Search */}
         {/* Tabs */}
-  <div className="flex w-full justify-between gap-2">
+  <div className="flex w-[90%] justify-between gap-2">
     <button
       className={`text-lg bg-white/10 backdrop-blur-md font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg   ${
         activeTab === "rent"
@@ -58,7 +58,7 @@ export default function HeroSection() {
       Buy
     </button>
   </div>
-     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-full">
+     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-[90%]">
 
   
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
 import React, { useState } from "react";
+import Link from "next/link";
 
 
 export default function Footer() {
@@ -50,7 +51,9 @@ export default function Footer() {
     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
       <li><a href="#" className="hover:text-black dark:hover:text-white">Terms of Use</a></li>
       <li><a href="#" className="hover:text-black dark:hover:text-white">Privacy Policy</a></li>
-      <li><a href="#" className="hover:text-black dark:hover:text-white">Contact Support</a></li>
+      <li><Link href="/contact" className="hover:text-black dark:hover:text-white">
+    Contact Support
+  </Link></li>
       <li><a href="#" className="hover:text-black dark:hover:text-white">Complaints</a></li>
       <li><a href="#" className="hover:text-black dark:hover:text-white">About</a></li>
     </ul>

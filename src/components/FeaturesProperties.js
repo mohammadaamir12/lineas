@@ -8,6 +8,7 @@ const FeaturedProperties = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [activeSlides, setActiveSlides] = useState([]);
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const autoSlideRef = useRef(null);
@@ -86,11 +87,19 @@ const FeaturedProperties = () => {
   ];
 
   const totalOriginal = originalProperties.length;
-  // Use 10 sets of properties for a larger buffer to handle rapid clicks
   const properties = isMobile
     ? originalProperties
     : Array(10).fill(originalProperties).flat();
   const slidesToShow = isMobile ? 1 : 3;
+
+  // Initialize active slides based on currentIndex
+  useEffect(() => {
+    const initialSlides = [];
+    for (let i = 0; i < slidesToShow; i++) {
+      initialSlides.push((currentIndex + i) % totalOriginal);
+    }
+    setActiveSlides(initialSlides);
+  }, [currentIndex, slidesToShow, totalOriginal]);
 
   // Check mobile view
   useEffect(() => {
@@ -100,7 +109,7 @@ const FeaturedProperties = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Intersection Observer for visibility
+  // Intersection Observer for visibility - Same as Awards
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -109,18 +118,25 @@ const FeaturedProperties = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+      }
     );
 
-    if (sectionRef.current) observer.observe(sectionRef.current);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
     return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
     };
   }, []);
 
   // Initialize carousel position
   useEffect(() => {
-    setCurrentIndex(isMobile ? 0 : totalOriginal * 2); // Start in the middle of the sets
+    setCurrentIndex(isMobile ? 0 : totalOriginal * 2);
   }, [isMobile, totalOriginal]);
 
   // Auto-slide functionality
@@ -132,27 +148,32 @@ const FeaturedProperties = () => {
         setIsTransitioning(true);
         setCurrentIndex((prev) => (prev + 1) % properties.length);
       }
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(autoSlideRef.current);
   }, [isVisible, isTransitioning, properties.length]);
 
-  // Handle transition end to reset isTransitioning
+  // Handle transition end and update active slides
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
 
     const handleTransitionEnd = () => {
       setIsTransitioning(false);
+      const newActiveSlides = [];
+      for (let i = 0; i < slidesToShow; i++) {
+        newActiveSlides.push((currentIndex + i) % totalOriginal);
+      }
+      setActiveSlides(newActiveSlides);
     };
 
     carousel.addEventListener("transitionend", handleTransitionEnd);
     return () => {
       carousel.removeEventListener("transitionend", handleTransitionEnd);
     };
-  }, []);
+  }, [currentIndex, slidesToShow, totalOriginal]);
 
-  // Navigation functions with debouncing
+  // Navigation functions
   const nextSlide = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
@@ -183,7 +204,7 @@ const FeaturedProperties = () => {
           setIsTransitioning(true);
           setCurrentIndex((prev) => (prev + 1) % properties.length);
         }
-      }, 3000);
+      }, 5000);
     }
   };
 
@@ -193,14 +214,34 @@ const FeaturedProperties = () => {
   // Get current slide indicator
   const getCurrentSlideIndicator = () => currentIndex % totalOriginal;
 
-  // PropertyCard component
+  // Calculate which cards should have staggered animation
+  const getCardAnimationIndex = (index) => {
+    // For the first 3 cards (desktop) or first card (mobile), give them staggered delays
+    if (index < slidesToShow) {
+      return index;
+    }
+    // For all other cards, use the same pattern based on their position
+    return index % slidesToShow;
+  };
+
+  // PropertyCard component with Awards-style staggered animation
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
     const handleCardClick = () => router.push(`/property?id=${property.id}`);
-
+    const animationIndex = getCardAnimationIndex(index);
+    
     return (
       <div
-        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer will-change-transform"
+        className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer will-change-transform flex flex-col"
         onClick={handleCardClick}
+        style={{
+          minHeight: "400px",
+          // Same animation style as Awards component
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
+          transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          // Staggered delay exactly like Awards component
+          transitionDelay: `${400 + (animationIndex * 200)}ms`,
+        }}
       >
         <div className="relative">
           <img
@@ -212,7 +253,7 @@ const FeaturedProperties = () => {
           <div className="absolute top-3 left-3 flex gap-2">
             {property.badges?.map((badge, badgeIndex) => (
               <span
-                key={`${index}-${badgeIndex}`}
+                key={`${property.id}-${badgeIndex}`}
                 className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
                   badge === "Featured"
                     ? "bg-orange-500 text-white"
@@ -248,8 +289,13 @@ const FeaturedProperties = () => {
             )}
           </div>
         </div>
-        <div className="p-5">
-          <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">{property.title}</h3>
+        <div className="p-5 flex flex-col flex-grow">
+          <h3
+            className="text-lg font-bold text-gray-900 mb-3 leading-tight truncate"
+            title={property.title}
+          >
+            {property.title}
+          </h3>
           <div className="flex items-center text-gray-600 mb-4">
             <MapPin className="w-4 h-4 mr-2 text-blue-500" />
             <span className="text-sm font-medium">{property.location}</span>
@@ -280,9 +326,11 @@ const FeaturedProperties = () => {
               </div>
             )}
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-gray-900 mt-auto">
             {property.price}
-            {property.period && <span className="text-sm font-normal text-gray-600 ml-1">{property.period}</span>}
+            {property.period && (
+              <span className="text-sm font-normal text-gray-600 ml-1">{property.period}</span>
+            )}
           </div>
         </div>
       </div>
@@ -290,127 +338,134 @@ const FeaturedProperties = () => {
   });
 
   return (
-    <div
-      ref={sectionRef}
-      className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
-      style={{ backgroundColor: "var(--background)" }}
-    >
+    <section className="bg-white dark:bg-gray-900">
       <div
-        className="flex flex-col lg:flex-row justify-between items-start mb-10"
-        style={{
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible ? "translateY(0)" : "translateY(50px)",
-          transition: "opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        }}
+        ref={sectionRef}
+        className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
+        style={{ backgroundColor: "var(--background)" }}
       >
-        <div style={{ fontFamily: "Arial, sans-serif", color: "#2c3e50" }}>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "38px",
-              fontWeight: 500,
-              fontFamily: "Poppins, sans-serif",
-              lineHeight: "38px",
-              color: "rgb(51, 51, 51)",
-              display: "flex",
-              alignItems: "baseline",
-            }}
+        {/* Header with same animation as Awards */}
+        <div
+          className="flex flex-col lg:flex-row justify-between items-start mb-10"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? "translateY(0)" : "translateY(50px)",
+            transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
+        >
+          <div style={{ fontFamily: "Arial, sans-serif", color: "#2c3e50" }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "38px",
+                fontWeight: 500,
+                fontFamily: "Poppins, sans-serif",
+                lineHeight: "38px",
+                color: "rgb(51, 51, 51)",
+                display: "flex",
+                alignItems: "baseline",
+              }}
+            >
+              <span style={{ color: "#000", marginRight: 10 }}>Featured</span>
+              <span style={{ color: "#0FC6D6", alignItems: "center" }}>
+                Properties
+                <hr
+                  style={{
+                    border: "2px solid #D3F1F8",
+                    width: "100%",
+                    marginTop: "1px",
+                    borderRadius: 10,
+                  }}
+                />
+              </span>
+            </h1>
+            <p className="text-base lg:text-lg max-w-2xl mt-6" style={{ color: "var(--foreground)" }}>
+              Handpicked premium properties that stand out for their exceptional value, location, and unique characteristics.
+            </p>
+          </div>
+          <button
+            onClick={FilterPage}
+            className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
+            style={{ color: "var(--foreground)" }}
           >
-            <span style={{ color: "#000", marginRight: 10 }}>Featured</span>
-            <span style={{ color: "#0FC6D6", alignItems: "center" }}>
-              Properties
-              <hr
-                style={{
-                  border: "2px solid #D3F1F8",
-                  width: "100%",
-                  marginTop: "1px",
-                  borderRadius: 10,
-                }}
-              />
-            </span>
-          </h1>
-          <p className="text-base lg:text-lg max-w-2xl mt-6" style={{ color: "var(--foreground)" }}>
-            Handpicked premium properties that stand out for their exceptional value, location, and unique characteristics.
-          </p>
+            View all featured
+            <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
+          </button>
         </div>
-        <button
-          onClick={FilterPage}
-          className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
-          style={{ color: "var(--foreground)" }}
+
+        {/* Carousel container with same animation as Awards */}
+        <div
+          className="relative"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible ? "scale(1)" : "scale(0.5)",
+            transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            transitionDelay: "200ms",
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          View all featured
-          <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
-        </button>
-      </div>
-      <div
-        className="relative"
-        style={{
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible ? "scale(1)" : "scale(0.95)",
-          transition: "opacity 0.8s ease-out, transform 0.8s ease-out",
-          transitionDelay: "200ms",
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <button
-          onClick={prevSlide}
-          disabled={isTransitioning}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ willChange: "transform" }}
-        >
-          <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
-        </button>
-        <button
-          onClick={nextSlide}
-          disabled={isTransitioning}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ willChange: "transform" }}
-        >
-          <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
-        </button>
-        <div className="overflow-hidden rounded-xl">
+          <button
+            onClick={prevSlide}
+            disabled={isTransitioning}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ willChange: "transform" }}
+          >
+            <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
+          </button>
+          <button
+            onClick={nextSlide}
+            disabled={isTransitioning}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ willChange: "transform" }}
+          >
+            <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
+          </button>
+          <div className="overflow-hidden rounded-xl">
+            <div
+              ref={carouselRef}
+              className="flex"
+              style={{
+                transform: `translate3d(-${(currentIndex * 100) / slidesToShow}%, 0, 0)`,
+                transition: isTransitioning ? "transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+                willChange: "transform",
+              }}
+            >
+              {properties.map((property, index) => (
+                <div
+                  key={`${property.id}-${Math.floor(index / totalOriginal)}-${index % totalOriginal}`}
+                  className={`flex-shrink-0 px-2 ${isMobile ? "w-full" : "w-1/3"}`}
+                >
+                  <PropertyCard property={property} index={index} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Indicators with same animation as Awards */}
           <div
-            ref={carouselRef}
-            className="flex"
+            className="flex justify-center mt-8 gap-2"
             style={{
-              transform: `translate3d(-${(currentIndex * 100) / slidesToShow}%, 0, 0)`,
-              transition: isTransitioning ? "transform 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
-              willChange: "transform",
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? "translateY(0)" : "translateY(30px)",
+              transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transitionDelay: "400ms",
             }}
           >
-            {properties.map((property, index) => (
-              <div
-                key={`${property.id}-${Math.floor(index / totalOriginal)}-${index % totalOriginal}`}
-                className={`flex-shrink-0 px-2 ${isMobile ? "w-full" : "w-1/3"}`}
-              >
-                <PropertyCard property={property} index={index} />
-              </div>
+            {originalProperties.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                disabled={isTransitioning}
+                className={`h-2 rounded-full transition-all duration-300 disabled:cursor-not-allowed ${
+                  index === getCurrentSlideIndicator() ? "bg-cyan-500 w-8" : "bg-gray-300 hover:bg-gray-400 w-2"
+                }`}
+              />
             ))}
           </div>
         </div>
-        <div
-          className="flex justify-center mt-8 gap-2"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
-            transitionDelay: "400ms",
-          }}
-        >
-          {originalProperties.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              disabled={isTransitioning}
-              className={`h-2 rounded-full transition-all duration-300 disabled:cursor-not-allowed ${
-                index === getCurrentSlideIndicator() ? "bg-cyan-500 w-8" : "bg-gray-300 hover:bg-gray-400 w-2"
-              }`}
-            />
-          ))}
-        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
