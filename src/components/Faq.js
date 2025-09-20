@@ -152,7 +152,7 @@ export default function FAQ() {
           </div>
           <h3 className="text-xl font-extrabold mb-2 text-slate-900">Need Help?</h3>
           <p className="text-gray-600 mb-6">
-            Can't find the answer you're looking for? Our customer support team
+            Can&apos;t find the answer you&apos;re looking for? Our customer support team
             is here to help you 24/7.
           </p>
           <Link
