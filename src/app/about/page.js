@@ -9,15 +9,20 @@ export default function AboutSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Dummy data fallback
+  const dummyData = {
+    title: "About",
+    description: "Coming soon"
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getlandlordsdata", {
+        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsiteaboutdata", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "token": "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ=="
           }
         });
         if (!response.ok) {
@@ -27,6 +32,8 @@ export default function AboutSection() {
         setData(result.DATA || result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+        // Set dummy data when there's an error
+        setData(dummyData);
       } finally {
         setLoading(false);
       }
@@ -84,32 +91,8 @@ export default function AboutSection() {
     );
   }
 
-  if (error) {
-    return (
-      <div>
-        <Header />
-        <section className="w-full">
-          <div className="relative h-80 flex items-center justify-center bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: 'url("/footer-bg.png")',
-            }}
-          >
-            <div className="absolute inset-0 bg-gray-600/60" />
-            <div className="relative z-10">
-              <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
-                Error: {error}
-              </h1>
-            </div>
-          </div>
-        </section>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!data) {
-    return null;
-  }
+  // Use dummy data if no data is available or if data is empty
+  const displayData = data && (data.title || data.description) ? data : dummyData;
 
   return (
     <div>
@@ -124,7 +107,7 @@ export default function AboutSection() {
           <div className="absolute inset-0 bg-gray-600/60" />
           <div className="relative z-10">
             <h1 className="text-4xl md:text-5xl font-bold text-white text-center">
-              {data.heading}
+              {displayData.title}
             </h1>
           </div>
         </div>
@@ -134,7 +117,7 @@ export default function AboutSection() {
               <div className="bg-white rounded-lg shadow-lg p-16">
                 <div 
                   className="text-gray-700 leading-relaxed text-lg"
-                  dangerouslySetInnerHTML={{ __html: data.content }}
+                  dangerouslySetInnerHTML={{ __html: displayData.description }}
                 />
               </div>
             </div>

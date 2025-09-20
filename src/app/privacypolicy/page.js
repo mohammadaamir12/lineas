@@ -9,15 +9,20 @@ export default function PrivacySection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Dummy data fallback
+  const dummyData = {
+    title: "Privacy Policy",
+    description: "Coming soon"
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getlandlordsdata", {
+        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsiteprivacypolicydata", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "token": "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ=="
           }
         });
         if (!response.ok) {
@@ -27,6 +32,7 @@ export default function PrivacySection() {
         setData(result.DATA || result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+        setData(dummyData)
       } finally {
         setLoading(false);
       }

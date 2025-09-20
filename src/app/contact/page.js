@@ -113,14 +113,12 @@ const [contactData, setContactData] = useState({
       try {
         setLoading(true);
         const response = await fetch(
-          "https://test-demo.in/lineasapi/api/v1/getcontactdata",
+          "https://test-demo.in/lineasapi/api/v1/getWebsiteContactData",
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
-              token:
-                "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ==",
             },
           }
         );
@@ -172,14 +170,12 @@ const [contactData, setContactData] = useState({
     setIsSubmitting(true);
     try {
       const response = await fetch(
-        "https://test-demo.in/lineasapi/api/v1/addcontactenquiry",
+        "https://test-demo.in/lineasapi/api/v1/websitecontactenquiry",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            token:
-              "VzJIQk5FVHVxZWtvUGlTNnRjbkgxNGk4ZjRYby9RWTlJeTh2Z3lkNHNoT2wyUG1oekIwQ2hTaW5pckw0b2VEZGJOcytBZnJ2aFNpQmJJNUJzVzFkVlE9PQ==",
           },
           body: JSON.stringify({
             first_name: firstName,

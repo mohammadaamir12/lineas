@@ -78,15 +78,55 @@ export default function PropertyValuationForm() {
     setCurrentStep(1);
   };
 
-  const handleSubmit = () => {
+ const handleSubmit = async () => {
     if (isDetailsFormValid()) {
-      console.log('Complete Form Data:', { ...formData, ...detailsData });
-      toast.success('Form submitted successfully!');
-      
-      // Clear everything and return to initial state
-      setTimeout(() => {
-        resetAllData();
-      }, 1000); // Small delay to let user see the success message
+      try {
+        // Prepare the API payload
+        const apiPayload = {
+          valuation_like: formData.valuationType,
+          address: formData.address,
+          property_type: formData.propertyType,
+          looking_for: formData.lookingFor,
+          bedrooms: formData.bedrooms,
+          bathrooms: formData.bathrooms,
+          title: detailsData.title,
+          first_name: detailsData.firstName,
+          last_name: detailsData.lastName,
+          email: detailsData.email,
+          phone: detailsData.phone,
+          mobile: detailsData.mobile,
+          message: detailsData.notes,
+          keep_me_up_to_date: detailsData.marketingConsent ? "yes" : "no",
+          terms_and_conditions: detailsData.termsAccepted ? "yes" : "no"
+        };
+
+        console.log('Submitting data:', apiPayload);
+
+        // Make API call
+        const response = await fetch('https://test-demo.in/lineasapi/api/v1/addwebsitevaluation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(apiPayload),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('API Response:', result);
+          toast.success('Form submitted successfully!');
+          
+          // Clear everything and return to initial state
+          setTimeout(() => {
+            resetAllData();
+          }, 1000); // Small delay to let user see the success message
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Submission error:', error);
+        toast.error('Failed to submit form. Please try again.');
+      }
     } else {
       toast.error('Please fill in all required fields and accept terms');
     }

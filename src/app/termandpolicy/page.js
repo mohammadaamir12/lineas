@@ -9,11 +9,17 @@ export default function TermSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+   // Dummy data fallback
+  const dummyData = {
+    title: "Terms and Conditions",
+    description: "Coming soon"
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getlandlordsdata", {
+        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsitetermsconditiondata", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -27,6 +33,7 @@ export default function TermSection() {
         setData(result.DATA || result);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+         setData(dummyData)
       } finally {
         setLoading(false);
       }

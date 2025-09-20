@@ -288,7 +288,7 @@ export default function Header({ rent }) {
   />
 </Link>
 
-          <nav className="hidden lg:flex items-center gap-4 ml-20 ">
+         <nav className="hidden lg:flex items-center gap-4 ml-5 sm:ml-8 md:ml-10 xl:ml-20 lg:ml-18 overflow-x-auto max-w-full">
             {NAV.map((item, index) => {
               const active = isActive(item);
               const hasSubmenu = item.hasSubmenu;
@@ -420,11 +420,12 @@ export default function Header({ rent }) {
             })}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-3 ml-6">
-           <Link
-  href="/bookvaluation"
-  className={`rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap ${buttonClass}`}
->
+         <div className="hidden lg:flex items-center gap-3 ml-6">
+  <Link
+    href="/bookvaluation"
+    className="rounded-sm border px-4 py-2 text-sm font-semibold transition whitespace-nowrap flex-shrink-0"
+    style={{ backgroundColor: "var(--foreground)", color: "var(--background)", borderColor: "var(--foreground)" }}
+  >
   Book Valuation
 </Link>
 
@@ -668,6 +669,22 @@ export default function Header({ rent }) {
           transition: transform 250ms cubic-bezier(0.4,0,0.2,1); 
         }
         :global(.group):hover .nav-label { transform: translateY(4px); }
+        @media (max-width: 1024px) {
+  .hidden.lg\\:flex {
+    display: none; /* Hide desktop nav on small screens */
+  }
+  nav {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+  }
+  nav > * {
+    flex-shrink: 0; /* Prevent items from shrinking too much */
+  }
+  .book-valuation-btn {
+    display: none; /* Hide button on small screens, shown in mobile menu */
+  }
+}
       `}</style>
     </>
   );
