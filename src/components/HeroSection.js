@@ -40,7 +40,7 @@ export default function HeroSection() {
     <button
       className={`text-lg bg-white/10 backdrop-blur-md font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg   ${
         activeTab === "rent"
-          ? "text-white border-b-2 border-white bg-white/40"
+          ? "text-white border-b-2 border-slate-800 bg-white/40"
           : "text-gray-200 hover:text-white"
       }`}
       onClick={() => setActiveTab("rent")}
@@ -50,7 +50,7 @@ export default function HeroSection() {
     <button
       className={`text-lg bg-white/10 backdrop-blur-md font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
         activeTab === "buy"
-          ? "text-white border-b-2 border-white bg-white/40"
+          ? "text-white border-b-2 border-slate-800 bg-white/40"
           : "text-gray-200 hover:text-white"
       }`}
       onClick={() => setActiveTab("buy")}
