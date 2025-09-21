@@ -2,28 +2,94 @@
 
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
-import React, { useState } from "react";
 import Link from "next/link";
+ import React, { useState, useEffect } from 'react';
 
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userIP, setUserIP] = useState('');
 
-  const handleSubscribe = () => {
-    if (!email.trim()) {
-      toast.error("Please enter your email!");
+
+  // Get user's IP address on component mount
+  useEffect(() => {
+    const getUserIP = async () => {
+      try {
+        // Try multiple IP services for reliability
+        const ipServices = [
+          'https://api.ipify.org?format=json',
+          'https://httpbin.org/ip',
+          'https://api64.ipify.org?format=json'
+        ];
+
+        for (const service of ipServices) {
+          try {
+            const response = await fetch(service);
+            const data = await response.json();
+            const ip = data.ip || data.origin;
+            if (ip) {
+              setUserIP(ip);
+              break;
+            }
+          } catch (error) {
+            console.log(`Failed to get IP from ${service}:`, error);
+            continue;
+          }
+        }
+
+        // Fallback IP if all services fail
+        if (!userIP) {
+          setUserIP('127.0.0.1');
+        }
+      } catch (error) {
+        console.error('Error getting IP:', error);
+        setUserIP('127.0.0.1'); // Fallback IP
+      }
+    };
+
+    getUserIP();
+  }, []);
+
+  const handleSubscribe = async () => {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
     setLoading(true);
+   
 
-    // simulate API request
-    setTimeout(() => {
-      setEmail(""); // clear input
-      setLoading(false); // re-enable button
-      toast.success("Subscribed successfully!");
-    }, 2000);
+    try {
+      const response = await fetch('https://test-demo.in/lineasapi/api/v1/addwebsitenewsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          ip: userIP || '127.0.0.1'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.STATUS === 'SUCCESS') {
+        toast.success('Successfully subscribed to newsletter!')
+        setEmail(''); // Clear email input
+      } else {
+        throw new Error(data.MESSAGE || 'Subscription failed');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      toast.error(error.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+      // Clear message after 5 seconds
+      setTimeout(() => setMessage(''), 5000);
+    }
   };
   return (
    <footer className="bg-[#F5F5F5]">
@@ -74,54 +140,107 @@ export default function Footer() {
   <h4 className="font-semibold mb-3 text-gray-800 dark:text-gray-100">Sign Up for Our Newsletter</h4>
   
   {/* Email Subscription */}
-  <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-        <input
-          type="email"
-          placeholder="Your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-l-lg sm:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 min-h-[40px]"
-        />
+  <div className="w-full max-w-sm mx-auto">
+  {/* Mobile: Stacked layout */}
+  <div className="flex flex-col gap-3 sm:hidden">
+    <input
+      type="email"
+      placeholder="Your email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100"
+    />
+    
+    <button
+      onClick={handleSubscribe}
+      disabled={loading}
+      className={`w-full py-3 px-4 font-medium transition-all duration-200 rounded-lg flex items-center justify-center
+        ${
+          loading
+            ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+            : "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700"
+        }`}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center gap-2">
+          <svg
+            className="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            />
+          </svg>
+          <span className="text-sm">Subscribing...</span>
+        </div>
+      ) : (
+        <span className="text-sm font-medium">Subscribe</span>
+      )}
+    </button>
+  </div>
 
-        <button
-          onClick={handleSubscribe}
-          disabled={loading}
-          className={`px-4 py-2 min-h-[40px] whitespace-nowrap font-medium transition-colors rounded-lg sm:rounded-l-none sm:rounded-r-lg
-            ${
-              loading
-                ? "bg-gray-700 text-gray-300 cursor-not-allowed"
-                : "bg-gray-900 text-white hover:bg-gray-800"
-            }`}
-        >
-          {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                />
-              </svg>
-              Subscribing...
-            </div>
-          ) : (
-            "Subscribe"
-          )}
-        </button>
-      </div>
+  {/* Desktop: Side-by-side layout */}
+  <div className="hidden sm:flex">
+    <input
+      type="email"
+      placeholder="Your email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="flex-1 px-4 py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-100 min-w-0"
+    />
+    
+    <button
+      onClick={handleSubscribe}
+      disabled={loading}
+      className={`px-6 py-3 font-medium transition-all duration-200 rounded-r-lg flex items-center justify-center whitespace-nowrap
+        ${
+          loading
+            ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+            : "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700"
+        }`}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center gap-2">
+          <svg
+            className="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            />
+          </svg>
+          <span className="text-sm">Subscribing...</span>
+        </div>
+      ) : (
+        <span className="text-sm font-medium">Subscribe</span>
+      )}
+    </button>
+  </div>
+</div>
   
   {/* Social Media */}
   <h4 className="font-semibold mt-6 mb-3 text-gray-800 dark:text-gray-100">Follow Us</h4>

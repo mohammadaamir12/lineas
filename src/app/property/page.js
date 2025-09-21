@@ -15,6 +15,7 @@ function PropertyContent() {
   const scrollContainerRef = useRef(null); 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+   
 
   // Form state
   const [formData, setFormData] = useState({
@@ -121,7 +122,7 @@ function PropertyContent() {
     }
   ];
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedFloor, setSelectedFloor] = useState("first");
 
   // Form handlers
   const handleChange = (e) => {
@@ -193,6 +194,34 @@ function PropertyContent() {
     }
   }
 };
+const selectImage = (index) => {
+    setCurrentImageIndex(index);
+    
+    // Scroll the selected thumbnail into view
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const thumbnails = container.children;
+      
+      if (thumbnails[index]) {
+        const thumbnail = thumbnails[index];
+        const containerRect = container.getBoundingClientRect();
+        const thumbnailRect = thumbnail.getBoundingClientRect();
+        
+        // Calculate if thumbnail is outside visible area
+        const isOutsideLeft = thumbnailRect.left < containerRect.left;
+        const isOutsideRight = thumbnailRect.right > containerRect.right;
+        
+        if (isOutsideLeft || isOutsideRight) {
+          thumbnail.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+          });
+        }
+      }
+    }
+  };
+
 
 
   const features = [
@@ -322,10 +351,10 @@ function PropertyContent() {
 
         {/* Content */}
         <div className="absolute top-0 left-0 z-20 w-full h-full flex flex-col justify-center px-6 sm:px-12">
-          <div className="bg-[#0C0330] text-white text-2xl sm:text-3xl font-semibold py-4 px-6 max-w-fit">
+          <div className="bg-[#0C0330] rounded-md text-white text-2xl sm:text-3xl font-semibold py-4 px-6 max-w-fit">
             3 Bedroom flat, Agnes Street, E14
           </div>
-          <div className="bg-[#32B8DF] text-white text-sm py-2 px-6 mt-1 max-w-fit tracking-wide">
+          <div className="bg-[#32B8DF] rounded-md text-white text-sm py-2 px-6 mt-1 max-w-fit tracking-wide">
             HOME /
           </div>
         </div>
@@ -336,7 +365,7 @@ function PropertyContent() {
           {/* Left Side: Image Gallery */}
           <div className="lg:col-span-2">
        {/* Main carousel container */}
-<div className="relative bg-white rounded-xl p-2 sm:p-4 shadow-md">
+<div className="relative bg-white rounded-xl p-2 sm:p-4 shadow-md border border-gray-200">
   {/* Current image display */}
   <div className="mt-2 flex justify-center">
     <div className="w-full sm:w-180 h-60 sm:h-100 rounded-xl overflow-hidden shadow-lg">
@@ -376,7 +405,7 @@ function PropertyContent() {
           onClick={() => selectImage(index)}
           className={`flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 ${
             index === currentImageIndex
-              ? 'ring-2 sm:ring-4 ring-blue-500 shadow-lg'
+              ? 'ring-1 sm:ring-2 ring-slate-800 shadow-lg'
               : 'hover:ring-1 sm:hover:ring-2 hover:ring-gray-300'
           }`}
         >
@@ -426,7 +455,7 @@ function PropertyContent() {
 
 
             {/* Features */}
-            <div className="mt-6 bg-white shadow-md p-4 rounded">
+            <div className="mt-6 bg-white shadow-md p-4 rounded border border-gray-200">
   <h2 className="text-2xl  font-bold text-gray-900 mb-4">Facts and Features</h2>
   
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
@@ -453,7 +482,7 @@ function PropertyContent() {
   </div>
 </div>
 
-          <section className="max-w-5xl mx-auto px-4 py-10 shadow-md mt-6 rounded bg-white">
+          <section className="max-w-5xl mx-auto px-4 py-10 shadow-md mt-6 rounded bg-white border border-gray-200">
       {/* Location */}
       <h2 className="text-2xl font-semibold mb-4">Location</h2>
       <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-md mb-8">
@@ -486,29 +515,47 @@ function PropertyContent() {
       </p>
     </section>
 
-    <section className="max-w-5xl mx-auto  mt-6">
-      <div className="bg-white shadow-md rounded-lg p-6">
-        {/* Title */}
-        <h2 className="text-2xl font-semibold mb-6">Floor Plans</h2>
+   <section className="max-w-5xl mx-auto mt-6">
+  <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+    {/* Title */}
+    <h2 className="text-2xl font-semibold mb-6">Floor Plans</h2>
 
-        {/* Header Row */}
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">First Floor</h3>
-          <span className="text-gray-500">Sqft :</span>
-        </div>
-
-        {/* Floor Plan Image */}
-        <div className="w-full overflow-hidden rounded-md border border-gray-200">
-          <img
-            src="/Floorplan.jpg"
-            alt="Floor plan"
-            className="w-full h-auto object-contain"
-          />
+    {/* Floor Selection and Header Row */}
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
+      <div className="flex items-center gap-4">
+        <h3 className="text-lg font-medium">Floor Plan</h3>
+        <div className="flex gap-2">
+          <button
+            className={`px-4 py-2 rounded-md border ${selectedFloor === "first" ? "bg-slate-700 text-white " : "bg-white text-gray-900 border-gray-300"} focus:outline-none   transition-colors duration-200`}
+            onClick={() => setSelectedFloor("first")}
+          >
+            First Floor
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md border ${selectedFloor === "second" ? "bg-slate-700 text-white " : "bg-white text-gray-900 border-gray-300"} focus:outline-none   transition-colors duration-200`}
+            onClick={() => setSelectedFloor("second")}
+          >
+            Second Floor
+          </button>
         </div>
       </div>
-    </section>
+      <span className="text-gray-500">
+        Sqft: {selectedFloor === "first" ? "1200" : "1000"}
+      </span>
+    </div>
 
-    <div className="w-full  mx-auto px-4 py-8 shadow-md rounded mt-6 bg-white">
+    {/* Floor Plan Image */}
+    <div className="w-full overflow-hidden rounded-md border border-gray-200">
+      <img
+        src="/Floorplan.jpg"
+        alt={`${selectedFloor === "first" ? "First" : "Second"} Floor plan`}
+        className="w-full h-auto object-contain"
+      />
+    </div>
+  </div>
+</section>
+
+    <div className="w-full  mx-auto px-4 py-8 shadow-md rounded mt-6 bg-white border border-gray-200">
       <div className="bg-white">
         {/* Form Title */}
         <h2 className="text-2xl font-bold text-gray-900 mb-8">
@@ -598,7 +645,7 @@ function PropertyContent() {
       </div>
     </div>
 
- <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded">
+ <div className="w-full max-w-7xl mx-auto mt-6 px-4 py-8 bg-white shadow-md rounded border border-gray-200">
       {/* Section Title */}
       <h2 className="text-2xl font-bold text-gray-900 mb-8">
         Similar Homes You May Like
@@ -707,108 +754,106 @@ function PropertyContent() {
           </div>
 
           {/* Right Side: Enhanced Contact Form */}
-          <div className="h-fit sticky top-20">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              {/* Form Header */}
-              <div className="bg-gray-100 p-4 rounded-t-lg">
-                <h3 className="text-lg font-medium text-gray-700">
-                  Share With a Friend
-                </h3>
-              </div>
+       <div className="h-fit sticky top-22 w-full max-w-5xl mx-auto">
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      Arrange a Viewing
+    </h1>
+    
+    {/* Info Box */}
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
+      <p className="text-blue-600 text-md mb-2">
+        <strong>Want to save time?</strong>
+      </p>
+      <p className="text-blue-600 text-sm">
+        <span className="underline cursor-pointer hover:text-blue-800">Sign in</span> or <span className="underline cursor-pointer hover:text-blue-800">register</span> to auto-fill this form with your details.
+      </p>
+    </div>
 
-              {/* Form Body */}
-              <div className="p-6">
-                {/* Success Message */}
-                {submitted && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-4 text-sm">
-                    ✓ Message sent successfully!
-                  </div>
-                )}
+    <div className="space-y-3">
+      {/* Name Fields Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            placeholder="First Name*"
+          />
+        </div>
+        
+        <div>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            placeholder="Last Name*"
+          />
+        </div>
+      </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Name Field */}
-                  <div>
-                    <label htmlFor="name" className="block text-sm text-gray-600 mb-1">
-                      First Name, Last Name
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
-                      placeholder="John Doe"
-                    />
-                  </div>
+      {/* Email Field */}
+      <div>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+          placeholder="Your Email*"
+        />
+      </div>
 
-                  {/* Your Email Field */}
-                  <div>
-                    <label htmlFor="yourEmail" className="block text-sm text-gray-600 mb-1">
-                      Your Email
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="yourEmail"
-                      name="yourEmail"
-                      required
-                      value={formData.yourEmail}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
+      {/* Phone Field */}
+      <div>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          required
+            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+          placeholder="Your Phone Number*"
+        />
+      </div>
 
-                  {/* Their Email Field */}
-                  <div>
-                    <label htmlFor="theirEmail" className="block text-sm text-gray-600 mb-1">
-                      Their Email
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="theirEmail"
-                      name="theirEmail"
-                      required
-                      value={formData.theirEmail}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all text-sm"
-                      placeholder="friend.email@example.com"
-                    />
-                  </div>
+      {/* Message Field */}
+      <div>
+        <textarea
+          id="message"
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          rows={4}
+          className="w-full px-4 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900 resize-none"
+          placeholder="Your Message"
+        />
+      </div>
 
-                  {/* Message Field */}
-                  <div>
-                    <label htmlFor="message" className="block text-sm text-gray-600 mb-1">
-                      Message
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={4}
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:border-transparent transition-all resize-none text-sm"
-                      placeholder="Write your message here..."
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    className="w-full bg-[#32B8DF] hover:bg-[#2AA5C9] text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#32B8DF] focus:ring-offset-2"
-                  >
-                    Send
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-6 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{transform: 'rotate(50deg)'}}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+        </svg>
+        Send Request
+      </button>
+    </div>
+  </div>
+</div>
           
         </div>
       </div>
