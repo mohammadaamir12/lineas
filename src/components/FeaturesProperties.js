@@ -14,6 +14,11 @@ const FeaturedProperties = () => {
   const autoSlideRef = useRef(null);
   const router = useRouter();
 
+  // Touch handling state
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
   // Properties data
   const originalProperties = [
     {
@@ -38,9 +43,9 @@ const FeaturedProperties = () => {
       image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
       price: "£20,040",
       period: "/monthly",
-      beds: 2,
-      baths: 2,
-      reception: 2,
+      beds: 3,
+      baths: 1,
+      reception: 4,
       sqft: 1200,
       badges: ["Featured", "Commercial"],
       energyRating: "EPC",
@@ -92,6 +97,51 @@ const FeaturedProperties = () => {
     : Array(10).fill(originalProperties).flat();
   const slidesToShow = isMobile ? 1 : 3;
 
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  // Touch event handlers
+  const handleTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsDragging(true);
+    // Pause auto-slide on touch
+    clearInterval(autoSlideRef.current);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setIsDragging(false);
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && !isTransitioning) {
+      nextSlide();
+    }
+    if (isRightSwipe && !isTransitioning) {
+      prevSlide();
+    }
+
+    setIsDragging(false);
+    // Resume auto-slide after touch ends
+    if (isVisible) {
+      autoSlideRef.current = setInterval(() => {
+        if (!isTransitioning) {
+          setIsTransitioning(true);
+          setCurrentIndex((prev) => (prev + 1) % properties.length);
+        }
+      }, 5000);
+    }
+  };
+
   // Initialize active slides based on currentIndex
   useEffect(() => {
     const initialSlides = [];
@@ -141,7 +191,7 @@ const FeaturedProperties = () => {
 
   // Auto-slide functionality
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || isDragging) return;
 
     autoSlideRef.current = setInterval(() => {
       if (!isTransitioning) {
@@ -151,7 +201,7 @@ const FeaturedProperties = () => {
     }, 5000);
 
     return () => clearInterval(autoSlideRef.current);
-  }, [isVisible, isTransitioning, properties.length]);
+  }, [isVisible, isTransitioning, properties.length, isDragging]);
 
   // Handle transition end and update active slides
   useEffect(() => {
@@ -198,7 +248,7 @@ const FeaturedProperties = () => {
   // Pause auto-slide on hover
   const handleMouseEnter = () => clearInterval(autoSlideRef.current);
   const handleMouseLeave = () => {
-    if (isVisible) {
+    if (isVisible && !isDragging) {
       autoSlideRef.current = setInterval(() => {
         if (!isTransitioning) {
           setIsTransitioning(true);
@@ -226,7 +276,26 @@ const FeaturedProperties = () => {
 
   // PropertyCard component with Awards-style staggered animation
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
-    const handleCardClick = () => router.push(`/property?id=${property.id}`);
+   const handleCardClick = () => {
+    const queryParams = new URLSearchParams({
+      id: property.id,
+      title: property.title,
+      location: property.location,
+      image: property.image,
+      price: property.price,
+      period: property.period || '',
+      beds: property.beds || 0,
+      baths: property.baths || 0,
+      reception: property.reception || 0,
+      sqft: property.sqft || 0,
+      badges: JSON.stringify(property.badges || []),
+      energyRating: property.energyRating || '',
+      fingerprint: property.fingerprint || '',
+      status: property.status || ''
+    });
+    
+    router.push(`/property?${queryParams.toString()}`);
+  };
     const animationIndex = getCardAnimationIndex(index);
     
     return (
@@ -421,7 +490,13 @@ const FeaturedProperties = () => {
           >
             <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
           </button>
-          <div className="overflow-hidden rounded-xl">
+          <div 
+            className="overflow-hidden rounded-xl"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ touchAction: 'pan-y pinch-zoom' }}
+          >
             <div
               ref={carouselRef}
               className="flex"

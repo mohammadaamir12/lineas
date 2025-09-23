@@ -11,10 +11,56 @@ import Footer from '@/components/Footer';
 
 function PropertyContent() {
   const searchParams = useSearchParams();
-  const propertyId = searchParams.get('id');
   const scrollContainerRef = useRef(null); 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Extract property data from URL parameters
+  const getPropertyFromParams = () => {
+    const id = searchParams.get('id');
+    const title = searchParams.get('title') || "Property Details";
+    const location = searchParams.get('location') || "";
+    const image = searchParams.get('image') || "/newbuild.jpg";
+    const price = searchParams.get('price') || "";
+    const period = searchParams.get('period') || "";
+    const beds = parseInt(searchParams.get('beds')) || 0;
+    const baths = parseInt(searchParams.get('baths')) || 0;
+    const reception = parseInt(searchParams.get('reception')) || 0;
+    const sqft = parseInt(searchParams.get('sqft')) || 0;
+    const status = searchParams.get('status') || "";
+    const energyRating = searchParams.get('energyRating') || "";
+    const fingerprint = searchParams.get('fingerprint') || "";
+    
+    // Parse badges from JSON string
+    let badges = [];
+    try {
+      const badgesParam = searchParams.get('badges');
+      if (badgesParam) {
+        badges = JSON.parse(badgesParam);
+      }
+    } catch (error) {
+      console.error('Error parsing badges:', error);
+    }
+
+    return {
+      id,
+      title,
+      location,
+      image,
+      price,
+      period,
+      beds,
+      baths,
+      reception,
+      sqft,
+      badges,
+      status,
+      energyRating,
+      fingerprint
+    };
+  };
+
+  const property = getPropertyFromParams();
    
 
   // Form state
@@ -54,14 +100,7 @@ function PropertyContent() {
     },
   };
 
-  const property = propertyData[propertyId] || {
-    title: "3 Bedroom flat, Agnes Street, E14",
-    location: "",
-    price: "",
-    beds: 3,
-    baths: 0,
-    sqft: 0,
-  };
+ 
 
   const images = [
     '/awards.png',
@@ -228,22 +267,22 @@ const selectImage = (index) => {
     {
       icon: Home,
       label: 'SQFT',
-      value: '710'
+      value: property.sqft
     },
     {
       icon: Bed,
       label: 'BEDROOMS',
-      value: '3'
+      value: property.beds
     },
     {
       icon: Bath,
       label: 'BATHROOMS',
-      value: '2'
+      value: property.baths
     },
     {
       icon: MapPin,
       label: 'RECEPTION',
-      value: '1'
+      value: property.reception
     }
   ];
 
@@ -341,7 +380,7 @@ const selectImage = (index) => {
       <div className="relative h-[300px] w-full">
         {/* Background image */}
         <img
-          src="/newbuild.jpg"
+          src={property.image}
           alt="Property"
           className="absolute inset-0 object-cover w-full h-full z-0"
         />
@@ -352,7 +391,7 @@ const selectImage = (index) => {
         {/* Content */}
         <div className="absolute top-0 left-0 z-20 w-full h-full flex flex-col justify-center px-6 sm:px-12">
           <div className="bg-[#0C0330] rounded-md text-white text-2xl sm:text-3xl font-semibold py-4 px-6 max-w-fit">
-            3 Bedroom flat, Agnes Street, E14
+            {property.title}
           </div>
           <div className="bg-[#32B8DF] rounded-md text-white text-sm py-2 px-6 mt-1 max-w-fit tracking-wide">
             HOME /
@@ -431,7 +470,7 @@ const selectImage = (index) => {
   {/* Property ID Section */}
   <div className="flex-1 px-3 py-2 flex items-center justify-center sm:justify-start">
     <span className="text-lg sm:text-xl font-bold text-gray-700">
-      Property ID : 11245
+      Property ID : {property.id}
     </span>
   </div>
   
@@ -446,7 +485,7 @@ const selectImage = (index) => {
     
     {/* Price Section */}
     <div className="relative bg-sky-400 text-white px-6 sm:px-8 flex items-center">
-      <span className="text-base sm:text-lg font-bold">₹400 for Sale</span>
+      <span className="text-base sm:text-lg font-bold">{property.price} for Sale</span>
       {/* Left-pointing Arrow */}
       <div className="absolute -left-4 top-0 h-full w-0 border-y-[24px] sm:border-y-[calc(50%)] border-y-transparent border-r-[16px] border-r-sky-400"></div>
     </div>

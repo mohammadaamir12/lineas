@@ -107,7 +107,7 @@ export default function FAQ() {
     >
      
   <div style={{ fontFamily: 'Arial, sans-serif', color: '#2c3e50' }}>
-       <h1
+      <h1
   style={{
     margin: 0,
     fontSize: "38px",
@@ -117,9 +117,11 @@ export default function FAQ() {
     color: "rgb(51, 51, 51)",
     display: "flex",
     alignItems: "baseline",
+    flexWrap: "wrap",
+    gap: "10px"
   }}
 >
-  <span style={{ color: "#000", marginRight: 10 }}>Frequently Asked</span>
+  <span style={{ color: "#000" }}>Frequently Asked</span>
   <span style={{ color: "#0FC6D6", alignItems: "center" }}>
     Questions
     <hr

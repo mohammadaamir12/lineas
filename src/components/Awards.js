@@ -80,9 +80,11 @@ export default function Awards() {
     color: "rgb(51, 51, 51)",
     display: "flex",
     alignItems: "baseline",
+    flexWrap: "wrap",
+    gap: "10px"
   }}
 >
-  <span style={{ color: "#000", marginRight: 10 }}>Awards &</span>
+  <span style={{ color: "#000" }}>Awards &</span>
   <span style={{ color: "#0FC6D6", alignItems: "center" }}>
     Achievements
     <hr
