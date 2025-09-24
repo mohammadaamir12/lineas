@@ -279,13 +279,13 @@ export default function Header({ rent }) {
           borderColor: "var(--foreground)",
         }}
       >
-     <div className="w-full px-3 sm:px-8 md:px-10 lg:px-8 xl:px-6 h-6 sm:h-18 md:h-20 flex items-center justify-between">
+     <div className="w-full px-3 sm:px-8 md:px-10 lg:px-8 xl:px-6 h-12 sm:h-18 md:h-20 flex items-center justify-between">
   {/* Logo - Responsive sizing */}
   <Link href="/" className="flex-shrink-0">
     <img 
       src="/lineas-logo.png" 
       alt="LINEAS Estate Agents" 
-      className="h-6 sm:h-7 md:h-8 lg:h-10 xl:h-12 w-auto object-contain" 
+      className="h-8 sm:h-7 md:h-8 lg:h-10 xl:h-12 w-auto object-contain" 
     />
   </Link>
 
@@ -493,7 +493,7 @@ export default function Header({ rent }) {
         color: "var(--foreground)" 
       }}
     >
-      {theme === "dark" ? <Sun size={16} className="lg:w-5 lg:h-5" /> : <Moon size={16} className="lg:w-5 lg:h-5" />}
+      {theme === "dark" ? <Sun size={16} className="lg:w-4 lg:h-4" /> : <Moon size={16} className="lg:w-4 lg:h-4" />}
     </button>
   </div>
 
@@ -508,7 +508,7 @@ export default function Header({ rent }) {
         color: "var(--foreground)" 
       }}
     >
-      {theme === "dark" ? <Sun size={18} className="sm:w-5 sm:h-5" /> : <Moon size={18} className="sm:w-5 sm:h-5" />}
+      {theme === "dark" ? <Sun size={18} className="sm:w-4 sm:h-4" /> : <Moon size={18} className="sm:w-4 sm:h-4" />}
     </button>
     
     {/* Mobile menu button */}

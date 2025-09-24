@@ -27,20 +27,20 @@ export default function HeroSection() {
       {/* Content */}
      
       <div className="relative z-10 flex flex-col items-center px-2 sm:px-4 md:px-6 py-8 md:py-12 w-full max-w-3xl -mt-36">
-        <h1 className="text-4xl md:text-5xl font-bold text-white ">
-          Find Your Future
-        </h1>
-        <p className="mt-2 text-lg text-gray-200 mb-2">
+       <h1 className="text-4xl md:text-5xl font-bold text-white font-sans">
+  Find Your Future
+</h1>
+        <p className="mt-2 text-lg text-gray-200 mb-2 ">
           Discover properties that define tomorrow&apos;s living, today.
         </p>
 
         {/* Tabs & Search */}
         {/* Tabs */}
-  <div className="flex w-[90%] justify-between gap-2">
+  <div className="flex w-[85%] justify-between gap-2">
    <button
   className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
         activeTab === "rent"
-         ? "text-white border-b-2 border-white bg-slate-800 "
+         ? "text-white border-b-2 border-white bg-slate-800 font-sans"
       : "text-slate-800 bg-white hover:text-slate-800 border-b-2 border-slate-800 backdrop-blur-md"
       }`}
   onClick={() => setActiveTab("rent")}
@@ -48,7 +48,7 @@ export default function HeroSection() {
   Rent
 </button>
     <button
-      className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
+      className={`font-sans text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
         activeTab === "buy"
          ? "text-white border-b-2 border-white bg-slate-800 "
       : "text-slate-800 bg-white hover:text-slate-800 border-b-2 border-slate-800 backdrop-blur-md"
@@ -58,7 +58,7 @@ export default function HeroSection() {
       Buy
     </button>
   </div>
-     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-[90%]">
+     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-[85%]">
 
   
 
@@ -70,7 +70,7 @@ export default function HeroSection() {
     className="flex-1 py-3 bg-transparent text-black placeholder-slate-900 outline-none text-sm font-medium"
   />
   <button className="ml-auto p-2 bg-slate-900 rounded-lg shadow-md flex items-center justify-center gap-2">
-    <h3 className="text-white text-sm">Search</h3>
+    <h3 className="text-white text-sm font-sans9">Search</h3>
     <Search className="text-white" size={18} />
   </button>
 </div>
