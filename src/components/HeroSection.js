@@ -27,9 +27,9 @@ export default function HeroSection() {
       {/* Content */}
      
       <div className="relative z-10 flex flex-col items-center px-2 sm:px-4 md:px-6 py-8 md:py-12 w-full max-w-3xl -mt-36">
-       <h1 className="text-4xl md:text-5xl font-bold text-white font-sans">
-  Find Your Future
-</h1>
+       <h1 className="text-4xl md:text-5xl font-bold text-white ">
+       Find Your Future
+       </h1>
         <p className="mt-2 text-lg text-gray-200 mb-2 ">
           Discover properties that define tomorrow&apos;s living, today.
         </p>
