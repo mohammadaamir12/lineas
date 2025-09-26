@@ -165,7 +165,19 @@ export default function PropertyValuationForm() {
   return (
     <>
     <Header/>
-    <div className="relative min-h-screen">
+    <div
+  className="relative h-90 flex items-center justify-center bg-cover bg-center"
+  style={{ backgroundImage: 'url("/image.png")' }}
+>
+  <div className="absolute inset-0 bg-slate-700/80" />
+  <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
+    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 whitespace-nowrap">
+      Get Your Free Property Valuation
+    </h1>
+  </div>
+</div>
+
+    <div className="relative min-h-screen ">
     {/* Background Image */}
     <div className="absolute inset-0 bg-[url('/pattern-05.png')] bg-center"></div>
 
@@ -176,17 +188,17 @@ export default function PropertyValuationForm() {
     <div className="relative z-10 py-4 sm:py-8">
       <Toaster position="top-right" reverseOrder={false} />
       <div className="px-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">
+        {/* <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">
           Get Your Free Property Valuation
-        </h1>
+        </h1> */}
 
         {/* Mobile: Stack forms vertically, Desktop: Side by side */}
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:justify-center lg:items-start lg:gap-8">
             
             {/* Step 1 - Property Details */}
-            <div className="w-full lg:max-w-md mb-6 lg:mb-0">
-              <div className="bg-white rounded-lg shadow-sm border-2 sm:border-3 border-black p-4 sm:p-6 flex flex-col">
+            <div className="w-full lg:max-w-md mb-6 lg:mb-0 -mt-30">
+              <div className="bg-white rounded-lg shadow-md border-gray-200 border p-4 sm:p-6 flex flex-col">
                 {/* Content wrapper with flex-grow to push button to bottom */}
                 <div className="flex-grow">
                   {/* Valuation Type Section */}
@@ -329,11 +341,11 @@ export default function PropertyValuationForm() {
             {/* Step 2 - Personal Details */}
             <div
               ref={secondFormRef}
-              className={`w-full lg:max-w-md transition-all duration-500 ease-in-out ${
+              className={`-mt-30 w-full lg:max-w-md transition-all duration-500 ease-in-out ${
                 currentStep === 2 ? 'opacity-100 scale-100 block' : 'hidden lg:hidden'
               }`}
             >
-              <div className="bg-white rounded-lg shadow-sm border-2 sm:border-3 border-black p-4 sm:p-6 flex flex-col">
+              <div className="bg-white rounded-lg shadow-md border-gray-200 border p-4 sm:p-6 flex flex-col">
                 {/* Content wrapper with flex-grow */} 
                 <div className="flex-grow">
                   {/* Title Dropdown */}
