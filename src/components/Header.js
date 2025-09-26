@@ -256,7 +256,7 @@ export default function Header({ rent }) {
         <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-20 h-16 sm:h-18 md:h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <img 
-              src="/Logo2.jpeg" 
+              src="/logo3.png" 
               alt="LINEAS Estate Agents" 
               className="h-8 sm:h-9 md:h-10 w-auto object-contain" 
             />
@@ -279,15 +279,15 @@ export default function Header({ rent }) {
           borderColor: "var(--foreground)",
         }}
       >
-     <div className="w-full px-3 sm:px-8 md:px-10 lg:px-8 xl:px-6 h-12 sm:h-18 md:h-20 flex items-center justify-between">
+     <div className="w-full px-3 sm:px-8 md:px-10 lg:px-8 xl:px-6 h-14 sm:h-18 md:h-20 flex items-center justify-between">
   {/* Logo - Responsive sizing */}
-  <Link href="/" className="flex-shrink-0">
+ <Link href="/" className="flex-shrink-0">
     <img 
-      src="/lineas-logo.png" 
+      src="/logo3.png" 
       alt="LINEAS Estate Agents" 
-      className="h-8 sm:h-7 md:h-8 lg:h-10 xl:h-12 w-auto object-contain" 
+      className="h-12 sm:h-10 md:h-8 lg:h-10 xl:h-12 w-auto object-contain" 
     />
-  </Link>
+</Link>
 
   {/* Desktop Navigation - Hidden on tablet and below */}
   <nav className="hidden xl:flex items-center gap-5 2xl:gap-6 ml-10  ">

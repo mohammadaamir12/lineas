@@ -97,9 +97,9 @@ export default function Footer() {
      <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
   {/* Logo & About */}
   <div>
-    <div className="flex self-start mb-4">
+    <div className="flex self-start mb-4 ">
       <Image
-        src="/lineas-logo.png"
+        src="/logo3.png"
         alt="Lineas Estate Agents"
         width={280}
         height={160}

@@ -27,7 +27,7 @@ export default function HeroSection() {
       {/* Content */}
      
       <div className="relative z-10 flex flex-col items-center px-2 sm:px-4 md:px-6 py-8 md:py-12 w-full max-w-3xl -mt-36">
-       <h1 className="text-4xl md:text-5xl font-bold text-white ">
+       <h1 className="text-4xl md:text-4xl font-bold text-white ">
        Find Your Future
        </h1>
         <p className="mt-2 text-lg text-gray-200 mb-2 ">
@@ -36,7 +36,7 @@ export default function HeroSection() {
 
         {/* Tabs & Search */}
         {/* Tabs */}
-  <div className="flex w-[85%] justify-between gap-2">
+  <div className="flex w-[85%] md:w-[75%] justify-between gap-2">
    <button
   className={`text-lg font-semibold pb-1 transition w-1/2 p-4 rounded-t-lg ${
         activeTab === "rent"
@@ -58,7 +58,7 @@ export default function HeroSection() {
       Buy
     </button>
   </div>
-     <div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-[85%]">
+<div className="bg-white/10 backdrop-blur-md rounded-b-xl shadow-lg w-[85%] md:w-[75%] border-l-2 border-r-2 border-b-2 border-slate-900">
 
   
 

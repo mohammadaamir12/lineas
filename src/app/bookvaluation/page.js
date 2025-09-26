@@ -165,11 +165,19 @@ export default function PropertyValuationForm() {
   return (
     <>
     <Header/>
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
-        <Toaster position="top-right" reverseOrder={false} />
+    <div className="relative min-h-screen">
+    {/* Background Image */}
+    <div className="absolute inset-0 bg-[url('/pattern-05.png')] bg-center"></div>
+
+    {/* Grey Overlay */}
+    <div className="absolute inset-0 bg-white/10"></div>
+
+    {/* Page Content */}
+    <div className="relative z-10 py-4 sm:py-8">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="px-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
-          Get Your Property Valuation
+        <h1 className="text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8 text-center">
+          Get Your Free Property Valuation
         </h1>
 
         {/* Mobile: Stack forms vertically, Desktop: Side by side */}
@@ -476,6 +484,8 @@ export default function PropertyValuationForm() {
         </div>
       </div>
     </div>
+    </div>
+    
     <Footer/>
     </>
   );
