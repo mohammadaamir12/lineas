@@ -15,52 +15,66 @@ function PropertyContent() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Extract property data from URL parameters
-  const getPropertyFromParams = () => {
-    const id = searchParams.get('id');
-    const title = searchParams.get('title') || "Property Details";
-    const location = searchParams.get('location') || "";
-    const image = searchParams.get('image') || "/newbuild.jpg";
-    const price = searchParams.get('price') || "";
-    const period = searchParams.get('period') || "";
-    const beds = parseInt(searchParams.get('beds')) || 0;
-    const baths = parseInt(searchParams.get('baths')) || 0;
-    const reception = parseInt(searchParams.get('reception')) || 0;
-    const sqft = parseInt(searchParams.get('sqft')) || 0;
-    const status = searchParams.get('status') || "";
-    const energyRating = searchParams.get('energyRating') || "";
-    const fingerprint = searchParams.get('fingerprint') || "";
-    
-    // Parse badges from JSON string
-    let badges = [];
-    try {
-      const badgesParam = searchParams.get('badges');
-      if (badgesParam) {
-        badges = JSON.parse(badgesParam);
-      }
-    } catch (error) {
-      console.error('Error parsing badges:', error);
-    }
+ const getPropertyFromParams = () => {
+  const id = searchParams.get('id');
+  const title = searchParams.get('title') || "Property Details";
+  const location = searchParams.get('location') || "";
+  const image = searchParams.get('image') || "/newbuild.jpg";
+  const price = searchParams.get('price') || "";
+  const period = searchParams.get('period') || "";
+  const beds = parseInt(searchParams.get('beds')) || 0;
+  const baths = parseInt(searchParams.get('baths')) || 0;
+  const reception = parseInt(searchParams.get('reception')) || 0;
+  const sqft = parseInt(searchParams.get('sqft')) || 0;
+  const status = searchParams.get('status') || "";
+  const latitude = parseFloat(searchParams.get('latitude')) || 51.5074;
+  const longitude = parseFloat(searchParams.get('longitude')) || -0.1278;
 
-    return {
-      id,
-      title,
-      location,
-      image,
-      price,
-      period,
-      beds,
-      baths,
-      reception,
-      sqft,
-      badges,
-      status,
-      energyRating,
-      fingerprint
-    };
+ let floor_plans = [];
+try {
+  const floorPlansParam = searchParams.get('floor_plans');
+  if (floorPlansParam) {
+    floor_plans = JSON.parse(floorPlansParam); // each object has floor_plan_image
+  }
+} catch (error) {
+  console.error("Error parsing floor_plans:", error);
+}
+
+let gallery_images = [];
+try {
+  const galleryParam = searchParams.get('gallery_images'); // ✅ matches
+  if (galleryParam) {
+    gallery_images = JSON.parse(galleryParam);
+  }
+} catch (error) {
+  console.error("Error parsing gallery_images:", error);
+}
+
+
+  return {
+    id,
+    title,
+    location,
+    image,
+    price,
+    period,
+    beds,
+    baths,
+    reception,
+    sqft,
+    status,
+    latitude,
+    longitude,
+    floor_plans,
+    gallery_images,
+    epc_certificate: searchParams.get('epc_certificate') || "",
+    property_video: searchParams.get('property_video') || "",
   };
+};
 
-  const property = getPropertyFromParams();
+const property = getPropertyFromParams();
+{console.log(property.floor_plans);
+  }
    
 
   // Form state
@@ -520,25 +534,26 @@ const selectImage = (index) => {
     })}
   </div>
 </div>
-
+{console.log(property.latitude )
+}
           <section className="max-w-5xl mx-auto px-4 py-10 shadow-md mt-6 rounded bg-white border border-gray-200">
       {/* Location */}
       <h2 className="text-2xl font-semibold mb-4">Location</h2>
       <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-md mb-8">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d39739.29765782021!2d-0.056183199999999994!3d51.51116855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876034c48f3b41f%3A0x5e1dcbadb2ddc76!2s1%20Agnes%20St%2C%20London%20E14%207DG%2C%20UK!5e0!3m2!1sen!2sin!4v1693923456789!5m2!1sen!2sin"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen={true}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
+  <iframe
+    src={`https://www.google.com/maps?q=${property.latitude},${property.longitude}&hl=es;z=14&output=embed`}
+    width="100%"
+    height="100%"
+    style={{ border: 0 }}
+    allowFullScreen={true}
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>
 
       {/* Address */}
       <p className="text-gray-600 mb-10">
-        <strong>1 Agnes Street, London E14 7DG, UK</strong>
+        <strong>{property.title}</strong>
       </p>
 
       {/* Description */}
@@ -554,45 +569,51 @@ const selectImage = (index) => {
       </p>
     </section>
 
-   <section className="max-w-5xl mx-auto mt-6">
+  <section className="max-w-5xl mx-auto mt-6">
   <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
-    {/* Title */}
     <h2 className="text-2xl font-semibold mb-6">Floor Plans</h2>
 
-    {/* Floor Selection and Header Row */}
-    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
-      <div className="flex items-center gap-4">
-        <h3 className="text-lg font-medium">Floor Plan</h3>
-        <div className="flex gap-2">
-          <button
-            className={`px-4 py-2 rounded-md border ${selectedFloor === "first" ? "bg-slate-700 text-white " : "bg-white text-gray-900 border-gray-300"} focus:outline-none   transition-colors duration-200`}
-            onClick={() => setSelectedFloor("first")}
-          >
-            First Floor
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md border ${selectedFloor === "second" ? "bg-slate-700 text-white " : "bg-white text-gray-900 border-gray-300"} focus:outline-none   transition-colors duration-200`}
-            onClick={() => setSelectedFloor("second")}
-          >
-            Second Floor
-          </button>
+    {property.floor_plans.length > 0 ? (
+      <>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-medium">Select Floor</span>
+            <div className="flex gap-2 flex-wrap">
+              {property.floor_plans.map((plan, idx) => (
+                <button
+                  key={idx}
+                  className={`px-4 py-2 rounded-md border ${
+                    selectedFloor?.floor_name === plan.floor_name
+                      ? "bg-slate-700 text-white"
+                      : "bg-white text-gray-900 border-gray-300"
+                  }`}
+                  onClick={() => setSelectedFloor(plan)}
+                >
+                  Floor {plan.floor_name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <span className="text-gray-500">
+            Sqft: {selectedFloor?.square_footage || "--"}
+          </span>
         </div>
-      </div>
-      <span className="text-gray-500">
-        Sqft: {selectedFloor === "first" ? "1200" : "1000"}
-      </span>
-    </div>
-
-    {/* Floor Plan Image */}
-    <div className="w-full overflow-hidden rounded-md border border-gray-200">
-      <img
-        src="/Floorplan.jpg"
-        alt={`${selectedFloor === "first" ? "First" : "Second"} Floor plan`}
-        className="w-full h-auto object-contain"
-      />
-    </div>
+     {console.log('00ooopp777',selectedFloor)
+     }
+        <div className="w-full overflow-hidden rounded-md border border-gray-200">
+          <img
+            src={selectedFloor?.floor_plan_image}
+            alt={`Floor ${selectedFloor?.floor_name}`}
+            className="w-full h-auto object-contain"
+          />
+        </div>
+      </>
+    ) : (
+      <p className="text-gray-500">No floor plans available</p>
+    )}
   </div>
 </section>
+
 
     <div className="w-full  mx-auto px-4 py-8 shadow-md rounded mt-6 bg-white border border-gray-200">
       <div className="bg-white">

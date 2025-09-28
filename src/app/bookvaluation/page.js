@@ -171,10 +171,10 @@ export default function PropertyValuationForm() {
 >
   <div className="absolute inset-0 bg-slate-700/80" />
   <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
-    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 whitespace-nowrap">
-      Get Your Free Property Valuation
-    </h1>
-  </div>
+  <h1 className="text-3xl sm:text-3xl md:text-5xl font-bold text-white mb-4 leading-snug break-words sm:whitespace-nowrap">
+    Get Your Free Property Valuation
+  </h1>
+</div>
 </div>
 
     <div className="relative min-h-screen ">

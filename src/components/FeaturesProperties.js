@@ -9,6 +9,9 @@ const FeaturedProperties = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeSlides, setActiveSlides] = useState([]);
+  const [propertiesData, setPropertiesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const sectionRef = useRef(null);
   const carouselRef = useRef(null);
   const autoSlideRef = useRef(null);
@@ -19,7 +22,7 @@ const FeaturedProperties = () => {
   const [touchEnd, setTouchEnd] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Properties data
+  // Static properties as fallback
   const originalProperties = [
     {
       id: 1,
@@ -91,21 +94,96 @@ const FeaturedProperties = () => {
     },
   ];
 
-  const totalOriginal = originalProperties.length;
+  // Use API data if available, otherwise fallback to static data
+  // const currentProperties = propertiesData.length > 0 ? propertiesData 
+  const currentProperties=propertiesData
+  const totalOriginal = currentProperties.length;
   const properties = isMobile
-    ? originalProperties
-    : Array(10).fill(originalProperties).flat();
+    ? currentProperties
+    : Array(10).fill(currentProperties).flat();
   const slidesToShow = isMobile ? 1 : 3;
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
+
+  // Fetch properties from API
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsiteallproperty", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const result = await response.json();
+        console.log("API Response:", result);
+
+        if (result.STATUS_CODE === "LS000" && result.STATUS === "SUCCESS") {
+          console.log("API DATA:", result.DATA);
+          
+          if (result.DATA && Array.isArray(result.DATA) && result.DATA.length > 0) {
+            const mappedProperties = result.DATA.map((property, index) => {
+              console.log(`Mapping property ${index}:`, property);
+              
+              return {
+                id: property.id || index + 1,
+                title: property.title || "Untitled Property",
+                location: property.city && property.state 
+                  ? `${property.city}, ${property.state}` 
+                  : property.city || property.state || "Location not specified",
+                image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+                price: property.price ? `£${property.price}` : "Price on request",
+                period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
+                beds: parseInt(property.bedrooms) || 0,
+                baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
+                reception: parseInt(property.reception_rooms) || 0,
+                sqft: parseInt(property.square_footage) || 0,
+                badges: [
+                  property.category,
+                  property.property_flag === "featured" ? "Featured" : "",
+                  property.property_status === "for_sale" ? "For Sale" : "",
+                  property.property_status === "for_rent" ? "For Rent" : ""
+                ].filter(Boolean),
+                energyRating: property.epc_certificate ? "EPC" : "",
+                fingerprint: property.fingerprint || "",
+                status: property.property_status === "available" 
+                  ? "Available" 
+                  : property.property_status === "under_offer" 
+                  ? "Under Offer"
+                  : property.property_status || ""
+              };
+            });
+            
+            console.log("Mapped properties:", mappedProperties);
+            setPropertiesData(mappedProperties);
+            setError(null);
+          } else {
+            console.warn("No valid properties data received");
+            setError("No properties available from API, showing default properties");
+          }
+        } else {
+          console.error("API returned error:", result);
+          setError(`API Error: ${result.MESSAGE || 'Unknown error'}, showing default properties`);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError(`Network Error: ${err.message}, showing default properties`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
 
   // Touch event handlers
   const handleTouchStart = (e) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
     setIsDragging(true);
-    // Pause auto-slide on touch
     clearInterval(autoSlideRef.current);
   };
 
@@ -131,7 +209,6 @@ const FeaturedProperties = () => {
     }
 
     setIsDragging(false);
-    // Resume auto-slide after touch ends
     if (isVisible) {
       autoSlideRef.current = setInterval(() => {
         if (!isTransitioning) {
@@ -159,7 +236,7 @@ const FeaturedProperties = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Intersection Observer for visibility - Same as Awards
+  // Intersection Observer for visibility
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -266,36 +343,35 @@ const FeaturedProperties = () => {
 
   // Calculate which cards should have staggered animation
   const getCardAnimationIndex = (index) => {
-    // For the first 3 cards (desktop) or first card (mobile), give them staggered delays
     if (index < slidesToShow) {
       return index;
     }
-    // For all other cards, use the same pattern based on their position
     return index % slidesToShow;
   };
 
-  // PropertyCard component with Awards-style staggered animation
+  // PropertyCard component
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
-   const handleCardClick = () => {
-    const queryParams = new URLSearchParams({
-      id: property.id,
-      title: property.title,
-      location: property.location,
-      image: property.image,
-      price: property.price,
-      period: property.period || '',
-      beds: property.beds || 0,
-      baths: property.baths || 0,
-      reception: property.reception || 0,
-      sqft: property.sqft || 0,
-      badges: JSON.stringify(property.badges || []),
-      energyRating: property.energyRating || '',
-      fingerprint: property.fingerprint || '',
-      status: property.status || ''
-    });
-    
-    router.push(`/property?${queryParams.toString()}`);
-  };
+    const handleCardClick = () => {
+      const queryParams = new URLSearchParams({
+        id: property.id,
+        title: property.title,
+        location: property.location,
+        image: property.image,
+        price: property.price,
+        period: property.period || '',
+        beds: property.beds || 0,
+        baths: property.baths || 0,
+        reception: property.reception || 0,
+        sqft: property.sqft || 0,
+        badges: JSON.stringify(property.badges || []),
+        energyRating: property.energyRating || '',
+        fingerprint: property.fingerprint || '',
+        status: property.status || ''
+      });
+      
+      router.push(`/property?${queryParams.toString()}`);
+    };
+
     const animationIndex = getCardAnimationIndex(index);
     
     return (
@@ -304,11 +380,9 @@ const FeaturedProperties = () => {
         onClick={handleCardClick}
         style={{
           minHeight: "400px",
-          // Same animation style as Awards component
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
           transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          // Staggered delay exactly like Awards component
           transitionDelay: `${400 + (animationIndex * 200)}ms`,
         }}
       >
@@ -318,6 +392,9 @@ const FeaturedProperties = () => {
             alt={property.title}
             className="w-full h-48 object-cover"
             loading="lazy"
+            onError={(e) => {
+              e.target.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop";
+            }}
           />
           <div className="absolute top-3 left-3 flex gap-2">
             {property.badges?.map((badge, badgeIndex) => (
@@ -370,25 +447,25 @@ const FeaturedProperties = () => {
             <span className="text-sm font-medium">{property.location}</span>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600 mb-4 flex-wrap">
-            {property.beds && (
+            {property.beds > 0 && (
               <div className="flex items-center">
                 <Bed className="w-4 h-4 mr-1 text-blue-500" />
                 <span>{property.beds} beds</span>
               </div>
             )}
-            {property.baths && (
+            {property.baths > 0 && (
               <div className="flex items-center">
                 <Bath className="w-4 h-4 mr-1 text-blue-500" />
                 <span>{property.baths} baths</span>
               </div>
             )}
-            {property.reception && (
+            {property.reception > 0 && (
               <div className="flex items-center">
                 <Users className="w-4 h-4 mr-1 text-blue-500" />
                 <span>{property.reception} rec</span>
               </div>
             )}
-            {property.sqft && (
+            {property.sqft > 0 && (
               <div className="flex items-center">
                 <Square className="w-4 h-4 mr-1 text-blue-500" />
                 <span>{property.sqft} sqft</span>
@@ -410,10 +487,28 @@ const FeaturedProperties = () => {
     <section className="bg-white dark:bg-gray-900">
       <div
         ref={sectionRef}
-        className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white"
+        className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white relative"
         style={{ backgroundColor: "var(--background)" }}
       >
-        {/* Header with same animation as Awards */}
+      
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
         <div
           className="flex flex-col lg:flex-row justify-between items-start mb-10"
           style={{
@@ -448,7 +543,7 @@ const FeaturedProperties = () => {
                 />
               </span>
             </h1>
-            <p className="text-base lg:text-lg max-w-2xl mt-6" style={{ color: "var(--foreground)" }}>
+            <p className="text-base lg:text-lg max-w-2xl mt-6" >
               Handpicked premium properties that stand out for their exceptional value, location, and unique characteristics.
             </p>
           </div>
@@ -462,7 +557,33 @@ const FeaturedProperties = () => {
           </button>
         </div>
 
-        {/* Carousel container with same animation as Awards */}
+        {/* Carousel */}
+          {/* Apple Spinner Component */}
+        {loading && (
+          <div className="flex justify-center items-center py-16">
+    <div className="relative w-12 h-12">
+      {[...Array(12)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute w-1 h-3 bg-gray-600 rounded-full"
+          style={{
+            transform: `rotate(${i * 30}deg) translateY(-14px)`,
+            animation: `fade 1s linear infinite`,
+            animationDelay: `${-1.2 + i * 0.1}s`,
+          }}
+        />
+      ))}
+                </div>
+              </div>
+        )}
+
+        <style jsx>{`
+          @keyframes fade-spinner {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+          }
+        `}</style>
         <div
           className="relative"
           style={{
@@ -517,7 +638,7 @@ const FeaturedProperties = () => {
             </div>
           </div>
 
-          {/* Indicators with same animation as Awards */}
+          {/* Indicators */}
           <div
             className="flex justify-center mt-8 gap-2"
             style={{
@@ -527,7 +648,7 @@ const FeaturedProperties = () => {
               transitionDelay: "400ms",
             }}
           >
-            {originalProperties.map((_, index) => (
+            {currentProperties.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
