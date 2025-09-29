@@ -111,7 +111,7 @@ const LatestProperties = () => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsiteallproperty", {
+        const response = await fetch("https://test-demo.in/lineasapi/api/v1/getwebsitelatestproperty", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
