@@ -18,7 +18,7 @@ const FeaturedProperties = () => {
   const router = useRouter();
 
   // Touch handling state
-  const [touchStartX, setTouchStartX] = useState(null);
+  const touchStartXRef = useRef(null);
   const [touchOffset, setTouchOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -160,6 +160,26 @@ const FeaturedProperties = () => {
     fetchProperties();
   }, []);
 
+  // Auto-slide helpers
+  const stopAutoSlide = useCallback(() => {
+    if (autoSlideRef.current) {
+      clearInterval(autoSlideRef.current);
+      autoSlideRef.current = null;
+    }
+  }, []);
+
+  const startAutoSlide = useCallback(() => {
+    stopAutoSlide();
+    // start a new interval
+    autoSlideRef.current = setInterval(() => {
+      // use functional update to always read latest
+      setCurrentIndex((prev) => {
+        setIsTransitioning(true);
+        return (prev + 1) % properties.length;
+      });
+    }, 5000);
+  }, [properties.length, stopAutoSlide]);
+
   // Navigation functions
   const nextSlide = useCallback(() => {
     if (isTransitioning || isDragging) return;
@@ -173,60 +193,65 @@ const FeaturedProperties = () => {
     setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
   }, [isTransitioning, isDragging, properties.length]);
 
-  // Touch event handlers
+  // Touch event handlers (improved)
   const handleTouchStart = useCallback((e) => {
     if (isTransitioning) return;
-    setTouchStartX(e.targetTouches[0].clientX);
+    const touchX = e.targetTouches[0].clientX;
+    touchStartXRef.current = touchX;
     setTouchOffset(0);
     setIsDragging(true);
-    setIsTransitioning(false);
-    clearInterval(autoSlideRef.current);
-  }, [isTransitioning]);
+    // Pause auto slide while dragging
+    stopAutoSlide();
+  }, [isTransitioning, stopAutoSlide]);
 
-  const handleTouchMove = useCallback(
-    (e) => {
-      if (!isDragging || !touchStartX) return;
-      const touchCurrentX = e.targetTouches[0].clientX;
-      const deltaX = touchCurrentX - touchStartX;
-      // Limit offset to prevent overscrolling
-      const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
-      const maxOffset = slideWidth * 0.5; // Allow dragging up to half a slide
-      setTouchOffset(Math.max(-maxOffset, Math.min(maxOffset, deltaX)));
-    },
-    [isDragging, touchStartX, slidesToShow]
-  );
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging || touchStartXRef.current === null) return;
+    const touchCurrentX = e.targetTouches[0].clientX;
+    const deltaX = touchCurrentX - touchStartXRef.current;
+
+    // Calculate slide width
+    const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
+    const maxOffset = slideWidth * 0.8; // allow up to ~80% drag for responsiveness
+    // clamp
+    const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX));
+    // update offset smoothly
+    setTouchOffset(offset);
+  }, [isDragging, slidesToShow]);
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
 
     const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
-    const threshold = slideWidth * 0.3; // Snap if dragged more than 30% of a slide
+    const threshold = slideWidth * 0.25; // 25% threshold
 
+    // If dragged enough, advance or go back
     if (Math.abs(touchOffset) > threshold) {
-      if (touchOffset < 0 && currentIndex < properties.length - 1) {
+      if (touchOffset < 0) {
+        // moved left -> next
         nextSlide();
-      } else if (touchOffset > 0 && currentIndex > 0) {
-        prevSlide();
       } else {
-        setIsTransitioning(true);
-        setTouchOffset(0);
+        // moved right -> prev
+        prevSlide();
       }
     } else {
+      // small drag: snap back
       setIsTransitioning(true);
-      setTouchOffset(0);
+      // Force a very small timeout to allow transition style to apply
+      setTimeout(() => {
+        setTouchOffset(0);
+      }, 10);
     }
 
-    setTouchStartX(null);
-    if (isVisible && !isDragging) {
-      autoSlideRef.current = setInterval(() => {
-        if (!isTransitioning) {
-          setIsTransitioning(true);
-          setCurrentIndex((prev) => (prev + 1) % properties.length);
-        }
-      }, 5000);
-    }
-  }, [isDragging, touchOffset, isVisible, isTransitioning, slidesToShow, properties.length, currentIndex, nextSlide, prevSlide]);
+    touchStartXRef.current = null;
+
+    // restart auto slide after a small delay so transition finishes
+    setTimeout(() => {
+      if (!isDragging) {
+        startAutoSlide();
+      }
+    }, 600);
+  }, [isDragging, touchOffset, slidesToShow, nextSlide, prevSlide, startAutoSlide]);
 
   // Initialize active slides
   useEffect(() => {
@@ -256,6 +281,9 @@ const FeaturedProperties = () => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          // start auto slide when it becomes visible
+          startAutoSlide();
+          // disconnect so we don't repeatedly call
           observer.disconnect();
         }
       },
@@ -267,25 +295,36 @@ const FeaturedProperties = () => {
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      try {
+        observer.disconnect();
+      } catch (e) {}
     };
-  }, []);
+  }, [startAutoSlide]);
 
-  // Auto-slide functionality
+  // Start auto-slide on mount as well (ensures auto-scroll on page load even if intersection didn't trigger)
   useEffect(() => {
-    if (!isVisible || isDragging) return;
+    // start but keep it paused if user begins dragging
+    startAutoSlide();
+    return () => stopAutoSlide();
+  }, [startAutoSlide, stopAutoSlide]);
 
-    autoSlideRef.current = setInterval(() => {
-      if (!isTransitioning) {
-        setIsTransitioning(true);
-        setCurrentIndex((prev) => (prev + 1) % properties.length);
-      }
-    }, 5000);
+  // Auto-slide pause/resume on visibility/dragging/transitioning changes
+  useEffect(() => {
+    // if dragging or transitioning => pause
+    if (isDragging || isTransitioning) {
+      stopAutoSlide();
+      return;
+    }
 
-    return () => clearInterval(autoSlideRef.current);
-  }, [isVisible, isTransitioning, isDragging, properties.length]);
+    // if visible, ensure auto is running
+    if (isVisible) {
+      startAutoSlide();
+    } else {
+      // if not visible, keep auto running (we also started it on mount) or stop if you want to strictly stop: stopAutoSlide();
+      // We'll leave it running (helps auto-scroll on load)
+      startAutoSlide();
+    }
+  }, [isVisible, isDragging, isTransitioning, startAutoSlide, stopAutoSlide]);
 
   // Handle transition end
   useEffect(() => {
@@ -319,15 +358,10 @@ const FeaturedProperties = () => {
   );
 
   // Pause auto-slide on hover
-  const handleMouseEnter = () => clearInterval(autoSlideRef.current);
+  const handleMouseEnter = () => stopAutoSlide();
   const handleMouseLeave = () => {
-    if (isVisible && !isDragging) {
-      autoSlideRef.current = setInterval(() => {
-        if (!isTransitioning) {
-          setIsTransitioning(true);
-          setCurrentIndex((prev) => (prev + 1) % properties.length);
-        }
-      }, 5000);
+    if (!isDragging) {
+      startAutoSlide();
     }
   };
 
@@ -335,7 +369,10 @@ const FeaturedProperties = () => {
   const FilterPage = () => router.push("propertydetails");
 
   // Get current slide indicator
-  const getCurrentSlideIndicator = () => currentIndex % totalOriginal;
+  const getCurrentSlideIndicator = () => {
+    if (totalOriginal === 0) return 0;
+    return ((currentIndex % totalOriginal) + totalOriginal) % totalOriginal;
+  };
 
   // Calculate which cards should have staggered animation
   const getCardAnimationIndex = (index) => {
