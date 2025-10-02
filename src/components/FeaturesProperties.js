@@ -160,34 +160,41 @@ const FeaturedProperties = () => {
     fetchProperties();
   }, []);
 
-  // Navigation functions defined first
+  // Navigation functions
   const nextSlide = useCallback(() => {
-    if (isTransitioning) return;
+    if (isTransitioning || isDragging) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % properties.length);
-  }, [isTransitioning, properties.length]);
+  }, [isTransitioning, isDragging, properties.length]);
 
   const prevSlide = useCallback(() => {
-    if (isTransitioning) return;
+    if (isTransitioning || isDragging) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
-  }, [isTransitioning, properties.length]);
+  }, [isTransitioning, isDragging, properties.length]);
 
   // Touch event handlers
   const handleTouchStart = useCallback((e) => {
+    if (isTransitioning) return;
     setTouchStartX(e.targetTouches[0].clientX);
     setTouchOffset(0);
     setIsDragging(true);
-    setIsTransitioning(false); // Disable transition during drag
+    setIsTransitioning(false);
     clearInterval(autoSlideRef.current);
-  }, []);
+  }, [isTransitioning]);
 
-  const handleTouchMove = useCallback((e) => {
-    if (!isDragging || !touchStartX) return;
-    const touchCurrentX = e.targetTouches[0].clientX;
-    const deltaX = touchCurrentX - touchStartX;
-    setTouchOffset(deltaX);
-  }, [isDragging, touchStartX]);
+  const handleTouchMove = useCallback(
+    (e) => {
+      if (!isDragging || !touchStartX) return;
+      const touchCurrentX = e.targetTouches[0].clientX;
+      const deltaX = touchCurrentX - touchStartX;
+      // Limit offset to prevent overscrolling
+      const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
+      const maxOffset = slideWidth * 0.5; // Allow dragging up to half a slide
+      setTouchOffset(Math.max(-maxOffset, Math.min(maxOffset, deltaX)));
+    },
+    [isDragging, touchStartX, slidesToShow]
+  );
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging) return;
@@ -197,18 +204,21 @@ const FeaturedProperties = () => {
     const threshold = slideWidth * 0.3; // Snap if dragged more than 30% of a slide
 
     if (Math.abs(touchOffset) > threshold) {
-      if (touchOffset < 0) {
+      if (touchOffset < 0 && currentIndex < properties.length - 1) {
         nextSlide();
-      } else {
+      } else if (touchOffset > 0 && currentIndex > 0) {
         prevSlide();
+      } else {
+        setIsTransitioning(true);
+        setTouchOffset(0);
       }
     } else {
-      setIsTransitioning(true); // Re-enable transition for snap-back
-      setTouchOffset(0); // Reset offset to snap back to current slide
+      setIsTransitioning(true);
+      setTouchOffset(0);
     }
 
     setTouchStartX(null);
-    if (isVisible) {
+    if (isVisible && !isDragging) {
       autoSlideRef.current = setInterval(() => {
         if (!isTransitioning) {
           setIsTransitioning(true);
@@ -216,7 +226,7 @@ const FeaturedProperties = () => {
         }
       }, 5000);
     }
-  }, [isDragging, touchOffset, isVisible, isTransitioning, slidesToShow, properties.length, nextSlide, prevSlide]);
+  }, [isDragging, touchOffset, isVisible, isTransitioning, slidesToShow, properties.length, currentIndex, nextSlide, prevSlide]);
 
   // Initialize active slides
   useEffect(() => {
@@ -229,11 +239,16 @@ const FeaturedProperties = () => {
 
   // Check mobile view
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Reset index on resize to avoid invalid state
+      setCurrentIndex(mobile ? 0 : totalOriginal * 2);
+    };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [totalOriginal]);
 
   // Intersection Observer for visibility
   useEffect(() => {
@@ -258,11 +273,6 @@ const FeaturedProperties = () => {
     };
   }, []);
 
-  // Initialize carousel position
-  useEffect(() => {
-    setCurrentIndex(isMobile ? 0 : totalOriginal * 2);
-  }, [isMobile, totalOriginal]);
-
   // Auto-slide functionality
   useEffect(() => {
     if (!isVisible || isDragging) return;
@@ -275,7 +285,7 @@ const FeaturedProperties = () => {
     }, 5000);
 
     return () => clearInterval(autoSlideRef.current);
-  }, [isVisible, isTransitioning, properties.length, isDragging]);
+  }, [isVisible, isTransitioning, isDragging, properties.length]);
 
   // Handle transition end
   useEffect(() => {
@@ -284,7 +294,7 @@ const FeaturedProperties = () => {
 
     const handleTransitionEnd = () => {
       setIsTransitioning(false);
-      setTouchOffset(0); // Reset offset after transition
+      setTouchOffset(0);
       const newActiveSlides = [];
       for (let i = 0; i < slidesToShow; i++) {
         newActiveSlides.push((currentIndex + i) % totalOriginal);
@@ -301,11 +311,11 @@ const FeaturedProperties = () => {
   // Navigation to slide
   const goToSlide = useCallback(
     (index) => {
-      if (isTransitioning) return;
+      if (isTransitioning || isDragging) return;
       setIsTransitioning(true);
       setCurrentIndex(isMobile ? index : totalOriginal * 2 + index);
     },
-    [isTransitioning, isMobile, totalOriginal]
+    [isTransitioning, isDragging, isMobile, totalOriginal]
   );
 
   // Pause auto-slide on hover
@@ -580,7 +590,7 @@ const FeaturedProperties = () => {
         >
           <button
             onClick={prevSlide}
-            disabled={isTransitioning}
+            disabled={isTransitioning || isDragging || currentIndex === 0}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
@@ -588,7 +598,7 @@ const FeaturedProperties = () => {
           </button>
           <button
             onClick={nextSlide}
-            disabled={isTransitioning}
+            disabled={isTransitioning || isDragging || currentIndex >= properties.length - 1}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
@@ -635,7 +645,7 @@ const FeaturedProperties = () => {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                disabled={isTransitioning}
+                disabled={isTransitioning || isDragging}
                 className={`h-2 rounded-full transition-all duration-300 disabled:cursor-not-allowed ${
                   index === getCurrentSlideIndicator() ? "bg-cyan-500 w-8" : "bg-gray-300 hover:bg-gray-400 w-2"
                 }`}
