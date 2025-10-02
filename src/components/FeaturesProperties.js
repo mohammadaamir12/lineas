@@ -18,8 +18,8 @@ const FeaturedProperties = () => {
   const router = useRouter();
 
   // Touch handling state
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchOffset, setTouchOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
   // Static properties as fallback
@@ -95,16 +95,10 @@ const FeaturedProperties = () => {
   ];
 
   // Use API data if available, otherwise fallback to static data
-  // const currentProperties = propertiesData.length > 0 ? propertiesData 
-  const currentProperties=propertiesData
+  const currentProperties = propertiesData.length > 0 ? propertiesData : originalProperties;
   const totalOriginal = currentProperties.length;
-  const properties = isMobile
-    ? currentProperties
-    : Array(10).fill(currentProperties).flat();
+  const properties = isMobile ? currentProperties : Array(10).fill(currentProperties).flat();
   const slidesToShow = isMobile ? 1 : 3;
-
-  // Minimum swipe distance (in px)
-  const minSwipeDistance = 50;
 
   // Fetch properties from API
   useEffect(() => {
@@ -119,57 +113,44 @@ const FeaturedProperties = () => {
         });
 
         const result = await response.json();
-        console.log("API Response:", result);
-
         if (result.STATUS_CODE === "LS000" && result.STATUS === "SUCCESS") {
-          console.log("API DATA:", result.DATA);
-          
           if (result.DATA && Array.isArray(result.DATA) && result.DATA.length > 0) {
-            const mappedProperties = result.DATA.map((property, index) => {
-              console.log(`Mapping property ${index}:`, property);
-              
-              return {
-                id: property.id || index + 1,
-                title: property.title || "Untitled Property",
-                location: property.city && property.state 
-                  ? `${property.city}, ${property.state}` 
-                  : property.city || property.state || "Location not specified",
-                image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-                price: property.price ? `£${property.price}` : "Price on request",
-                period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
-                beds: parseInt(property.bedrooms) || 0,
-                baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
-                reception: parseInt(property.reception_rooms) || 0,
-                sqft: parseInt(property.square_footage) || 0,
-                badges: [
-                  property.category,
-                  property.property_flag === "featured" ? "Featured" : "",
-                  property.property_status === "for_sale" ? "For Sale" : "",
-                  property.property_status === "for_rent" ? "For Rent" : ""
-                ].filter(Boolean),
-                energyRating: property.epc_certificate ? "EPC" : "",
-                fingerprint: property.fingerprint || "",
-                status: property.property_status === "available" 
-                  ? "Available" 
-                  : property.property_status === "under_offer" 
-                  ? "Under Offer"
-                  : property.property_status || ""
-              };
-            });
-            
-            console.log("Mapped properties:", mappedProperties);
+            const mappedProperties = result.DATA.map((property, index) => ({
+              id: property.id || index + 1,
+              title: property.title || "Untitled Property",
+              location: property.city && property.state
+                ? `${property.city}, ${property.state}`
+                : property.city || property.state || "Location not specified",
+              image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+              price: property.price ? `£${property.price}` : "Price on request",
+              period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
+              beds: parseInt(property.bedrooms) || 0,
+              baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
+              reception: parseInt(property.reception_rooms) || 0,
+              sqft: parseInt(property.square_footage) || 0,
+              badges: [
+                property.category,
+                property.property_flag === "featured" ? "Featured" : "",
+                property.property_status === "for_sale" ? "For Sale" : "",
+                property.property_status === "for_rent" ? "For Rent" : "",
+              ].filter(Boolean),
+              energyRating: property.epc_certificate ? "EPC" : "",
+              fingerprint: property.fingerprint || "",
+              status: property.property_status === "available"
+                ? "Available"
+                : property.property_status === "under_offer"
+                ? "Under Offer"
+                : property.property_status || "",
+            }));
             setPropertiesData(mappedProperties);
             setError(null);
           } else {
-            console.warn("No valid properties data received");
             setError("No properties available from API, showing default properties");
           }
         } else {
-          console.error("API returned error:", result);
-          setError(`API Error: ${result.MESSAGE || 'Unknown error'}, showing default properties`);
+          setError(`API Error: ${result.MESSAGE || "Unknown error"}, showing default properties`);
         }
       } catch (err) {
-        console.error("Fetch error:", err);
         setError(`Network Error: ${err.message}, showing default properties`);
       } finally {
         setLoading(false);
@@ -179,36 +160,54 @@ const FeaturedProperties = () => {
     fetchProperties();
   }, []);
 
+  // Navigation functions defined first
+  const nextSlide = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev + 1) % properties.length);
+  }, [isTransitioning, properties.length]);
+
+  const prevSlide = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
+  }, [isTransitioning, properties.length]);
+
   // Touch event handlers
-  const handleTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+  const handleTouchStart = useCallback((e) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchOffset(0);
     setIsDragging(true);
+    setIsTransitioning(false); // Disable transition during drag
     clearInterval(autoSlideRef.current);
-  };
+  }, []);
 
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging || !touchStartX) return;
+    const touchCurrentX = e.targetTouches[0].clientX;
+    const deltaX = touchCurrentX - touchStartX;
+    setTouchOffset(deltaX);
+  }, [isDragging, touchStartX]);
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setIsDragging(false);
-      return;
-    }
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && !isTransitioning) {
-      nextSlide();
-    }
-    if (isRightSwipe && !isTransitioning) {
-      prevSlide();
-    }
-
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
     setIsDragging(false);
+
+    const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
+    const threshold = slideWidth * 0.3; // Snap if dragged more than 30% of a slide
+
+    if (Math.abs(touchOffset) > threshold) {
+      if (touchOffset < 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    } else {
+      setIsTransitioning(true); // Re-enable transition for snap-back
+      setTouchOffset(0); // Reset offset to snap back to current slide
+    }
+
+    setTouchStartX(null);
     if (isVisible) {
       autoSlideRef.current = setInterval(() => {
         if (!isTransitioning) {
@@ -217,9 +216,9 @@ const FeaturedProperties = () => {
         }
       }, 5000);
     }
-  };
+  }, [isDragging, touchOffset, isVisible, isTransitioning, slidesToShow, properties.length, nextSlide, prevSlide]);
 
-  // Initialize active slides based on currentIndex
+  // Initialize active slides
   useEffect(() => {
     const initialSlides = [];
     for (let i = 0; i < slidesToShow; i++) {
@@ -245,9 +244,7 @@ const FeaturedProperties = () => {
           observer.disconnect();
         }
       },
-      {
-        threshold: 0.1,
-      }
+      { threshold: 0.1 }
     );
 
     if (sectionRef.current) {
@@ -280,13 +277,14 @@ const FeaturedProperties = () => {
     return () => clearInterval(autoSlideRef.current);
   }, [isVisible, isTransitioning, properties.length, isDragging]);
 
-  // Handle transition end and update active slides
+  // Handle transition end
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
 
     const handleTransitionEnd = () => {
       setIsTransitioning(false);
+      setTouchOffset(0); // Reset offset after transition
       const newActiveSlides = [];
       for (let i = 0; i < slidesToShow; i++) {
         newActiveSlides.push((currentIndex + i) % totalOriginal);
@@ -300,19 +298,7 @@ const FeaturedProperties = () => {
     };
   }, [currentIndex, slidesToShow, totalOriginal]);
 
-  // Navigation functions
-  const nextSlide = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev + 1) % properties.length);
-  }, [isTransitioning, properties.length]);
-
-  const prevSlide = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
-  }, [isTransitioning, properties.length]);
-
+  // Navigation to slide
   const goToSlide = useCallback(
     (index) => {
       if (isTransitioning) return;
@@ -358,22 +344,21 @@ const FeaturedProperties = () => {
         location: property.location,
         image: property.image,
         price: property.price,
-        period: property.period || '',
+        period: property.period || "",
         beds: property.beds || 0,
         baths: property.baths || 0,
         reception: property.reception || 0,
         sqft: property.sqft || 0,
         badges: JSON.stringify(property.badges || []),
-        energyRating: property.energyRating || '',
-        fingerprint: property.fingerprint || '',
-        status: property.status || ''
+        energyRating: property.energyRating || "",
+        fingerprint: property.fingerprint || "",
+        status: property.status || "",
       });
-      
       router.push(`/property?${queryParams.toString()}`);
     };
 
     const animationIndex = getCardAnimationIndex(index);
-    
+
     return (
       <div
         className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer will-change-transform flex flex-col"
@@ -383,7 +368,7 @@ const FeaturedProperties = () => {
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
           transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          transitionDelay: `${400 + (animationIndex * 200)}ms`,
+          transitionDelay: `${400 + animationIndex * 200}ms`,
         }}
       >
         <div className="relative">
@@ -490,8 +475,6 @@ const FeaturedProperties = () => {
         className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white relative"
         style={{ backgroundColor: "var(--background)" }}
       >
-      
-
         {/* Error Message */}
         {error && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
@@ -543,7 +526,7 @@ const FeaturedProperties = () => {
                 />
               </span>
             </h1>
-            <p className="text-base lg:text-lg max-w-2xl mt-6" >
+            <p className="text-base lg:text-lg max-w-2xl mt-6">
               Handpicked premium properties that stand out for their exceptional value, location, and unique characteristics.
             </p>
           </div>
@@ -558,23 +541,22 @@ const FeaturedProperties = () => {
         </div>
 
         {/* Carousel */}
-          {/* Apple Spinner Component */}
         {loading && (
           <div className="flex justify-center items-center py-16">
-    <div className="relative w-12 h-12">
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-1 h-3 bg-gray-600 rounded-full"
-          style={{
-            transform: `rotate(${i * 30}deg) translateY(-14px)`,
-            animation: `fade 1s linear infinite`,
-            animationDelay: `${-1.2 + i * 0.1}s`,
-          }}
-        />
-      ))}
-                </div>
-              </div>
+            <div className="relative w-12 h-12">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-3 bg-gray-600 rounded-full"
+                  style={{
+                    transform: `rotate(${i * 30}deg) translateY(-14px)`,
+                    animation: `fade-spinner 1s linear infinite`,
+                    animationDelay: `${-1.2 + i * 0.1}s`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         )}
 
         <style jsx>{`
@@ -584,6 +566,7 @@ const FeaturedProperties = () => {
             100% { opacity: 1; }
           }
         `}</style>
+
         <div
           className="relative"
           style={{
@@ -611,19 +594,19 @@ const FeaturedProperties = () => {
           >
             <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
           </button>
-          <div 
+          <div
             className="overflow-hidden rounded-xl"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
-            style={{ touchAction: 'pan-y pinch-zoom' }}
+            style={{ touchAction: "pan-y pinch-zoom" }}
           >
             <div
               ref={carouselRef}
               className="flex"
               style={{
-                transform: `translate3d(-${(currentIndex * 100) / slidesToShow}%, 0, 0)`,
-                transition: isTransitioning ? "transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+                transform: `translate3d(calc(-${(currentIndex * 100) / slidesToShow}% + ${touchOffset}px), 0, 0)`,
+                transition: isTransitioning && !isDragging ? "transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
                 willChange: "transform",
               }}
             >
