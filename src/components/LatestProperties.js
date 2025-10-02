@@ -580,7 +580,7 @@ gallery_images: JSON.stringify(property.gallery_images || []),
             className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
             style={{ color: "var(--foreground)" }}
           >
-            View all featured
+            View all Latest
             <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
           </button>
         </div>
