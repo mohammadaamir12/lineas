@@ -17,10 +17,11 @@ const FeaturedProperties = () => {
   const autoSlideRef = useRef(null);
   const router = useRouter();
 
-  // Touch handling state
-  const touchStartXRef = useRef(null);
-  const [touchOffset, setTouchOffset] = useState(0);
+  // Drag handling state - IMPROVED
+  const dragStartXRef = useRef(null);
+  const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const dragThresholdReached = useRef(false);
 
   // Static properties as fallback
   const originalProperties = [
@@ -170,88 +171,152 @@ const FeaturedProperties = () => {
 
   const startAutoSlide = useCallback(() => {
     stopAutoSlide();
-    // start a new interval
     autoSlideRef.current = setInterval(() => {
-      // use functional update to always read latest
       setCurrentIndex((prev) => {
         setIsTransitioning(true);
-        return (prev + 1) % properties.length;
+        const nextIndex = prev + 1;
+        // Handle infinite loop for desktop
+        if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+          return totalOriginal * 2;
+        }
+        return nextIndex % properties.length;
       });
     }, 5000);
-  }, [properties.length, stopAutoSlide]);
+  }, [properties.length, stopAutoSlide, isMobile, slidesToShow, totalOriginal]);
 
-  // Navigation functions
+  // Navigation functions - IMPROVED
   const nextSlide = useCallback(() => {
     if (isTransitioning || isDragging) return;
     setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev + 1) % properties.length);
-  }, [isTransitioning, isDragging, properties.length]);
+    setCurrentIndex((prev) => {
+      const nextIndex = prev + 1;
+      if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+        // Seamless loop
+        setTimeout(() => {
+          setIsTransitioning(false);
+          setCurrentIndex(totalOriginal * 2);
+          setTimeout(() => setIsTransitioning(true), 50);
+        }, 400);
+      }
+      return nextIndex;
+    });
+  }, [isTransitioning, isDragging, properties.length, isMobile, slidesToShow, totalOriginal]);
 
   const prevSlide = useCallback(() => {
     if (isTransitioning || isDragging) return;
     setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
-  }, [isTransitioning, isDragging, properties.length]);
+    setCurrentIndex((prev) => {
+      const prevIndex = prev - 1;
+      if (!isMobile && prevIndex < totalOriginal) {
+        // Seamless loop
+        setTimeout(() => {
+          setIsTransitioning(false);
+          setCurrentIndex(totalOriginal * 2);
+          setTimeout(() => setIsTransitioning(true), 50);
+        }, 400);
+      }
+      return prevIndex < 0 ? properties.length - 1 : prevIndex;
+    });
+  }, [isTransitioning, isDragging, properties.length, isMobile, totalOriginal]);
 
-  // Touch event handlers (improved)
-  const handleTouchStart = useCallback((e) => {
+  // Drag event handlers - COMPLETELY REWRITTEN FOR SMOOTH SCROLLING
+  const handleDragStart = useCallback((e) => {
     if (isTransitioning) return;
-    const touchX = e.targetTouches[0].clientX;
-    touchStartXRef.current = touchX;
-    setTouchOffset(0);
+    const clientX = e.type === "touchstart" ? e.targetTouches[0].clientX : e.clientX;
+    dragStartXRef.current = clientX;
+    setDragOffset(0);
     setIsDragging(true);
-    // Pause auto slide while dragging
+    dragThresholdReached.current = false;
     stopAutoSlide();
+    e.preventDefault();
   }, [isTransitioning, stopAutoSlide]);
 
-  const handleTouchMove = useCallback((e) => {
-    if (!isDragging || touchStartXRef.current === null) return;
-    const touchCurrentX = e.targetTouches[0].clientX;
-    const deltaX = touchCurrentX - touchStartXRef.current;
+  const handleDragMove = useCallback((e) => {
+    if (!isDragging || dragStartXRef.current === null) return;
+    
+    const clientX = e.type === "touchmove" ? e.targetTouches[0].clientX : e.clientX;
+    const deltaX = clientX - dragStartXRef.current;
+    
+    // Apply drag offset directly without limits for smooth follow
+    setDragOffset(deltaX);
+    
+    // Check if threshold is reached
+    const threshold = 50;
+    if (Math.abs(deltaX) > threshold) {
+      dragThresholdReached.current = true;
+    }
+  }, [isDragging]);
 
-    // Calculate slide width
-    const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
-    const maxOffset = slideWidth * 0.8; // allow up to ~80% drag for responsiveness
-    // clamp
-    const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX));
-    // update offset smoothly
-    setTouchOffset(offset);
-  }, [isDragging, slidesToShow]);
-
-  const handleTouchEnd = useCallback(() => {
+const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
+    
+    // Calculate card width based on viewport
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    const cardWidth = carousel.offsetWidth / slidesToShow;
+    const draggedCards = Math.round(Math.abs(dragOffset) / cardWidth);
+    
+    // Threshold: move to next/prev card if dragged more than 30% of card width
+    const threshold = cardWidth * 0.3;
+    const shouldSlide = Math.abs(dragOffset) > threshold;
 
-    const slideWidth = carouselRef.current ? carouselRef.current.offsetWidth / slidesToShow : 1;
-    const threshold = slideWidth * 0.25; // 25% threshold
-
-    // If dragged enough, advance or go back
-    if (Math.abs(touchOffset) > threshold) {
-      if (touchOffset < 0) {
-        // moved left -> next
-        nextSlide();
-      } else {
-        // moved right -> prev
-        prevSlide();
-      }
-    } else {
-      // small drag: snap back
+    if (shouldSlide) {
+      // Calculate how many cards to move (at least 1)
+      const cardsToMove = draggedCards > 0 ? draggedCards : 1;
+      
       setIsTransitioning(true);
-      // Force a very small timeout to allow transition style to apply
-      setTimeout(() => {
-        setTouchOffset(0);
-      }, 10);
+      
+      if (dragOffset < 0) {
+        // Dragged left - move forward
+        setCurrentIndex((prev) => {
+          const nextIndex = prev + cardsToMove;
+          if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+            // Seamless loop
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setCurrentIndex(totalOriginal * 2);
+              setTimeout(() => setIsTransitioning(true), 50);
+            }, 400);
+          }
+          return nextIndex;
+        });
+      } else {
+        // Dragged right - move backward
+        setCurrentIndex((prev) => {
+          const prevIndex = prev - cardsToMove;
+          if (!isMobile && prevIndex < totalOriginal) {
+            // Seamless loop
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setCurrentIndex(totalOriginal * 2);
+              setTimeout(() => setIsTransitioning(true), 50);
+            }, 400);
+          }
+          return prevIndex < 0 ? properties.length - 1 : prevIndex;
+        });
+      }
+      
+      setDragOffset(0);
+      setTimeout(() => setIsTransitioning(false), 400);
+    } else {
+      // Snap back to current position
+      setIsTransitioning(true);
+      setDragOffset(0);
+      setTimeout(() => setIsTransitioning(false), 400);
     }
 
-    touchStartXRef.current = null;
-
-    // restart auto slide after a small delay so transition finishes
+    dragStartXRef.current = null;
+    dragThresholdReached.current = false;
+    
+    // Resume auto-slide after delay
     setTimeout(() => {
-      if (!isDragging) {
+      if (!isDragging && isVisible) {
         startAutoSlide();
       }
-    }, 600);
-  }, [isDragging, touchOffset, slidesToShow, nextSlide, prevSlide, startAutoSlide]);
+    }, 3000);
+  }, [isDragging, dragOffset, startAutoSlide, isVisible, isMobile, properties.length, slidesToShow, totalOriginal]);
 
   // Initialize active slides
   useEffect(() => {
@@ -267,7 +332,6 @@ const FeaturedProperties = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      // Reset index on resize to avoid invalid state
       setCurrentIndex(mobile ? 0 : totalOriginal * 2);
     };
     handleResize();
@@ -281,9 +345,7 @@ const FeaturedProperties = () => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          // start auto slide when it becomes visible
           startAutoSlide();
-          // disconnect so we don't repeatedly call
           observer.disconnect();
         }
       },
@@ -301,28 +363,21 @@ const FeaturedProperties = () => {
     };
   }, [startAutoSlide]);
 
-  // Start auto-slide on mount as well (ensures auto-scroll on page load even if intersection didn't trigger)
+  // Start auto-slide on mount
   useEffect(() => {
-    // start but keep it paused if user begins dragging
     startAutoSlide();
     return () => stopAutoSlide();
   }, [startAutoSlide, stopAutoSlide]);
 
-  // Auto-slide pause/resume on visibility/dragging/transitioning changes
+  // Auto-slide pause/resume
   useEffect(() => {
-    // if dragging or transitioning => pause
     if (isDragging || isTransitioning) {
       stopAutoSlide();
-      return;
-    }
-
-    // if visible, ensure auto is running
-    if (isVisible) {
-      startAutoSlide();
-    } else {
-      // if not visible, keep auto running (we also started it on mount) or stop if you want to strictly stop: stopAutoSlide();
-      // We'll leave it running (helps auto-scroll on load)
-      startAutoSlide();
+    } else if (isVisible) {
+      const timeout = setTimeout(() => {
+        startAutoSlide();
+      }, 500);
+      return () => clearTimeout(timeout);
     }
   }, [isVisible, isDragging, isTransitioning, startAutoSlide, stopAutoSlide]);
 
@@ -333,7 +388,6 @@ const FeaturedProperties = () => {
 
     const handleTransitionEnd = () => {
       setIsTransitioning(false);
-      setTouchOffset(0);
       const newActiveSlides = [];
       for (let i = 0; i < slidesToShow; i++) {
         newActiveSlides.push((currentIndex + i) % totalOriginal);
@@ -385,6 +439,9 @@ const FeaturedProperties = () => {
   // PropertyCard component
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
     const handleCardClick = () => {
+      // Prevent navigation if user was dragging
+      if (dragThresholdReached.current) return;
+      
       const queryParams = new URLSearchParams({
         id: property.id,
         title: property.title,
@@ -416,14 +473,16 @@ const FeaturedProperties = () => {
           transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
           transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
           transitionDelay: `${400 + animationIndex * 200}ms`,
+          pointerEvents: isDragging ? "none" : "auto",
         }}
       >
         <div className="relative">
           <img
             src={property.image}
             alt={property.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-48 object-cover pointer-events-none select-none"
             loading="lazy"
+            draggable="false"
             onError={(e) => {
               e.target.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop";
             }}
@@ -627,7 +686,7 @@ const FeaturedProperties = () => {
         >
           <button
             onClick={prevSlide}
-            disabled={isTransitioning || isDragging || currentIndex === 0}
+            disabled={isTransitioning || isDragging}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
@@ -635,25 +694,35 @@ const FeaturedProperties = () => {
           </button>
           <button
             onClick={nextSlide}
-            disabled={isTransitioning || isDragging || currentIndex >= properties.length - 1}
+            disabled={isTransitioning || isDragging}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
             <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
           </button>
           <div
-            className="overflow-hidden rounded-xl"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{ touchAction: "pan-y pinch-zoom" }}
+            className="overflow-hidden rounded-xl cursor-grab active:cursor-grabbing"
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            style={{ 
+              touchAction: "pan-y pinch-zoom", 
+              userSelect: "none",
+              WebkitUserSelect: "none",
+              MozUserSelect: "none",
+              msUserSelect: "none"
+            }}
           >
             <div
               ref={carouselRef}
               className="flex"
               style={{
-                transform: `translate3d(calc(-${(currentIndex * 100) / slidesToShow}% + ${touchOffset}px), 0, 0)`,
-                transition: isTransitioning && !isDragging ? "transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+                transform: `translate3d(calc(-${(currentIndex * 100) / slidesToShow}% + ${dragOffset}px), 0, 0)`,
+                transition: isDragging || !isTransitioning ? "none" : "transform 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                 willChange: "transform",
               }}
             >
