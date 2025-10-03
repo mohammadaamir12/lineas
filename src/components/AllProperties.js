@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { MapPin, Bed, Bath, Users, Square, Star, ChevronRight } from "lucide-react";
+import { MapPin, Bed, Bath, Users, Square, Star, ChevronRight,BuildingIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const AllProperties = () => {
@@ -205,12 +205,14 @@ const AllProperties = () => {
               <span
                 key={index}
                 className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
-                  badge === "Featured"
+                 badge === "Latest"
                     ? "bg-orange-500 text-white"
                     : badge === "Commercial"
                     ? "bg-purple-500 text-white"
                     : badge === "For Sale"
-                    ? "bg-red-500 text-white"
+                    ? "bg-blue-500 text-white":
+                    badge === "Short Let"
+                    ? "bg-orange-500 text-white"
                     : "bg-blue-500 text-white"
                 }`}
               >
@@ -221,9 +223,13 @@ const AllProperties = () => {
           </div>
           {property.status && (
             <div className="absolute top-3 right-3">
-              <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                📋 {property.status}
-              </span>
+              <span className={`${
+  property.status === "Available"
+    ? "bg-green-500"
+    : "bg-red-500"
+} text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1`}>
+  <BuildingIcon className="w-3 h-3" /> {property.status}
+</span>
             </div>
           )}
         </div>

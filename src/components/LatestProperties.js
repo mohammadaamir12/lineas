@@ -1,7 +1,6 @@
-
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star,Building } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const LatestProperties = () => {
@@ -18,10 +17,12 @@ const LatestProperties = () => {
   const autoSlideRef = useRef(null);
   const router = useRouter();
 
-  // Touch handling state
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+  // Drag handling state - IMPROVED
+  const dragStartXRef = useRef(null);
+  const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const dragThresholdReached = useRef(false);
+  const clickStartTime = useRef(null);
 
   // Static properties as fallback
   const originalProperties = [
@@ -96,18 +97,13 @@ const LatestProperties = () => {
   ];
 
   // Use API data if available, otherwise fallback to static data
-  const currentProperties =  propertiesData 
+  const currentProperties = propertiesData.length > 0 ? propertiesData : originalProperties;
   const totalOriginal = currentProperties.length;
-  const properties = isMobile
-    ? currentProperties
-    : Array(10).fill(currentProperties).flat();
+  const properties = isMobile ? currentProperties : Array(10).fill(currentProperties).flat();
   const slidesToShow = isMobile ? 1 : 3;
 
-  // Minimum swipe distance (in px)
-  const minSwipeDistance = 50;
-
   // Fetch properties from API
-  useEffect(() => {
+   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
@@ -151,7 +147,7 @@ const LatestProperties = () => {
   area_size: parseInt(property.area_size) || 0,
   badges: [
     property.category,
-    property.property_flag === "featured" ? "Featured" : "",
+    property.property_flag === "latest" ? "Latest" : "",
     property.property_status === "for_sale" ? "For Sale" : "",
     property.property_status === "for_rent" ? "For Rent" : ""
   ].filter(Boolean),
@@ -199,47 +195,184 @@ const LatestProperties = () => {
     fetchProperties();
   }, []);
 
-  // Touch event handlers
-  const handleTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-    setIsDragging(true);
-    clearInterval(autoSlideRef.current);
-  };
+  // Auto-slide helpers
+  const stopAutoSlide = useCallback(() => {
+    if (autoSlideRef.current) {
+      clearInterval(autoSlideRef.current);
+      autoSlideRef.current = null;
+    }
+  }, []);
 
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+  const startAutoSlide = useCallback(() => {
+    stopAutoSlide();
+    autoSlideRef.current = setInterval(() => {
+      setCurrentIndex((prev) => {
+        setIsTransitioning(true);
+        const nextIndex = prev + 1;
+        // Handle infinite loop for desktop
+        if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+          return totalOriginal * 2;
+        }
+        return nextIndex % properties.length;
+      });
+    }, 5000);
+  }, [properties.length, stopAutoSlide, isMobile, slidesToShow, totalOriginal]);
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setIsDragging(false);
+  // Navigation functions - IMPROVED
+  const nextSlide = useCallback(() => {
+    if (isTransitioning || isDragging) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => {
+      const nextIndex = prev + 1;
+      if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+        // Seamless loop
+        setTimeout(() => {
+          setIsTransitioning(false);
+          setCurrentIndex(totalOriginal * 2);
+          setTimeout(() => setIsTransitioning(true), 50);
+        }, 400);
+      }
+      return nextIndex;
+    });
+  }, [isTransitioning, isDragging, properties.length, isMobile, slidesToShow, totalOriginal]);
+
+  const prevSlide = useCallback(() => {
+    if (isTransitioning || isDragging) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => {
+      const prevIndex = prev - 1;
+      if (!isMobile && prevIndex < totalOriginal) {
+        // Seamless loop
+        setTimeout(() => {
+          setIsTransitioning(false);
+          setCurrentIndex(totalOriginal * 2);
+          setTimeout(() => setIsTransitioning(true), 50);
+        }, 400);
+      }
+      return prevIndex < 0 ? properties.length - 1 : prevIndex;
+    });
+  }, [isTransitioning, isDragging, properties.length, isMobile, totalOriginal]);
+
+  // Drag event handlers - COMPLETELY REWRITTEN FOR SMOOTH SCROLLING
+  const handleDragStart = useCallback((e) => {
+    if (isTransitioning) return;
+    const clientX = e.type === "touchstart" ? e.targetTouches[0].clientX : e.clientX;
+    dragStartXRef.current = clientX;
+    clickStartTime.current = Date.now();
+    setDragOffset(0);
+    setIsDragging(false); // Don't set to true immediately
+    dragThresholdReached.current = false;
+    stopAutoSlide();
+    e.preventDefault();
+  }, [isTransitioning, stopAutoSlide]);
+
+  const handleDragMove = useCallback((e) => {
+    if (dragStartXRef.current === null) return;
+    
+    const clientX = e.type === "touchmove" ? e.targetTouches[0].clientX : e.clientX;
+    const deltaX = clientX - dragStartXRef.current;
+    
+    // Only consider it a drag if moved more than 5px
+    if (Math.abs(deltaX) > 5) {
+      setIsDragging(true);
+      // Apply drag offset directly without limits for smooth follow
+      setDragOffset(deltaX);
+      
+      // Check if threshold is reached
+      const threshold = 50;
+      if (Math.abs(deltaX) > threshold) {
+        dragThresholdReached.current = true;
+      }
+    }
+  }, []);
+
+const handleDragEnd = useCallback(() => {
+    if (!isDragging) {
+      // Quick click - reset states
+      dragStartXRef.current = null;
+      clickStartTime.current = null;
+      dragThresholdReached.current = false;
+      
+      // Resume auto-slide
+      setTimeout(() => {
+        if (isVisible) {
+          startAutoSlide();
+        }
+      }, 500);
       return;
     }
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && !isTransitioning) {
-      nextSlide();
-    }
-    if (isRightSwipe && !isTransitioning) {
-      prevSlide();
-    }
-
+    
     setIsDragging(false);
-    if (isVisible) {
-      autoSlideRef.current = setInterval(() => {
-        if (!isTransitioning) {
-          setIsTransitioning(true);
-          setCurrentIndex((prev) => (prev + 1) % properties.length);
-        }
-      }, 5000);
-    }
-  };
+    
+    // Calculate card width based on viewport
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    const cardWidth = carousel.offsetWidth / slidesToShow;
+    const draggedCards = Math.round(Math.abs(dragOffset) / cardWidth);
+    
+    // Threshold: move to next/prev card if dragged more than 30% of card width
+    const threshold = cardWidth * 0.3;
+    const shouldSlide = Math.abs(dragOffset) > threshold;
 
-  // Initialize active slides based on currentIndex
+    if (shouldSlide) {
+      // Calculate how many cards to move (at least 1)
+      const cardsToMove = draggedCards > 0 ? draggedCards : 1;
+      
+      setIsTransitioning(true);
+      
+      if (dragOffset < 0) {
+        // Dragged left - move forward
+        setCurrentIndex((prev) => {
+          const nextIndex = prev + cardsToMove;
+          if (!isMobile && nextIndex >= properties.length - slidesToShow) {
+            // Seamless loop
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setCurrentIndex(totalOriginal * 2);
+              setTimeout(() => setIsTransitioning(true), 50);
+            }, 400);
+          }
+          return nextIndex;
+        });
+      } else {
+        // Dragged right - move backward
+        setCurrentIndex((prev) => {
+          const prevIndex = prev - cardsToMove;
+          if (!isMobile && prevIndex < totalOriginal) {
+            // Seamless loop
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setCurrentIndex(totalOriginal * 2);
+              setTimeout(() => setIsTransitioning(true), 50);
+            }, 400);
+          }
+          return prevIndex < 0 ? properties.length - 1 : prevIndex;
+        });
+      }
+      
+      setDragOffset(0);
+      setTimeout(() => setIsTransitioning(false), 400);
+    } else {
+      // Snap back to current position
+      setIsTransitioning(true);
+      setDragOffset(0);
+      setTimeout(() => setIsTransitioning(false), 400);
+    }
+
+    dragStartXRef.current = null;
+    clickStartTime.current = null;
+    dragThresholdReached.current = false;
+    
+    // Resume auto-slide after delay
+    setTimeout(() => {
+      if (!isDragging && isVisible) {
+        startAutoSlide();
+      }
+    }, 3000);
+  }, [isDragging, dragOffset, startAutoSlide, isVisible, isMobile, properties.length, slidesToShow, totalOriginal]);
+
+  // Initialize active slides
   useEffect(() => {
     const initialSlides = [];
     for (let i = 0; i < slidesToShow; i++) {
@@ -250,11 +383,15 @@ const LatestProperties = () => {
 
   // Check mobile view
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setCurrentIndex(mobile ? 0 : totalOriginal * 2);
+    };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [totalOriginal]);
 
   // Intersection Observer for visibility
   useEffect(() => {
@@ -262,12 +399,11 @@ const LatestProperties = () => {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          startAutoSlide();
           observer.disconnect();
         }
       },
-      {
-        threshold: 0.1,
-      }
+      { threshold: 0.1 }
     );
 
     if (sectionRef.current) {
@@ -275,32 +411,31 @@ const LatestProperties = () => {
     }
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      try {
+        observer.disconnect();
+      } catch (e) {}
     };
-  }, []);
+  }, [startAutoSlide]);
 
-  // Initialize carousel position
+  // Start auto-slide on mount
   useEffect(() => {
-    setCurrentIndex(isMobile ? 0 : totalOriginal * 2);
-  }, [isMobile, totalOriginal]);
+    startAutoSlide();
+    return () => stopAutoSlide();
+  }, [startAutoSlide, stopAutoSlide]);
 
-  // Auto-slide functionality
+  // Auto-slide pause/resume
   useEffect(() => {
-    if (!isVisible || isDragging) return;
+    if (isDragging || isTransitioning) {
+      stopAutoSlide();
+    } else if (isVisible) {
+      const timeout = setTimeout(() => {
+        startAutoSlide();
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [isVisible, isDragging, isTransitioning, startAutoSlide, stopAutoSlide]);
 
-    autoSlideRef.current = setInterval(() => {
-      if (!isTransitioning) {
-        setIsTransitioning(true);
-        setCurrentIndex((prev) => (prev + 1) % properties.length);
-      }
-    }, 5000);
-
-    return () => clearInterval(autoSlideRef.current);
-  }, [isVisible, isTransitioning, properties.length, isDragging]);
-
-  // Handle transition end and update active slides
+  // Handle transition end
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return;
@@ -320,38 +455,21 @@ const LatestProperties = () => {
     };
   }, [currentIndex, slidesToShow, totalOriginal]);
 
-  // Navigation functions
-  const nextSlide = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev + 1) % properties.length);
-  }, [isTransitioning, properties.length]);
-
-  const prevSlide = useCallback(() => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev - 1 + properties.length) % properties.length);
-  }, [isTransitioning, properties.length]);
-
+  // Navigation to slide
   const goToSlide = useCallback(
     (index) => {
-      if (isTransitioning) return;
+      if (isTransitioning || isDragging) return;
       setIsTransitioning(true);
       setCurrentIndex(isMobile ? index : totalOriginal * 2 + index);
     },
-    [isTransitioning, isMobile, totalOriginal]
+    [isTransitioning, isDragging, isMobile, totalOriginal]
   );
 
   // Pause auto-slide on hover
-  const handleMouseEnter = () => clearInterval(autoSlideRef.current);
+  const handleMouseEnter = () => stopAutoSlide();
   const handleMouseLeave = () => {
-    if (isVisible && !isDragging) {
-      autoSlideRef.current = setInterval(() => {
-        if (!isTransitioning) {
-          setIsTransitioning(true);
-          setCurrentIndex((prev) => (prev + 1) % properties.length);
-        }
-      }, 5000);
+    if (!isDragging) {
+      startAutoSlide();
     }
   };
 
@@ -359,7 +477,10 @@ const LatestProperties = () => {
   const FilterPage = () => router.push("propertydetails");
 
   // Get current slide indicator
-  const getCurrentSlideIndicator = () => currentIndex % totalOriginal;
+  const getCurrentSlideIndicator = () => {
+    if (totalOriginal === 0) return 0;
+    return ((currentIndex % totalOriginal) + totalOriginal) % totalOriginal;
+  };
 
   // Calculate which cards should have staggered animation
   const getCardAnimationIndex = (index) => {
@@ -372,36 +493,35 @@ const LatestProperties = () => {
   // PropertyCard component
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
     const handleCardClick = () => {
-  const queryParams = new URLSearchParams({
-    id: property.id,
-    title: property.title,
-    location: property.location,
-    image: property.image,
-    price: property.price,
-    period: property.period || '',
-    beds: property.beds || 0,
-    baths: property.baths || 0,
-    reception: property.reception || 0,
-    sqft: property.sqft || 0,
-    badges: JSON.stringify(property.badges || []),
-    energyRating: property.energyRating || '',
-    fingerprint: property.fingerprint || '',
-    status: property.status || '',
-    latitude: property.latitude || '',
-    longitude: property.longitude || '',
-    floor_plans: JSON.stringify(property.floor_plans || []),
-gallery_images: JSON.stringify(property.gallery_images || []),
-    epc_certificate: property.energyRating || '',
-    property_video: property.video || '',
-  });
+      // Check if this was a quick click (not a drag)
+      const clickDuration = Date.now() - (clickStartTime.current || 0);
+      const wasQuickClick = clickDuration < 200; // Less than 200ms
+      const movedVeryLittle = Math.abs(dragOffset) < 10; // Moved less than 10px
+      
+      // Allow navigation if it was a quick click with minimal movement
+      if (!dragThresholdReached.current && (wasQuickClick || movedVeryLittle)) {
+        const queryParams = new URLSearchParams({
+          id: property.id,
+          title: property.title,
+          location: property.location,
+          image: property.image,
+          price: property.price,
+          period: property.period || "",
+          beds: property.beds || 0,
+          baths: property.baths || 0,
+          reception: property.reception || 0,
+          sqft: property.sqft || 0,
+          badges: JSON.stringify(property.badges || []),
+          energyRating: property.energyRating || "",
+          fingerprint: property.fingerprint || "",
+          status: property.status || "",
+        });
+        router.push(`/property?${queryParams.toString()}`);
+      }
+    };
 
-  router.push(`/property?${queryParams.toString()}`);
-};
-
-
-      console.log('4545',property);
     const animationIndex = getCardAnimationIndex(index);
-    
+
     return (
       <div
         className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 mx-2 cursor-pointer will-change-transform flex flex-col"
@@ -411,15 +531,17 @@ gallery_images: JSON.stringify(property.gallery_images || []),
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? "scale(1) translateY(0)" : "scale(0.8) translateY(30px)",
           transition: "opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          transitionDelay: `${400 + (animationIndex * 200)}ms`,
+          transitionDelay: `${400 + animationIndex * 200}ms`,
+          pointerEvents: isDragging ? "none" : "auto",
         }}
       >
         <div className="relative">
           <img
             src={property.image}
             alt={property.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-48 object-cover pointer-events-none select-none"
             loading="lazy"
+            draggable="false"
             onError={(e) => {
               e.target.src = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop";
             }}
@@ -429,12 +551,14 @@ gallery_images: JSON.stringify(property.gallery_images || []),
               <span
                 key={`${property.id}-${badgeIndex}`}
                 className={`px-2 py-1 rounded-md text-xs font-medium flex items-center ${
-                  badge === "Featured"
+                  badge === "Latest"
                     ? "bg-orange-500 text-white"
                     : badge === "Commercial"
                     ? "bg-purple-500 text-white"
                     : badge === "For Sale"
-                    ? "bg-red-500 text-white"
+                    ? "bg-blue-500 text-white":
+                    badge === "Short Let"
+                    ? "bg-orange-500 text-white"
                     : "bg-blue-500 text-white"
                 }`}
               >
@@ -445,9 +569,13 @@ gallery_images: JSON.stringify(property.gallery_images || []),
           </div>
           {property.status && (
             <div className="absolute top-3 right-3">
-              <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center">
-                📋 {property.status}
-              </span>
+              <span className={`${
+  property.status === "Available"
+    ? "bg-green-500"
+    : "bg-red-500"
+} text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1`}>
+  <Building className="w-3 h-3" /> {property.status}
+</span>
             </div>
           )}
           <div className="absolute bottom-3 right-3 flex gap-2">
@@ -518,8 +646,6 @@ gallery_images: JSON.stringify(property.gallery_images || []),
         className="w-full px-4 lg:px-12 py-12 border-y border-transparent dark:border-y-white relative"
         style={{ backgroundColor: "var(--background)" }}
       >
-      
-
         {/* Error Message */}
         {error && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
@@ -571,7 +697,7 @@ gallery_images: JSON.stringify(property.gallery_images || []),
                 />
               </span>
             </h1>
-            <p className="text-base lg:text-lg max-w-2xl mt-6" >
+            <p className="text-base lg:text-lg max-w-2xl mt-6">
               Discover our newest property listings, freshly added to the market with the most up-to-date features and pricing.
             </p>
           </div>
@@ -586,23 +712,22 @@ gallery_images: JSON.stringify(property.gallery_images || []),
         </div>
 
         {/* Carousel */}
-          {/* Apple Spinner Component */}
         {loading && (
           <div className="flex justify-center items-center py-16">
-    <div className="relative w-12 h-12">
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-1 h-3 bg-gray-600 rounded-full"
-          style={{
-            transform: `rotate(${i * 30}deg) translateY(-14px)`,
-            animation: `fade 1s linear infinite`,
-            animationDelay: `${-1.2 + i * 0.1}s`,
-          }}
-        />
-      ))}
-                </div>
-              </div>
+            <div className="relative w-12 h-12">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-3 bg-gray-600 rounded-full"
+                  style={{
+                    transform: `rotate(${i * 30}deg) translateY(-14px)`,
+                    animation: `fade-spinner 1s linear infinite`,
+                    animationDelay: `${-1.2 + i * 0.1}s`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         )}
 
         <style jsx>{`
@@ -612,6 +737,7 @@ gallery_images: JSON.stringify(property.gallery_images || []),
             100% { opacity: 1; }
           }
         `}</style>
+
         <div
           className="relative"
           style={{
@@ -625,7 +751,7 @@ gallery_images: JSON.stringify(property.gallery_images || []),
         >
           <button
             onClick={prevSlide}
-            disabled={isTransitioning}
+            disabled={isTransitioning || isDragging}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
@@ -633,25 +759,35 @@ gallery_images: JSON.stringify(property.gallery_images || []),
           </button>
           <button
             onClick={nextSlide}
-            disabled={isTransitioning}
+            disabled={isTransitioning || isDragging}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 lg:p-3 hover:bg-gray-50 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ willChange: "transform" }}
           >
             <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
           </button>
-          <div 
-            className="overflow-hidden rounded-xl"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{ touchAction: 'pan-y pinch-zoom' }}
+          <div
+            className="overflow-hidden rounded-xl cursor-grab active:cursor-grabbing"
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            style={{ 
+              touchAction: "pan-y pinch-zoom", 
+              userSelect: "none",
+              WebkitUserSelect: "none",
+              MozUserSelect: "none",
+              msUserSelect: "none"
+            }}
           >
             <div
               ref={carouselRef}
               className="flex"
               style={{
-                transform: `translate3d(-${(currentIndex * 100) / slidesToShow}%, 0, 0)`,
-                transition: isTransitioning ? "transform 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94)" : "none",
+                transform: `translate3d(calc(-${(currentIndex * 100) / slidesToShow}% + ${dragOffset}px), 0, 0)`,
+                transition: isDragging || !isTransitioning ? "none" : "transform 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                 willChange: "transform",
               }}
             >
@@ -680,7 +816,7 @@ gallery_images: JSON.stringify(property.gallery_images || []),
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                disabled={isTransitioning}
+                disabled={isTransitioning || isDragging}
                 className={`h-2 rounded-full transition-all duration-300 disabled:cursor-not-allowed ${
                   index === getCurrentSlideIndicator() ? "bg-cyan-500 w-8" : "bg-gray-300 hover:bg-gray-400 w-2"
                 }`}

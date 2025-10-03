@@ -212,10 +212,10 @@ const [contactData, setContactData] = useState({
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section */}
         <div
-          className="relative h-90 flex items-center justify-center bg-cover bg-center"
+          className="relative h-95 flex items-center justify-center bg-cover bg-center"
           style={{ backgroundImage: 'url("/image.png")' }}
         >
-          <div className="absolute inset-0 bg-slate-700/80" />
+          <div className="absolute inset-0 bg-slate-800/70" />
           <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
               Get in Touch
@@ -228,7 +228,7 @@ const [contactData, setContactData] = useState({
         </div>
 
         {/* Contact Section */}
-        <div className="py-16 px-4 sm:px-6 lg:px-8 -mt-30">
+        <div className="py-16 px-4 sm:px-6 lg:px-8 -mt-25">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 justify-items-center">
               {/* Left Side - Contact Cards */}

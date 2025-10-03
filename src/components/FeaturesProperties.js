@@ -1,6 +1,7 @@
+
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Users, Square, Star,Building } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const FeaturedProperties = () => {
@@ -22,6 +23,7 @@ const FeaturedProperties = () => {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragThresholdReached = useRef(false);
+  const clickStartTime = useRef(null);
 
   // Static properties as fallback
   const originalProperties = [
@@ -102,7 +104,7 @@ const FeaturedProperties = () => {
   const slidesToShow = isMobile ? 1 : 3;
 
   // Fetch properties from API
-  useEffect(() => {
+   useEffect(() => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
@@ -114,44 +116,77 @@ const FeaturedProperties = () => {
         });
 
         const result = await response.json();
+        console.log("API Response:", result);
+
         if (result.STATUS_CODE === "LS000" && result.STATUS === "SUCCESS") {
+          console.log("API DATA:", result.DATA);
+          
           if (result.DATA && Array.isArray(result.DATA) && result.DATA.length > 0) {
-            const mappedProperties = result.DATA.map((property, index) => ({
-              id: property.id || index + 1,
-              title: property.title || "Untitled Property",
-              location: property.city && property.state
-                ? `${property.city}, ${property.state}`
-                : property.city || property.state || "Location not specified",
-              image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-              price: property.price ? `£${property.price}` : "Price on request",
-              period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
-              beds: parseInt(property.bedrooms) || 0,
-              baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
-              reception: parseInt(property.reception_rooms) || 0,
-              sqft: parseInt(property.square_footage) || 0,
-              badges: [
-                property.category,
-                property.property_flag === "featured" ? "Featured" : "",
-                property.property_status === "for_sale" ? "For Sale" : "",
-                property.property_status === "for_rent" ? "For Rent" : "",
-              ].filter(Boolean),
-              energyRating: property.epc_certificate ? "EPC" : "",
-              fingerprint: property.fingerprint || "",
-              status: property.property_status === "available"
-                ? "Available"
-                : property.property_status === "under_offer"
-                ? "Under Offer"
-                : property.property_status || "",
-            }));
-            setPropertiesData(mappedProperties);
-            setError(null);
-          } else {
+  const mappedProperties = result.DATA.map((property, index) => ({
+  id: property.id || index + 1,
+  property_id: property.property_id || "",
+  title: property.title || "Untitled Property",
+  description: property.description || "",
+  location: property.city && property.state
+    ? `${property.city}, ${property.state}`
+    : property.city || property.state || "Location not specified",
+  address: property.address || "",
+  postcode: property.postcode || "",
+  latitude: property.latitude || null,
+  longitude: property.longitude || null,
+  image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+  gallery_images: Array.isArray(property.gallery_images)
+    ? property.gallery_images.map(img => img.gallery_image || "")
+    : [],
+  property_video: property.property_video || null,
+  price: property.price ? `£${property.price}` : "Price on request",
+  period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
+  beds: parseInt(property.bedrooms) || 0,
+  baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
+  reception: parseInt(property.reception_rooms) || 0,
+  sqft: parseInt(property.square_footage) || 0,
+  area_size: parseInt(property.area_size) || 0,
+  badges: [
+    property.category,
+    property.property_flag === "featured" ? "Featured" : "",
+    property.property_status === "for_sale" ? "For Sale" : "",
+    property.property_status === "for_rent" ? "For Rent" : ""
+  ].filter(Boolean),
+  epc_certificate: property.epc_certificate || "",
+  floor_plans: Array.isArray(property.floor_plans)
+    ? property.floor_plans.map(plan => ({
+        floor_name: plan.floor_name || "",
+        square_footage: parseInt(plan.square_footage) || 0,
+        floor_plan_image: plan.floor_plan_image || ""
+      }))
+    : [],
+  floor_plan_image: property.floor_plan_image || "",
+  fingerprint: property.fingerprint || "",
+  status_color: property.status_color || "",
+  status: property.property_status === "available"
+    ? "Available"
+    : property.property_status === "under_offer"
+    ? "Under Offer"
+    : property.property_status || "",
+  added_by: property.added_by || "",
+  add_date: property.add_date || ""
+}));
+
+
+  console.log("Mapped properties:", mappedProperties);
+  setPropertiesData(mappedProperties);
+  setError(null);
+}
+ else {
+            console.warn("No valid properties data received");
             setError("No properties available from API, showing default properties");
           }
         } else {
-          setError(`API Error: ${result.MESSAGE || "Unknown error"}, showing default properties`);
+          console.error("API returned error:", result);
+          setError(`API Error: ${result.MESSAGE || 'Unknown error'}, showing default properties`);
         }
       } catch (err) {
+        console.error("Fetch error:", err);
         setError(`Network Error: ${err.message}, showing default properties`);
       } finally {
         setLoading(false);
@@ -224,31 +259,50 @@ const FeaturedProperties = () => {
     if (isTransitioning) return;
     const clientX = e.type === "touchstart" ? e.targetTouches[0].clientX : e.clientX;
     dragStartXRef.current = clientX;
+    clickStartTime.current = Date.now();
     setDragOffset(0);
-    setIsDragging(true);
+    setIsDragging(false); // Don't set to true immediately
     dragThresholdReached.current = false;
     stopAutoSlide();
     e.preventDefault();
   }, [isTransitioning, stopAutoSlide]);
 
   const handleDragMove = useCallback((e) => {
-    if (!isDragging || dragStartXRef.current === null) return;
+    if (dragStartXRef.current === null) return;
     
     const clientX = e.type === "touchmove" ? e.targetTouches[0].clientX : e.clientX;
     const deltaX = clientX - dragStartXRef.current;
     
-    // Apply drag offset directly without limits for smooth follow
-    setDragOffset(deltaX);
-    
-    // Check if threshold is reached
-    const threshold = 50;
-    if (Math.abs(deltaX) > threshold) {
-      dragThresholdReached.current = true;
+    // Only consider it a drag if moved more than 5px
+    if (Math.abs(deltaX) > 5) {
+      setIsDragging(true);
+      // Apply drag offset directly without limits for smooth follow
+      setDragOffset(deltaX);
+      
+      // Check if threshold is reached
+      const threshold = 50;
+      if (Math.abs(deltaX) > threshold) {
+        dragThresholdReached.current = true;
+      }
     }
-  }, [isDragging]);
+  }, []);
 
 const handleDragEnd = useCallback(() => {
-    if (!isDragging) return;
+    if (!isDragging) {
+      // Quick click - reset states
+      dragStartXRef.current = null;
+      clickStartTime.current = null;
+      dragThresholdReached.current = false;
+      
+      // Resume auto-slide
+      setTimeout(() => {
+        if (isVisible) {
+          startAutoSlide();
+        }
+      }, 500);
+      return;
+    }
+    
     setIsDragging(false);
     
     // Calculate card width based on viewport
@@ -308,6 +362,7 @@ const handleDragEnd = useCallback(() => {
     }
 
     dragStartXRef.current = null;
+    clickStartTime.current = null;
     dragThresholdReached.current = false;
     
     // Resume auto-slide after delay
@@ -439,26 +494,31 @@ const handleDragEnd = useCallback(() => {
   // PropertyCard component
   const PropertyCard = React.memo(function PropertyCard({ property, index }) {
     const handleCardClick = () => {
-      // Prevent navigation if user was dragging
-      if (dragThresholdReached.current) return;
+      // Check if this was a quick click (not a drag)
+      const clickDuration = Date.now() - (clickStartTime.current || 0);
+      const wasQuickClick = clickDuration < 200; // Less than 200ms
+      const movedVeryLittle = Math.abs(dragOffset) < 10; // Moved less than 10px
       
-      const queryParams = new URLSearchParams({
-        id: property.id,
-        title: property.title,
-        location: property.location,
-        image: property.image,
-        price: property.price,
-        period: property.period || "",
-        beds: property.beds || 0,
-        baths: property.baths || 0,
-        reception: property.reception || 0,
-        sqft: property.sqft || 0,
-        badges: JSON.stringify(property.badges || []),
-        energyRating: property.energyRating || "",
-        fingerprint: property.fingerprint || "",
-        status: property.status || "",
-      });
-      router.push(`/property?${queryParams.toString()}`);
+      // Allow navigation if it was a quick click with minimal movement
+      if (!dragThresholdReached.current && (wasQuickClick || movedVeryLittle)) {
+        const queryParams = new URLSearchParams({
+          id: property.id,
+          title: property.title,
+          location: property.location,
+          image: property.image,
+          price: property.price,
+          period: property.period || "",
+          beds: property.beds || 0,
+          baths: property.baths || 0,
+          reception: property.reception || 0,
+          sqft: property.sqft || 0,
+          badges: JSON.stringify(property.badges || []),
+          energyRating: property.energyRating || "",
+          fingerprint: property.fingerprint || "",
+          status: property.status || "",
+        });
+        router.push(`/property?${queryParams.toString()}`);
+      }
     };
 
     const animationIndex = getCardAnimationIndex(index);
@@ -497,7 +557,9 @@ const handleDragEnd = useCallback(() => {
                     : badge === "Commercial"
                     ? "bg-purple-500 text-white"
                     : badge === "For Sale"
-                    ? "bg-red-500 text-white"
+                    ? "bg-blue-500 text-white":
+                    badge === "Short Let"
+                    ? "bg-orange-500 text-white"
                     : "bg-blue-500 text-white"
                 }`}
               >
@@ -508,9 +570,13 @@ const handleDragEnd = useCallback(() => {
           </div>
           {property.status && (
             <div className="absolute top-3 right-3">
-              <span className="bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center">
-                📋 {property.status}
-              </span>
+              <span className={`${
+  property.status === "Available"
+    ? "bg-green-500"
+    : "bg-red-500"
+} text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1`}>
+  <Building className="w-3 h-3" /> {property.status}
+</span>
             </div>
           )}
           <div className="absolute bottom-3 right-3 flex gap-2">
@@ -641,7 +707,7 @@ const handleDragEnd = useCallback(() => {
             className="mt-6 lg:mt-0 hover:text-cyan-500 font-semibold flex items-center transition-colors duration-200 text-sm lg:text-base"
             style={{ color: "var(--foreground)" }}
           >
-            View all featured
+            View all Featured
             <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5 ml-1" />
           </button>
         </div>
