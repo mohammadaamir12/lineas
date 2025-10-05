@@ -148,8 +148,10 @@ const LatestProperties = () => {
   badges: [
     property.category,
     property.property_flag === "latest" ? "Latest" : "",
-    property.property_status === "for_sale" ? "For Sale" : "",
-    property.property_status === "for_rent" ? "For Rent" : ""
+    property.type === "for_sale" ? "For Sale" : "",
+    property.type === "for_rent" ? "For Rent" : "",
+    property.type === "commercial" ? "Commercial" : "",
+    property.type === "short-let" ? "Short Let" : ""
   ].filter(Boolean),
   epc_certificate: property.epc_certificate || "",
   floor_plans: Array.isArray(property.floor_plans)
@@ -500,23 +502,10 @@ const handleDragEnd = useCallback(() => {
       
       // Allow navigation if it was a quick click with minimal movement
       if (!dragThresholdReached.current && (wasQuickClick || movedVeryLittle)) {
-        const queryParams = new URLSearchParams({
-          id: property.id,
-          title: property.title,
-          location: property.location,
-          image: property.image,
-          price: property.price,
-          period: property.period || "",
-          beds: property.beds || 0,
-          baths: property.baths || 0,
-          reception: property.reception || 0,
-          sqft: property.sqft || 0,
-          badges: JSON.stringify(property.badges || []),
-          energyRating: property.energyRating || "",
-          fingerprint: property.fingerprint || "",
-          status: property.status || "",
-        });
-        router.push(`/property?${queryParams.toString()}`);
+         const propertyString = encodeURIComponent(JSON.stringify(property));
+
+  // navigate to property page
+  router.push(`/property?data=${propertyString}`);
       }
     };
 

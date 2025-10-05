@@ -82,30 +82,54 @@ const AllProperties = () => {
               
               return {
                 id: property.id || index + 1,
-                title: property.title || "Untitled Property",
-                location: property.city && property.state 
-                  ? `${property.city}, ${property.state}` 
-                  : property.city || property.state || "Location not specified",
-                image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-                price: property.price ? `£${property.price}` : "Price on request",
-                period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
-                beds: parseInt(property.bedrooms) || 0,
-                baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
-                reception: parseInt(property.reception_rooms) || 0,
-                sqft: parseInt(property.square_footage) || 0,
-                badges: [
-                  property.category,
-                  property.property_flag === "featured" ? "Featured" : "",
-                  property.property_status === "for_sale" ? "For Sale" : "",
-                  property.property_status === "for_rent" ? "For Rent" : ""
-                ].filter(Boolean),
-                energyRating: property.epc_certificate ? "EPC" : "",
-                fingerprint: property.fingerprint || "",
-                status: property.property_status === "available" 
-                  ? "Available" 
-                  : property.property_status === "under_offer" 
-                  ? "Under Offer"
-                  : property.property_status || ""
+  property_id: property.property_id || "",
+  title: property.title || "Untitled Property",
+  description: property.description || "",
+  location: property.city && property.state
+    ? `${property.city}, ${property.state}`
+    : property.city || property.state || "Location not specified",
+  address: property.address || "",
+  postcode: property.postcode || "",
+  latitude: property.latitude || null,
+  longitude: property.longitude || null,
+  image: property.property_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+  gallery_images: Array.isArray(property.gallery_images)
+    ? property.gallery_images.map(img => img.gallery_image || "")
+    : [],
+  property_video: property.property_video || null,
+  price: property.price ? `£${property.price}` : "Price on request",
+  period: property.price_interval ? `/${property.price_interval.toLowerCase()}` : "",
+  beds: parseInt(property.bedrooms) || 0,
+  baths: parseInt(property.bathrooms) || parseInt(property.baths) || 0,
+  reception: parseInt(property.reception_rooms) || 0,
+  sqft: parseInt(property.square_footage) || 0,
+  area_size: parseInt(property.area_size) || 0,
+  badges: [
+    property.category,
+    property.property_flag === "latest" ? "Latest" : "",
+    property.type === "for_sale" ? "For Sale" : property.type === "For Sale"?"For Sale": "",
+    property.type === "for_rent" ? "For Rent" : property.type === "For Rent"?"For Rent":"",
+    property.type === "commercial" ? "Commercial" : "",
+    property.type === "short-let" ? "Short Let" : ""
+  ].filter(Boolean),
+  epc_certificate: property.epc_certificate || "",
+  floor_plans: Array.isArray(property.floor_plans)
+    ? property.floor_plans.map(plan => ({
+        floor_name: plan.floor_name || "",
+        square_footage: parseInt(plan.square_footage) || 0,
+        floor_plan_image: plan.floor_plan_image || ""
+      }))
+    : [],
+  floor_plan_image: property.floor_plan_image || "",
+  fingerprint: property.fingerprint || "",
+  status_color: property.status_color || "",
+  status: property.property_status === "available"
+    ? "Available"
+    : property.property_status === "under_offer"
+    ? "Under Offer"
+    : property.property_status || "",
+  added_by: property.added_by || "",
+  add_date: property.add_date || ""
               };
             });
             
@@ -165,24 +189,10 @@ const AllProperties = () => {
 
   const PropertyCard = ({ property }) => {
     const handleCardClick = () => {
-      const queryParams = new URLSearchParams({
-        id: property.id,
-        title: property.title,
-        location: property.location,
-        image: property.image,
-        price: property.price,
-        period: property.period || '',
-        beds: property.beds || 0,
-        baths: property.baths || 0,
-        reception: property.reception || 0,
-        sqft: property.sqft || 0,
-        badges: JSON.stringify(property.badges || []),
-        energyRating: property.energyRating || '',
-        fingerprint: property.fingerprint || '',
-        status: property.status || ''
-      });
-      
-      router.push(`/property?${queryParams.toString()}`);
+       const propertyString = encodeURIComponent(JSON.stringify(property));
+
+  // navigate to property page
+  router.push(`/property?data=${propertyString}`);
     };
 
     return (
