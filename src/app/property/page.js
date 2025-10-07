@@ -682,9 +682,9 @@ const [pageUrl, setPageUrl] = useState('');
           </div>
 
           {/* Right Side: Enhanced Contact Form */}
-       <div className="h-fit top-22 w-full max-w-5xl mx-auto print:hidden">
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+       <div className="h-fit top-2 sticky w-full max-w-5xl mx-auto print:hidden">
+  <div className="bg-white rounded-md shadow-sm border border-gray-200 p-5">
+    <h1 className="text-2xl font-bold text-gray-900 mb-2 mt-1">
       Arrange a Viewing
     </h1>
     
@@ -709,7 +709,7 @@ const [pageUrl, setPageUrl] = useState('');
             value={formData.firstName}
             onChange={handleChange}
             required
-            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            className="w-full px-4 py-4 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
             placeholder="First Name*"
           />
         </div>
@@ -722,7 +722,7 @@ const [pageUrl, setPageUrl] = useState('');
             value={formData.lastName}
             onChange={handleChange}
             required
-            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            className="w-full px-4 py-4 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
             placeholder="Last Name*"
           />
         </div>
@@ -737,7 +737,7 @@ const [pageUrl, setPageUrl] = useState('');
           value={formData.email}
           onChange={handleChange}
           required
-            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            className="w-full px-4 py-4 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
           placeholder="Your Email*"
         />
       </div>
@@ -751,7 +751,7 @@ const [pageUrl, setPageUrl] = useState('');
           value={formData.phone}
           onChange={handleChange}
           required
-            className="w-full px-3 py-3 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
+            className="w-full px-4 py-4 bg-[#F3F4F6] rounded-md focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent text-gray-900"
           placeholder="Your Phone Number*"
         />
       </div>
@@ -772,7 +772,7 @@ const [pageUrl, setPageUrl] = useState('');
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-6 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-medium py-4 px-6 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{transform: 'rotate(50deg)'}}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

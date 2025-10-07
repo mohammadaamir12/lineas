@@ -9,7 +9,7 @@ const PropertyListingPage = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [filters, setFilters] = useState({
-    category: 'Sale',
+    category: 'Home',
     priceInterval: 'Any Interval',
     city: 'All Cities',
     propertyType: 'All Properties',

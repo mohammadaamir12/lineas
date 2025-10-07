@@ -165,21 +165,24 @@ export default function PropertyValuationForm() {
   return (
     <>
     <Header/>
-    <div
-  className="relative h-90 flex items-center justify-center bg-cover bg-center"
-  style={{ backgroundImage: 'url("/image.png")' }}
->
-  <div className="absolute inset-0 bg-slate-700/80" />
-  <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
-  <h1 className="text-3xl sm:text-3xl md:text-5xl font-bold text-white mb-4 leading-snug break-words sm:whitespace-nowrap">
-    Get Your Free Property Valuation
-  </h1>
-</div>
-</div>
+   
+ {/* Hero Section */}
+        <div
+          className="relative h-95 flex items-center justify-center bg-cover bg-center"
+          style={{ backgroundImage: 'url("/image.png")' }}
+        >
+          <div className="absolute inset-0 bg-slate-800/70" />
+          <div className="relative z-10 max-w-2xl mx-auto text-center px-4">
+            <h1 className="text-3xl sm:text-3xl md:text-5xl font-bold text-white mb-4 leading-snug break-words sm:whitespace-nowrap">
+               Get Your Free Property Valuation
+            </h1>
+            
+          </div>
+        </div>
 
     <div className="relative min-h-screen ">
     {/* Background Image */}
-    <div className="absolute inset-0 bg-[url('/pattern-05.png')] bg-center"></div>
+    <div className="absolute inset-0 bg-[url('/pattern-05.png')] bg-contain"></div>
 
     {/* Grey Overlay */}
     <div className="absolute inset-0 bg-white/10"></div>
@@ -197,7 +200,7 @@ export default function PropertyValuationForm() {
           <div className="flex flex-col lg:flex-row lg:justify-center lg:items-start lg:gap-8">
             
             {/* Step 1 - Property Details */}
-            <div className="w-full lg:max-w-md mb-6 lg:mb-0 -mt-30">
+            <div className="w-full lg:max-w-md mb-6 lg:mb-0 -mt-15">
               <div className="bg-white rounded-lg shadow-md border-gray-200 border p-4 sm:p-6 flex flex-col">
                 {/* Content wrapper with flex-grow to push button to bottom */}
                 <div className="flex-grow">
@@ -341,7 +344,7 @@ export default function PropertyValuationForm() {
             {/* Step 2 - Personal Details */}
             <div
               ref={secondFormRef}
-              className={`-mt-30 w-full lg:max-w-md transition-all duration-500 ease-in-out ${
+              className={`-mt-15 w-full lg:max-w-md transition-all duration-500 ease-in-out ${
                 currentStep === 2 ? 'opacity-100 scale-100 block' : 'hidden lg:hidden'
               }`}
             >
