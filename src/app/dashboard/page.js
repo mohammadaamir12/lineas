@@ -46,9 +46,9 @@ export default function DashboardPage() {
   {/* Heading Section */}
   <div>
     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Welcome back, Shanti!</h1>
-    <h2 className="text-base sm:text-lg font-normal text-gray-600">
-      Here's what's happening with your account
-    </h2>
+<h2 className="text-base sm:text-lg font-normal text-gray-600">
+  {"Here's what's happening with your account"}
+</h2>
   </div>
   {/* Refresh Button */}
   <button
