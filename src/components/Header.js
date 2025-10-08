@@ -454,12 +454,13 @@ export default function Header({ rent }) {
             color: "var(--foreground)"
           }}
         >
-          <button 
-            className="w-full px-3 lg:px-4 py-2 text-xs lg:text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
-          >
-            <Home size={14} className="lg:w-4 lg:h-4" />
-            Dashboard
-          </button>
+          <button
+      onClick={() => router.push('/dashboard')}
+      className="w-full px-3 lg:px-4 py-2 text-xs lg:text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
+    >
+      <Home size={14} className="lg:w-4 lg:h-4" />
+      Dashboard
+    </button>
           
           <button 
             className="w-full px-3 lg:px-4 py-2 text-xs lg:text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
@@ -469,6 +470,7 @@ export default function Header({ rent }) {
           </button>
           
           <button 
+          
             className="w-full px-3 lg:px-4 py-2 text-xs lg:text-sm text-left flex items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-slate-800 hover:text-white transition-colors duration-200"
           >
             <User size={14} className="lg:w-4 lg:h-4" />
